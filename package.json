@@ -42,5 +42,14 @@
     "babel-preset-react": "^6.3.13",
     "babel-preset-stage-1": "^6.3.13",
     "babel-plugin-add-module-exports": "^0.1.2"
-  }
+  },
+  "npmName": "redux-react-firebase",
+  "npmFileMap": [
+    {
+      "basePath": "/build/",
+      "files": [
+        "*.js"
+      ]
+    }
+  ]
 }
