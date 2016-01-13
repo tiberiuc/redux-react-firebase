@@ -84,3 +84,6 @@ See [API](API.md)
 
 ## Example
 You can see a complete example [here](example)
+
+## In the future
+- Firebase queries ( order, limit )
