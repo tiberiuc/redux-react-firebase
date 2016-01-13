@@ -150,8 +150,14 @@ Check if all the objects passed to function are loaded ( not `undefined` )
 - `null` mean we have feedback from firebase but there is no data
 - `undefined` mean still waiting from Firebase
 
+#### Return
+`true` or `false`
+
 ### `isEmpty(object)`
 Check if an object is empty (`null` if value was requested or empty object `{}` if array was requested)
+
+#### Return
+`true` or `false`
 
 ### `toJS(immutableData)`
 Short for `immutableData.toJS()` but take care if `immutableData` is `null` or `undefined`
