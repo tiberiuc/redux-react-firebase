@@ -59,4 +59,4 @@ Short for `immutableData.getIn(path.split(/\//)).toJS()` but take care if `immut
 
 
 ### `dataToJS(path, immutableData)`
-Short for `pathToJS(\`${data}/path\`, immutableData)`
+Short for ``pathToJS(`${data}/path`, immutableData)``
