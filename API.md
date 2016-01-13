@@ -55,7 +55,7 @@ listen for multiple paths `ref.on('value', 'todos')` and `ref.on('value', 'users
 listen for a firebase array `ref.on('child_added', 'todos')`, `ref.on('child_removed', 'todos')`, `ref.on('child_changed', 'todos')`
 ```javascript
 @firebase([
-  ['todos'],
+  ['todos']
 ])
 ```
 
@@ -73,7 +73,7 @@ nesting with connect from redux
 )
 ```
 
-nesting with connect from redux and doa firebase query that depend on data from redux store
+nesting with connect from redux and do a firebase query that depend on data from redux store
 ```javascript
 @connect(
   state => ({
