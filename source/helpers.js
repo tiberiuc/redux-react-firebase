@@ -50,5 +50,5 @@ export const isLoaded = function () {
     return true
   }
 
-  return _.reduce(arguments,  (a, b) => !(a === undefined || b === undefined) )
+  return _(arguments).map( a => (a===undefined) ? false : true ).reduce( (a, b) => a && b )
 }

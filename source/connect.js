@@ -25,6 +25,7 @@ const createEvents = ({type, path}) => {
 
     case 'all':
       return [
+        {name:'first_child', path},
         {name:'child_added', path},
         {name:'child_removed', path},
         {name:'child_moved', path},
@@ -68,6 +69,7 @@ export default (dataOrFn = []) => WrappedComponent => {
     constructor(props, context){
       super(props, context)
       this._firebaseEvents = []
+      this.firebase = null
     }
 
     static contextTypes = {
@@ -79,6 +81,11 @@ export default (dataOrFn = []) => WrappedComponent => {
 
       const linkFn = ensureCallable(dataOrFn)
       const data = linkFn(this.props, firebase)
+
+      const {ref, helpers} = firebase
+      this.firebase = {ref, ...helpers}
+
+      console.log(firebase)
 
       this._firebaseEvents = getEventsFromDefinition(data)
       watchEvents(firebase, dispatch, this._firebaseEvents)
@@ -95,7 +102,7 @@ export default (dataOrFn = []) => WrappedComponent => {
         <WrappedComponent
           {...this.props}
           {...this.state}
-          firebase={this.context.store.firebase}
+          firebase={this.firebase}
         />
       )
     }

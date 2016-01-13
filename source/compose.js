@@ -24,12 +24,18 @@ export default (url, config) => {
 
     store.firebase = {
       ref,
-      set, push, remove,
-      createUser,
-      login, logout,
       config,
-      watchers: {}
+      helpers: {
+        set, push, remove,
+        createUser,
+        login, logout,
+      },
+      _: {
+        watchers: {}
+      },
     }
+
+    console.log(store)
 
 
     return store

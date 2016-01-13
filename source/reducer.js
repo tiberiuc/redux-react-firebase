@@ -4,7 +4,8 @@ import {
   SET_PROFILE,
   LOGIN,
   LOGOUT,
-  LOGIN_ERROR
+  LOGIN_ERROR,
+  NO_VALUE
 } from './constants'
 
 const initialState = fromJS({
@@ -14,16 +15,25 @@ const initialState = fromJS({
   data: {}
 })
 
+const pathToArr = path => path.split(/\//).filter( p => !!p )
+
 export default (state = initialState, action) => {
+
+  const {path} = action
+  let pathArr
 
   switch(action.type) {
 
     case SET:
-      const {path, data} = action
-      const pathArr = path.split(/\//).filter( p => !!p )
+      const {data} = action
+      pathArr = pathToArr(path)
       return (data !== undefined) ?
         state.setIn(['data', ...pathArr], fromJS(data))
       : state.deleteIn(['data', ...pathArr])
+
+    case NO_VALUE:
+      pathArr = pathToArr(path)
+      return state.setIn(['data', ...pathArr], fromJS({}))
 
     case SET_PROFILE:
       const {profile} = action

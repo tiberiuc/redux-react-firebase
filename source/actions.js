@@ -4,7 +4,8 @@ import {
   SET_PROFILE,
   LOGIN,
   LOGOUT,
-  LOGIN_ERROR
+  LOGIN_ERROR,
+  NO_VALUE
 } from './constants'
 
 
@@ -13,23 +14,23 @@ const getWatchPath = (event, path) =>  event + ':' + ((path.substring(0,1) == '/
 const setWatcher = (firebase, event, path) => {
   const id = getWatchPath(event, path)
 
-  if(firebase.watchers[id]) {
-    firebase.watchers[id]++
+  if(firebase._.watchers[id]) {
+    firebase._.watchers[id]++
   } else {
-    firebase.watchers[id] = 1
+    firebase._.watchers[id] = 1
   }
 
-  return firebase.watchers[id]
+  return firebase._.watchers[id]
 }
 
 const unsetWatcher = (firebase, event, path) => {
   const id = getWatchPath(event, path)
 
-  if(firebase.watchers[id] <= 1) {
-    delete firebase.watchers[id]
+  if(firebase._.watchers[id] <= 1) {
+    delete firebase._.watchers[id]
     firebase.ref.child(path).off(event)
   } else {
-    firebase.watchers[id]--
+    firebase._.watchers[id]--
   }
 }
 
@@ -39,6 +40,17 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
 
   if(counter > 1) {
     return
+  }
+
+  if(event == 'first_child'){
+    return firebase.ref.child(path).orderByKey().limitToFirst(1).once('value', snapshot => {
+      if(snapshot.val() === null){
+        dispatch({
+          type: NO_VALUE,
+          path
+        })
+      }
+    })
   }
 
   firebase.ref.child(path).on(event, snapshot => {
