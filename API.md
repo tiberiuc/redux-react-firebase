@@ -157,7 +157,7 @@ Check if an object is empty (`null` if value was requested or empty object `{}` 
 Short for `immutableData.toJS()` but take care if `immutableData` is `null` or `undefined`
 
 ### `pathToJS(immutableData, pathAsString)`
-Short for `immutableData.getIn(path.split(/\//)).toJS()` but take care if `immutableData` is null or undefined
+Short for `immutableData.getIn(pathAsString.split(/\//)).toJS()` but take care if `immutableData` is null or undefined
 
 ### `dataToJS(immutableData, pathAsString)`
-Short for ``pathToJS(immutableData, `${data}/path`)``
+Short for ``pathToJS(immutableData, `${data}/pathAsString`)``
