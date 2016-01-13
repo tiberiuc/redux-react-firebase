@@ -160,4 +160,4 @@ Short for `immutableData.toJS()` but take care if `immutableData` is `null` or `
 Short for `immutableData.getIn(pathAsString.split(/\//)).toJS()` but take care if `immutableData` is null or undefined
 
 ### `dataToJS(immutableData, pathAsString)`
-Short for ``pathToJS(immutableData, `${data}/pathAsString`)``
+Short for ``pathToJS(immutableData, `data/${pathAsString}`)``
