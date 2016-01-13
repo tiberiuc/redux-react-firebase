@@ -117,7 +117,7 @@ Short for `ref.createUser(credentials)`
 - `credentials` (*String or Object*) If String then `ref.authWithCustomToken(credentials)` is used . If object then following 
 
 cases:
-- with provider `ref.authWithOAuthPopup(provider)` or `ref.authWithOAuthRedirect(proviser)`
+- with provider `ref.authWithOAuthPopup(provider)` or `ref.authWithOAuthRedirect(provider)`
 ```
 {
   provider: "facebook | google | twitter", 
