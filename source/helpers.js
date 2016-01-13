@@ -54,5 +54,5 @@ export const isLoaded = function () {
 }
 
 export const isEmpty = data => {
-  return (data && _.size(data))
+  return !(data && _.size(data))
 }

@@ -49,7 +49,7 @@ class Todos extends Component {
 
     const todosList = (!isLoaded(todos)) ?
                           'Loading'
-                        : (!isEmpty(todos) )? 'Todo list is emtpy' :_.map(todos, (todo, id) => (<TodoItem key={id} id={id} todo={todo}/>) )
+                        : (isEmpty(todos) )? 'Todo list is emtpy' :_.map(todos, (todo, id) => (<TodoItem key={id} id={id} todo={todo}/>) )
 
     return (
       <div>
