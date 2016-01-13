@@ -38,10 +38,6 @@ class TodoItem extends Component {
 )
 class Todos extends Component {
 
-  componentWillMount(){
-    const {firebase} = this.props
-  }
-
   render() {
     const {firebase, todos} = this.props;
 
