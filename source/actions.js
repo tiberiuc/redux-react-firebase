@@ -28,7 +28,9 @@ const unsetWatcher = (firebase, event, path) => {
 
   if(firebase._.watchers[id] <= 1) {
     delete firebase._.watchers[id]
-    firebase.ref.child(path).off(event)
+    if(event !== 'first_child'){
+      firebase.ref.child(path).off(event)
+    }
   } else {
     firebase._.watchers[id]--
   }
