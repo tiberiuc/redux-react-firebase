@@ -117,7 +117,7 @@ Short for `ref.createUser(credentials)`
 - `credentials` (*String or Object*) If String then `ref.authWithCustomToken(credentials)` is used . If object then following 
 
 cases:
-- with provider `ref.authWithOAuthPopup(provider)` or `ref.authWithOAuthRedirect(proviser)`
+- with provider `ref.authWithOAuthPopup(provider)` or `ref.authWithOAuthRedirect(provider)`
 ```
 {
   provider: "facebook | google | twitter", 
@@ -147,11 +147,11 @@ Logout from Firebase and delete all data from the store.
 
 ### `isLoaded(objects...)`
 Check if all the objects passed to function are loaded ( not `undefined` )
-'null' mean we have feedback from firebase but there is no data
-'undefined' mean still waiting from Firebase
+- `null` mean we have feedback from firebase but there is no data
+- `undefined` mean still waiting from Firebase
 
 ### `isEmpty(object)`
-Check if an object is empty ('null' if value was requested or empty object `{}` if array was requested)
+Check if an object is empty (`null` if value was requested or empty object `{}` if array was requested)
 
 ### `toJS(immutableData)`
 Short for `immutableData.toJS()` but take care if `immutableData` is `null` or `undefined`
