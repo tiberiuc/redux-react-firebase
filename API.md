@@ -114,9 +114,7 @@ Short for `ref.createUser(credentials)`
 ### `login(credentials)`
 
 #### Arguments
-- `credentials` (*String or Object*) If String then `ref.authWithCustomToken(credentials)` is used . If object then following 
-
-cases:
+- `credentials` (*String or Object*) If String then `ref.authWithCustomToken(credentials)` is used . If object then following cases:
 - with provider `ref.authWithOAuthPopup(provider)` or `ref.authWithOAuthRedirect(provider)`
 ```
 {
