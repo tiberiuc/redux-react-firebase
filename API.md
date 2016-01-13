@@ -138,8 +138,9 @@ Short for `ref.createUser(credentials)`
 ```
 
 ### `logout()`
-Logout from Firebase and delete all data from the store.
-`store.firebase.auth` is set to `null`
+Logout from Firebase and delete all data from the store (`store.state.firebase.data`).
+
+`store.state.firebase.auth` is set to `null`
 
 ## Data helpers
 
