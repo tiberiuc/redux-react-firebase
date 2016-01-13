@@ -3,7 +3,7 @@ Use Firebase with React and Redux in ES6
 
 ## Features
 - Integrated into redux
-- Automatic bunding/unbiding
+- Automatic binding/unbinding
 - Declarative decorator syntax for React components
 - Support for nested props
 - Out of the box support for authentication
@@ -20,14 +20,14 @@ Include redux-react-firebase in your store
 
 ```javascript
 import {createStore, combineReducers, compose} from 'redux'
-import {reduxReactFirebase, firebaseStateReducer} from '../source'
+import {reduxReactFirebase, firebaseStateReducer} from 'redux-react-firebase'
 
 const rootReducer = combineReducers({
   firebase: firebaseStateReducer
 })
 
 const createStoreWithFirebase = compose(
-    reduxReactFirebase('YOUR_FIREBASE_URL'),
+    reduxReactFirebase('__YOUR_FIREBASE_URL__'),
 )(createStore)
 
 
@@ -36,12 +36,18 @@ store = createStoreWithFirebase(rootReducer, initialState)
 
 In the components
 ```javascript
+import React, {Component, PropTypes} from 'react'
+import {connect} from 'react-redux'
+import {firebase, helpers} from 'redux-react-firebase'
+
+const {isLoaded,isEmpty dataToJS} = helpers
+
 @firebase( [
-  '/todos'
+  'todos'
 ])
 @connect(
   ({firebase}) => ({
-    todos: dataToJS(firebase, '/todos'),
+    todos: dataToJS(firebase, 'todos'),
   })
 )
 class Todos extends Component {
