@@ -35,9 +35,6 @@ export default (url, config) => {
       },
     }
 
-    console.log(store)
-
-
     return store
 
   }
