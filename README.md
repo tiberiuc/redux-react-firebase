@@ -40,7 +40,7 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {firebase, helpers} from 'redux-react-firebase'
 
-const {isLoaded,isEmpty dataToJS} = helpers
+const {isLoaded, isEmpty, dataToJS} = helpers
 
 @firebase( [
   'todos'

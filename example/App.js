@@ -5,7 +5,7 @@ import {firebase, helpers} from '../source'
 import _ from 'lodash'
 
 
-const {isLoaded,isEmpty dataToJS} = helpers
+const {isLoaded, isEmpty, dataToJS} = helpers
 
 @firebase()
 class TodoItem extends Component {
