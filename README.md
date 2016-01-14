@@ -86,4 +86,6 @@ See [API](API.md)
 You can see a complete example [here](example)
 
 ## In the future
+- Auto load user profiles ( based on configuration )
+- Create user profile when createUser
 - Firebase queries ( order, limit )
