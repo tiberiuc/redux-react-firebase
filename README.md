@@ -7,7 +7,7 @@ Use Firebase with React and Redux in ES6
 - Automatic binding/unbinding
 - Declarative decorator syntax for React components
 - Support for nested props
-- Out of the box support for authentication
+- Out of the box support for authentication (with auto load user profile)
 - Lots of helper functions
 
 ## Install
@@ -86,6 +86,4 @@ See [API](API.md)
 You can see a complete example [here](example)
 
 ## In the future
-- Auto load user profiles ( based on configuration )
-- Create user profile when createUser
 - Firebase queries ( order, limit )
