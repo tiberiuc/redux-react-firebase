@@ -105,6 +105,11 @@ export const login = (dispatch, ref,  credentials) => {
 
   const {token, provider, type} = credentials
 
+  dispatch({
+    type: LOGIN_ERROR,
+    authError: null
+  })
+
   if(provider) {
 
     if(credentials.token) {
