@@ -21,11 +21,23 @@ in firebase store objects can have this values
 
 there are helpers for dealing with data ( see helpers )
 
-### `reduxReactFirebase(FIREBASE_URL)`
+### `reduxReactFirebase(FIREBASE_URL, options)`
 Add firebase to redux
 
 #### Arguments
 - `FIREBASE_URL` Firebase URL to connect to
+- `options` Object with the options
+
+#### Options
+1. Auto load user profile when authenticate
+```javascript
+{
+  userProfile: String // path where user profiles are stored
+}
+```
+if `userProfile` is specified then onAuth will listen for values in `${userProfile}/${auth.id}` and wil be stored into `store.state.firebase.profile`
+
+`userProfile` is required if auto creation of a profile in `createUser` is needed
 
 ### `firebase(arrayOfPathsToListen)`
 
@@ -108,8 +120,15 @@ Short for `ref.child(path).push(value)`
 ### `remove(path)`
 Short for `ref.child(path).remove()`
 
-### `createUser(credentials)`
-Short for `ref.createUser(credentials)`
+### `createUser(credentials, profile)`
+Short for `ref.createUser(credentials)` but support auto profile
+
+#### Arguments
+- `credentials` same as firebase docs
+- `profile` if initialized with userProfile support then profile will be saved into `${userProfile}/${auth.uid}`
+
+#### Return
+Always authenticate the new user
 
 ### `login(credentials)`
 
@@ -118,15 +137,15 @@ Short for `ref.createUser(credentials)`
 - with provider `ref.authWithOAuthPopup(provider)` or `ref.authWithOAuthRedirect(provider)`
 ```
 {
-  provider: "facebook | google | twitter", 
+  provider: "facebook | google | twitter",
   type: "popup | redirect", // redirect is default
 }
 ```
 - with provider and token `ref.authWithOAuthToken(provider, token)`
 ```
 {
-  provider: "facebook | google | twitter", 
-  token : String  
+  provider: "facebook | google | twitter",
+  token : String
 }
 ```
 - with email and password `ref.authWithPassword(credentials)`

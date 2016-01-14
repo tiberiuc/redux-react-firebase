@@ -95,7 +95,34 @@ const dispatchLogin = (dispatch, auth) =>
     authError: null
   })
 
-export const login = (dispatch, ref,  credentials) => {
+const unWatchUserProfile = (firebase) => {
+    const authUid = firebase._.authUid
+    const userProfile = firebase._.config.userProfile
+    if(firebase._.profileWatch){
+      firebase.ref.child(`${userProfile}/${authUid}`).off('value', firebase._.profileWatch)
+      firebase._.profileWatch = null
+    }
+}
+
+const watchUserProfile = (dispatch, firebase) => {
+    const authUid = firebase._.authUid
+    const userProfile = firebase._.config.userProfile
+    unWatchUserProfile(firebase)
+    if(firebase._.config.userProfile){
+      firebase._.profileWatch = firebase.ref.child(`${userProfile}/${authUid}`).on('value', snap => {
+        dispatch({
+          type: SET_PROFILE,
+          profile: snap.val()
+        })
+      })
+    }
+}
+
+
+export const login = (dispatch, firebase,  credentials) => {
+  const {ref} = firebase
+
+  dispatchLoginError(dispatch, null)
 
   const handler = (err, authData) => {
     if(err){
@@ -105,10 +132,6 @@ export const login = (dispatch, ref,  credentials) => {
 
   const {token, provider, type} = credentials
 
-  dispatch({
-    type: LOGIN_ERROR,
-    authError: null
-  })
 
   if(provider) {
 
@@ -131,12 +154,15 @@ export const login = (dispatch, ref,  credentials) => {
   ref.authWithPassword(credentials, handler)
 }
 
-
-export const init = (dispatch, ref) => {
+export const init = (dispatch,  firebase) => {
+  const {ref} = firebase
   ref.onAuth( authData => {
     if(!authData){
       return dispatch({type: LOGOUT})
     }
+
+    firebase._.authUid = authData.uid
+    watchUserProfile(dispatch, firebase)
 
     dispatchLogin(dispatch, authData)
   })
@@ -144,16 +170,27 @@ export const init = (dispatch, ref) => {
   ref.getAuth()
 }
 
-export const logout = (dispatch, ref) => {
-  ref.unAuth()
+export const logout = (dispatch, firebase) => {
+  const {ref} = firebase
+  ref.unauth()
   dispatch({type: LOGOUT})
+  firebase._.authUid = null
+  unWatchUserProfile(firebase)
 }
 
-export const createUser = (dispatch, ref, credentials) => {
+export const createUser = (dispatch, firebase, credentials, profile) => {
+  const {ref} = firebase
+  dispatchLoginError(dispatch, null)
   ref.createUser(credentials, (err, userData) => {
     if(err){
       return dispatchLoginError(dispatch, err)
     }
+
+    if(profile && firebase._.config.userProfile) {
+      ref.child(`${firebase._.config.userProfile}/${userData.uid}`).set(profile)
+    }
+
+    login(dispatch, firebase, credentials)
   })
 }
 

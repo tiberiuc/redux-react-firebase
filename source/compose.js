@@ -7,33 +7,44 @@ import * as Actions from './actions'
 export default (url, config) => {
   return next => (reducer, initialState) => {
 
+    const defaultConfig = {
+      userProfile: null
+    }
+
     const store = next(reducer, initialState)
 
     const {dispatch} = store
 
     const ref = new Firebase(url)
 
+    const configs = Object.assign({}, defaultConfig, config)
+
+    const firebase = {
+      ref,
+      _: {
+        watchers: {},
+        config: configs,
+        authUid: null
+      },
+    }
+
+
     const set = (path, value) => ref.child(path).set(value)
     const push = (path, value) => ref.child(path).push(value)
     const remove = (path, value) => ref.child(path).remove(value)
-    const login = credentials => Actions.login(dispatch, ref, credentials)
-    const logout = () => Actions.logout(dispatch, ref)
-    const createUser = credentials => Actions.createUser(dispatch, ref, credentials)
+    const login = credentials => Actions.login(dispatch, firebase, credentials)
+    const logout = () => Actions.logout(dispatch, firebase)
+    const createUser = (credentials, profile) => Actions.createUser(dispatch, firebase, credentials, profile)
 
-    Actions.init(dispatch, ref)
-
-    store.firebase = {
-      ref,
-      config,
-      helpers: {
-        set, push, remove,
-        createUser,
-        login, logout,
-      },
-      _: {
-        watchers: {}
-      },
+    firebase.helpers = {
+      set, push, remove,
+      createUser,
+      login, logout,
     }
+
+    Actions.init(dispatch,  firebase)
+
+    store.firebase = firebase
 
     return store
 
