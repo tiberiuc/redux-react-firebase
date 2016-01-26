@@ -111,14 +111,14 @@ just access firebase object in component ( for access to ref or other  firebase 
 ### `ref`
 The original Firebase object
 
-### `set(path, value)`
-Short for `ref.child(path).set(value)`
+### `set(path, value, onComplete)`
+Short for `ref.child(path).set(value, onComplete)`
 
-### `push(path, value)`
-Short for `ref.child(path).push(value)`
+### `push(path, value, onComplete)`
+Short for `ref.child(path).push(value, onComplete)`
 
-### `remove(path)`
-Short for `ref.child(path).remove()`
+### `remove(path, onComplete)`
+Short for `ref.child(path).remove(onComplete)`
 
 ### `createUser(credentials, profile)`
 Short for `ref.createUser(credentials)` but support auto profile
