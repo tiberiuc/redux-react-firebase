@@ -31,7 +31,7 @@ export default (url, config) => {
 
     const set = (path, value, onComplete) => ref.child(path).set(value, onComplete)
     const push = (path, value, onComplete) => ref.child(path).push(value, onComplete)
-    const remove = (path, value, onComplete) => ref.child(path).remove(value, onComplete)
+    const remove = (path, onComplete) => ref.child(path).remove(onComplete)
     const login = credentials => Actions.login(dispatch, firebase, credentials)
     const logout = () => Actions.logout(dispatch, firebase)
     const createUser = (credentials, profile) => Actions.createUser(dispatch, firebase, credentials, profile)
