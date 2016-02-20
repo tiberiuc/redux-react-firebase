@@ -14,24 +14,24 @@ export const toJS = data => {
 }
 
 
-export const pathToJS = (data, path) => {
+export const pathToJS = (data, path, notSetValue) => {
   if(!data) {
-    return defaultData
+    return notSetValue
   }
 
   const pathArr = fixPath(path).split(/\//).slice(1)
 
   if(data.getIn) {
-    return toJS(data.getIn(pathArr))
+    return toJS(data.getIn(pathArr, notSetValue))
   }
 
   return data
 }
 
 
-export const dataToJS = (data, path) => {
+export const dataToJS = (data, path, notSetValue) => {
   if(!(data && data.getIn)) {
-    return data
+    return notSetValue
   }
 
   const dataPath = '/data' + fixPath(path)
@@ -39,7 +39,7 @@ export const dataToJS = (data, path) => {
   const pathArr = dataPath.split(/\//).slice(1)
 
   if(data.getIn) {
-    return toJS(data.getIn(pathArr))
+    return toJS(data.getIn(pathArr, notSetValue))
   }
 
   return data
