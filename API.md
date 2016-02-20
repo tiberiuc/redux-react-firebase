@@ -126,7 +126,7 @@ Short for `ref.createUser(credentials)` but support auto profile and set the err
 ### `resetPassword(credentials)`
 Short for `ref.resetPassword(credentials)` and set the output in authError
 
-### `resetPassword(credentials)`
+### `changePassword(credentials)`
 Short for `ref.changePassword(credentials)` and set the output in authError
 
 #### Arguments
