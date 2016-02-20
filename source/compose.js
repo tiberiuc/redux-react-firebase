@@ -35,11 +35,14 @@ export default (url, config) => {
     const login = credentials => Actions.login(dispatch, firebase, credentials)
     const logout = () => Actions.logout(dispatch, firebase)
     const createUser = (credentials, profile) => Actions.createUser(dispatch, firebase, credentials, profile)
+    const resetPassword = (credentials) => Actions.resetPassword(dispatch, firebase, credentials)
+    const changePassword = (credentials) => Actions.changePassword(dispatch, firebase, credentials)
 
     firebase.helpers = {
       set, push, remove,
       createUser,
       login, logout,
+      resetPassword, changePassword
     }
 
     Actions.init(dispatch,  firebase)

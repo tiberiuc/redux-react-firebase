@@ -156,6 +156,99 @@ class Login extends Component {
   }
 }
 
+@firebase()
+@connect(
+  ({firebase}) => ({
+    authError: pathToJS(firebase, 'authError'),
+  })
+)
+class ResetPassword extends Component {
+  constructor(){
+    super()
+    this.state = {loading:false}
+  }
+
+  render(){
+    const {firebase, authError} = this.props
+
+    const handleResetPassword = () => {
+      const {email} = this.refs
+
+      const credentials = {
+        email: email.value
+      }
+
+
+      firebase.resetPassword(credentials)
+      this.state.loading = true
+      this.setState(this.state)
+    }
+
+    const error = (authError) ?
+                      authError.toString()
+                    : (this.state.loading) ?
+                              'loading'
+                            : ''
+
+    return(
+      <div>
+        <h1>Reset Password</h1>
+        <input type='email' placeholder='Email' ref='email' /><br/>
+        <p>{error}</p>
+        <button onClick={handleResetPassword}>Reset Password</button>
+      </div>
+    )
+  }
+}
+
+@firebase()
+@connect(
+  ({firebase}) => ({
+    authError: pathToJS(firebase, 'authError'),
+  })
+)
+class ChangePassword extends Component {
+  constructor(){
+    super()
+    this.state = {loading:false}
+  }
+
+  render(){
+    const {firebase, authError} = this.props
+
+    const handleChangePassword = () => {
+      const {email, oldPassword, newPassword} = this.refs
+
+      const credentials = {
+        email: email.value,
+        oldPassword: oldPassword.value,
+        newPassword: newPassword.value
+      }
+
+
+      firebase.changePassword(credentials)
+      this.state.loading = true
+      this.setState(this.state)
+    }
+
+    const error = (authError) ?
+                      authError.toString()
+                    : (this.state.loading) ?
+                              'loading'
+                            : ''
+
+    return(
+      <div>
+        <h1>Reset Password</h1>
+        <input type='email' placeholder='Email' ref='email' /><br/>
+        <input type='password' placeholder='Old Password' ref='oldPassword' /><br/>
+        <input type='password' placeholder='New Password' ref='newPassword' />
+        <p>{error}</p>
+        <button onClick={handleChangePassword}>Change Password</button>
+      </div>
+    )
+  }
+}
 
 @firebase()
 @connect(
@@ -181,6 +274,10 @@ class Container extends Component {
 
     const login = (<div>
                       <Login />
+                      <p>- or -</p>
+                      <ResetPassword />
+                      <p>- or -</p>
+                      <ChangePassword />
                       <p>- or -</p>
                       <Signup />
                     </div>)

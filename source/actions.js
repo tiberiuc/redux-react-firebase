@@ -194,3 +194,46 @@ export const createUser = (dispatch, firebase, credentials, profile) => {
   })
 }
 
+
+export const resetPassword = (dispatch, firebase, credentials) => {
+  const {ref} = firebase
+  dispatchLoginError(dispatch, null)
+  ref.resetPassword(credentials, err => {
+    if(err){
+      switch (err.code) {
+        case "INVALID_USER":
+          dispatchLoginError(dispatch, new Error('The specified user account does not exist.'))
+          break
+        default:
+          dispatchLoginError(dispatch, err)
+      }
+      return
+    }
+
+    return dispatchLoginError(dispatch, new Error('Password reset email sent successfully!'))
+
+  })
+}
+
+export const changePassword = (dispatch, firebase, credentials) => {
+  const {ref} = firebase
+  dispatchLoginError(dispatch, null)
+  ref.changePassword(credentials, err => {
+    if(err){
+      switch (err.code) {
+        case "INVALID_PASSWORD":
+          dispatchLoginError(dispatch, new Error('The specified user account password is incorrect.'))
+          break
+        case "INVALID_USER":
+          dispatchLoginError(dispatch, new Error('The specified user account does not exist.'))
+          break
+        default:
+          dispatchLoginError(dispatch, err)
+      }
+      return
+    }
+
+    return dispatchLoginError(dispatch, new Error('User password changed successfully!'))
+
+  })
+}

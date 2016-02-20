@@ -121,7 +121,13 @@ Short for `ref.child(path).push(value, onComplete)`
 Short for `ref.child(path).remove(onComplete)`
 
 ### `createUser(credentials, profile)`
-Short for `ref.createUser(credentials)` but support auto profile
+Short for `ref.createUser(credentials)` but support auto profile and set the errors in authError
+
+### `resetPassword(credentials)`
+Short for `ref.resetPassword(credentials)` and set the output in authError
+
+### `resetPassword(credentials)`
+Short for `ref.changePassword(credentials)` and set the output in authError
 
 #### Arguments
 - `credentials` same as firebase docs
