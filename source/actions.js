@@ -8,6 +8,8 @@ import {
   NO_VALUE
 } from './constants'
 
+import Promise from 'bluebird'
+
 
 const getWatchPath = (event, path) =>  event + ':' + ((path.substring(0,1) == '/') ? '': '/') + path
 
@@ -120,38 +122,42 @@ const watchUserProfile = (dispatch, firebase) => {
 
 
 export const login = (dispatch, firebase,  credentials) => {
-  const {ref} = firebase
+  return new Promise( (resolve, reject) => {
+    const {ref} = firebase
 
-  dispatchLoginError(dispatch, null)
+    dispatchLoginError(dispatch, null)
 
-  const handler = (err, authData) => {
-    if(err){
-      return dispatchLoginError(dispatch, err)
-    }
-  }
-
-  const {token, provider, type} = credentials
-
-
-  if(provider) {
-
-    if(credentials.token) {
-      return ref.authWithOAuthToken( provider, token, handler )
+    const handler = (err, authData) => {
+      if(err){
+        dispatchLoginError(dispatch, err)
+        return reject(err)
+      }
+      resolve(authData)
     }
 
-    const  auth = (type === 'popup') ?
-                    ref.authWithOAuthPopup
-                  : ref.authWithOAuthRedirect
+    const {token, provider, type} = credentials
 
-    return auth(provider, handler)
 
-  }
+    if(provider) {
 
-  if(token) {
-   return ref.authWithCustomToken(token, handler)
-  }
+      if(credentials.token) {
+        return ref.authWithOAuthToken( provider, token, handler )
+      }
 
-  ref.authWithPassword(credentials, handler)
+      const  auth = (type === 'popup') ?
+                      ref.authWithOAuthPopup
+                    : ref.authWithOAuthRedirect
+
+      return auth(provider, handler)
+
+    }
+
+    if(token) {
+     return ref.authWithCustomToken(token, handler)
+    }
+
+    ref.authWithPassword(credentials, handler)
+  })
 }
 
 export const init = (dispatch,  firebase) => {
@@ -180,17 +186,26 @@ export const logout = (dispatch, firebase) => {
 
 export const createUser = (dispatch, firebase, credentials, profile) => {
   const {ref} = firebase
-  dispatchLoginError(dispatch, null)
-  ref.createUser(credentials, (err, userData) => {
-    if(err){
-      return dispatchLoginError(dispatch, err)
-    }
+  return new Promise( (resolve, reject) => {
+    dispatchLoginError(dispatch, null)
+    ref.createUser(credentials, (err, userData) => {
+      if(err){
+        dispatchLoginError(dispatch, err)
+        return reject(err)
+      }
 
-    if(profile && firebase._.config.userProfile) {
-      ref.child(`${firebase._.config.userProfile}/${userData.uid}`).set(profile)
-    }
+      if(profile && firebase._.config.userProfile) {
+        ref.child(`${firebase._.config.userProfile}/${userData.uid}`).set(profile)
+      }
 
-    login(dispatch, firebase, credentials)
+      login(dispatch, firebase, credentials)
+      .then( () => {
+        resolve(userData.uid)
+      } )
+      .catch( err => {
+       reject(err)
+      })
+    })
   })
 }
 

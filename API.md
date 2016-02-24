@@ -134,7 +134,8 @@ Short for `ref.changePassword(credentials)` and set the output in authError
 - `profile` if initialized with userProfile support then profile will be saved into `${userProfile}/${auth.uid}`
 
 #### Return
-Always authenticate the new user
+Return a promise with userId in case of success or the error otherwise.
+Always authenticate the new user in case of success
 
 ### `login(credentials)`
 
@@ -161,6 +162,8 @@ Always authenticate the new user
   password: String
 }
 ```
+#### Return
+Return a promise with authData in case of success or the error otherwise.
 
 ### `logout()`
 Logout from Firebase and delete all data from the store (`store.state.firebase.data`).
