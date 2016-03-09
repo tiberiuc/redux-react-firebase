@@ -24,11 +24,11 @@ export default (state = initialState, action) => {
   let pathArr
 
   switch(action.type) {
+    let retVal = undefined
 
     case SET:
       const {data, snapshot} = action
       pathArr = pathToArr(path)
-      let retVal = undefined
         
       retyVal = (data !== undefined) ?
         state.setIn(['data', ...pathArr], fromJS(data))
@@ -41,7 +41,6 @@ export default (state = initialState, action) => {
       return retVal;
 
     case NO_VALUE:
-      let retVal = undefined;
       pathArr = pathToArr(path)
       retVal = state.setIn(['data', ...pathArr], fromJS({}))
       retVal = retVal.setIn(['snapshot', ...pathArr], fromJS({}))
