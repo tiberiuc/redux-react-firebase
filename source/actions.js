@@ -93,7 +93,8 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
     dispatch({
       type: SET,
       path : resultPath,
-      data
+      data,
+      snapshot
     })
   })
 
