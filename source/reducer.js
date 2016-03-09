@@ -35,7 +35,7 @@ export default (state = initialState, action) => {
       : state.deleteIn(['data', ...pathArr])
       
       retVal = (snapshot !== undefined) ?
-        retVal.setIn(['snapshot', ...pathArr], fromJS(data))
+        retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
       : retVal.deleteIn(['snapshot', ...pathArr])
       
       return retVal;
