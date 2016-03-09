@@ -21,10 +21,10 @@ const pathToArr = path => path.split(/\//).filter( p => !!p )
 export default (state = initialState, action) => {
 
   const {path} = action
-  let pathArr
+  let pathArr, retVal
 
   switch(action.type) {
-    let retVal = undefined
+    
 
     case SET:
       const {data, snapshot} = action
