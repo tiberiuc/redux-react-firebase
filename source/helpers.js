@@ -45,6 +45,22 @@ export const dataToJS = (data, path, notSetValue) => {
   return data
 }
 
+export const snapshotToJS = (snapshot, path, notSetValue) => {
+  if(!(snapshot && snapshot.getIn)) {
+    return notSetValue
+  }
+
+  const snapshotPath = '/snapshot' + fixPath(path)
+
+  const pathArr = snapshotPath.split(/\//).slice(1)
+
+  if(snapshot.getIn) {
+    return toJS(snapshot.getIn(pathArr, notSetValue))
+  }
+
+  return snapshot
+}
+
 export const isLoaded = function () {
   if(!arguments || !arguments.length) {
     return true
