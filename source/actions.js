@@ -78,6 +78,12 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
         case 'limitToLast':
           query = query.limitToLast(parseInt(param[1]));
           break;
+        case 'startAt':
+          query = query.startAt(parseInt(param[1]));
+          break;
+        case 'endAt':
+          query = query.endAt(parseInt(param[1]));
+          break;
       }});
   }
 
