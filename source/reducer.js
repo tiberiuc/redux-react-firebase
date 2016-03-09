@@ -30,13 +30,13 @@ export default (state = initialState, action) => {
       const {data, snapshot} = action
       pathArr = pathToArr(path)
         
-      retyVal = (data !== undefined) ?
+      retVal = (data !== undefined) ?
         state.setIn(['data', ...pathArr], fromJS(data))
       : state.deleteIn(['data', ...pathArr])
       
-      retyVal = (snapshot !== undefined) ?
-        retyVal.setIn(['snapshot', ...pathArr], fromJS(data))
-      : retyVal.deleteIn(['snapshot', ...pathArr])
+      retVal = (snapshot !== undefined) ?
+        retVal.setIn(['snapshot', ...pathArr], fromJS(data))
+      : retVal.deleteIn(['snapshot', ...pathArr])
       
       return retVal;
 
