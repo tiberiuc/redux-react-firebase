@@ -90,4 +90,5 @@ You can see a complete example [here](example)
 - More firebase queries support
 
 ## Contributors
+@tiberiuc
 @RahavLussato 
