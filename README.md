@@ -90,5 +90,5 @@ You can see a complete example [here](example)
 - More firebase queries support
 
 ## Contributors
-@tiberiuc
-@RahavLussato 
+- [Tiberiu Craciun](https://github.com/tiberiuc)
+- [Rahav Lussto](https://github.com/RahavLussato)
