@@ -39,9 +39,9 @@ const unsetWatcher = (firebase, event, path) => {
 }
 
 export const watchEvent = (firebase, dispatch, event, path, dest) => {
-  let pathSplitted = path.split('#');
+  const pathSplitted = path.split('#');
   path = pathSplitted[0];
-  
+
   const watchPath = (!dest) ? path : path + '@' + dest
   const counter = setWatcher(firebase, event, watchPath)
 
@@ -59,12 +59,12 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
       }
     })
   }
-  
+
   let query = firebase.ref.child(path);
-  
+
   // get params from path
   if (pathSplitted.length > 1) {
-    let params = pathSplitted[1].split('&');
+    const params = pathSplitted[1].split('&');
 
     params.forEach((param) => {
       param = param.split('=');
@@ -225,12 +225,11 @@ export const createUser = (dispatch, firebase, credentials, profile) => {
         return reject(err)
       }
 
-      if(profile && firebase._.config.userProfile) {
-        ref.child(`${firebase._.config.userProfile}/${userData.uid}`).set(profile)
-      }
-
       login(dispatch, firebase, credentials)
       .then( () => {
+        if(profile && firebase._.config.userProfile) {
+          ref.child(`${firebase._.config.userProfile}/${userData.uid}`).set(profile)
+        }
         resolve(userData.uid)
       } )
       .catch( err => {
