@@ -33,7 +33,7 @@ export default (url, config) => {
     const push = (path, value, onComplete) => ref.child(path).push(value, onComplete)
     const remove = (path, onComplete) => ref.child(path).remove(onComplete)
     const watchEvent = (eventName, eventPath) => Actions.watchEvent(firebase, dispatch, eventName, eventPath)
-    const unWatchEvent = (eventName, eventPath) => Actions.unWatchEvent(firebase, dispatch, eventName, eventPath)
+    const unWatchEvent = (eventName, eventPath) => Actions.unWatchEvent(firebase, eventName, eventPath)
     const login = credentials => Actions.login(dispatch, firebase, credentials)
     const logout = () => Actions.logout(dispatch, firebase)
     const createUser = (credentials, profile) => Actions.createUser(dispatch, firebase, credentials, profile)
