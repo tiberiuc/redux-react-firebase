@@ -166,7 +166,6 @@ var login = exports.login = function login(dispatch, firebase, credentials) {
   return new _bluebird2.default(function (resolve, reject) {
     var ref = firebase.ref;
 
-
     dispatchLoginError(dispatch, null);
 
     var handler = function handler(err, authData) {
@@ -180,7 +179,6 @@ var login = exports.login = function login(dispatch, firebase, credentials) {
     var token = credentials.token;
     var provider = credentials.provider;
     var type = credentials.type;
-
 
     if (provider) {
 
@@ -238,11 +236,10 @@ var createUser = exports.createUser = function createUser(dispatch, firebase, cr
         return reject(err);
       }
 
-      if (profile && firebase._.config.userProfile) {
-        ref.child(firebase._.config.userProfile + '/' + userData.uid).set(profile);
-      }
-
       login(dispatch, firebase, credentials).then(function () {
+        if (profile && firebase._.config.userProfile) {
+          ref.child(firebase._.config.userProfile + '/' + userData.uid).set(profile);
+        }
         resolve(userData.uid);
       }).catch(function (err) {
         reject(err);

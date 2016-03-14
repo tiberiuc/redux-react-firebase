@@ -28,7 +28,6 @@ exports.default = function (url, config) {
 
       var dispatch = store.dispatch;
 
-
       var ref = new _firebase2.default(url);
 
       var configs = Object.assign({}, defaultConfig, config);
