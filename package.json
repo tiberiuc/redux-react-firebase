@@ -7,8 +7,7 @@
     "build": "babel source --out-dir build",
     "build-dev": "babel source --out-dir build --watch --source-maps inline",
     "prepublish": "rm -rf ./build; npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "rm -rf ./build; npm run build"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Tiberiu Craciun <tibi@happysoft.ro>",
   "license": "MIT",

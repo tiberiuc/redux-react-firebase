@@ -45,10 +45,6 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
   const watchPath = (!dest) ? path : path + '@' + dest
   const counter = setWatcher(firebase, event, watchPath)
 
-  if(counter > 1) {
-    return
-  }
-
   if(event == 'first_child'){
     return firebase.ref.child(path).orderByKey().limitToFirst(1).once('value', snapshot => {
       if(snapshot.val() === null){
@@ -69,7 +65,7 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
     params.forEach((param) => {
       param = param.split('=');
       switch (param[0]) {
-        case 'orderByChild':
+         case 'orderByChild':
           query = query.orderByChild(param[1]);
           break;
         case 'limitToFirst':
@@ -79,10 +75,12 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
           query = query.limitToLast(parseInt(param[1]));
           break;
         case 'startAt':
-          query = query.startAt(parseInt(param[1]));
+          query = param.length == 3 ? query.startAt(parseInt(param[1]) || param[1], param[2]) :
+              query.startAt(parseInt(param[1]) || param[1]);
           break;
         case 'endAt':
-          query = query.endAt(parseInt(param[1]));
+          query = param.length == 3 ? query.endAt(parseInt(param[1]) || param[1], param[2]) :
+              query.endAt(parseInt(param[1]) || param[1]);
           break;
       }});
   }
@@ -96,12 +94,14 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
         val: snapshot.val()
       }
     }
-    dispatch({
-      type: SET,
-      path : resultPath,
-      data,
-      snapshot
-    })
+    if (event != 'value' || snapshot.val()) {
+      dispatch({
+        type: SET,
+        path : resultPath,
+        data,
+        snapshot
+      })
+    }
   })
 
 }
