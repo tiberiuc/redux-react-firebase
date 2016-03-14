@@ -100,6 +100,19 @@ nesting with connect from redux and do a firebase query that depend on data from
 )
 ```
 
+queries support
+- orderByChild
+- limitToFirst
+- limitToLast
+- startAt
+- endAt
+
+```
+@firebase([
+  'todos#startAt=5&limitToFirst=2'
+])
+```
+
 just access firebase object in component ( for access to ref or other  firebase helpers )
 `firebase` object will be added to `props` - see `firebase` object docs
 ```
