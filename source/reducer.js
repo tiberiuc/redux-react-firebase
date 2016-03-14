@@ -12,7 +12,8 @@ const initialState = fromJS({
   auth: undefined,
   authError: undefined,
   profile: undefined,
-  data: {}
+  data: {},
+  snapshot: {}
 })
 
 const pathToArr = path => path.split(/\//).filter( p => !!p )
@@ -20,20 +21,30 @@ const pathToArr = path => path.split(/\//).filter( p => !!p )
 export default (state = initialState, action) => {
 
   const {path} = action
-  let pathArr
+  let pathArr, retVal
 
   switch(action.type) {
+    
 
     case SET:
-      const {data} = action
+      const {data, snapshot} = action
       pathArr = pathToArr(path)
-      return (data !== undefined) ?
+        
+      retVal = (data !== undefined) ?
         state.setIn(['data', ...pathArr], fromJS(data))
       : state.deleteIn(['data', ...pathArr])
+      
+      retVal = (snapshot !== undefined) ?
+        retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
+      : retVal.deleteIn(['snapshot', ...pathArr])
+      
+      return retVal;
 
     case NO_VALUE:
       pathArr = pathToArr(path)
-      return state.setIn(['data', ...pathArr], fromJS({}))
+      retVal = state.setIn(['data', ...pathArr], fromJS({}))
+      retVal = retVal.setIn(['snapshot', ...pathArr], fromJS({}))
+      return retVal
 
     case SET_PROFILE:
       const {profile} = action
@@ -46,7 +57,8 @@ export default (state = initialState, action) => {
         auth: null,
         authError: null,
         profile: null,
-        data: {}
+        data: {},
+        snapshot: {}
       })
 
     case LOGIN:

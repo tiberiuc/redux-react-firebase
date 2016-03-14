@@ -39,12 +39,11 @@ const unsetWatcher = (firebase, event, path) => {
 }
 
 export const watchEvent = (firebase, dispatch, event, path, dest) => {
+  let pathSplitted = path.split('#');
+  path = pathSplitted[0];
+  
   const watchPath = (!dest) ? path : path + '@' + dest
   const counter = setWatcher(firebase, event, watchPath)
-
-  if(counter > 1) {
-    return
-  }
 
   if(event == 'first_child'){
     return firebase.ref.child(path).orderByKey().limitToFirst(1).once('value', snapshot => {
@@ -56,8 +55,37 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
       }
     })
   }
+  
+  let query = firebase.ref.child(path);
+  
+  // get params from path
+  if (pathSplitted.length > 1) {
+    let params = pathSplitted[1].split('&');
 
-  firebase.ref.child(path).on(event, snapshot => {
+    params.forEach((param) => {
+      param = param.split('=');
+      switch (param[0]) {
+         case 'orderByChild':
+          query = query.orderByChild(param[1]);
+          break;
+        case 'limitToFirst':
+          query = query.limitToFirst(parseInt(param[1]));
+          break;
+        case 'limitToLast':
+          query = query.limitToLast(parseInt(param[1]));
+          break;
+        case 'startAt':
+          query = param.length == 3 ? query.startAt(parseInt(param[1]) || param[1], param[2]) :
+              query.startAt(parseInt(param[1]) || param[1]);
+          break;
+        case 'endAt':
+          query = param.length == 3 ? query.endAt(parseInt(param[1]) || param[1], param[2]) :
+              query.endAt(parseInt(param[1]) || param[1]);
+          break;
+      }});
+  }
+
+  query.on(event, snapshot => {
     let data = (event === 'child_removed') ? undefined : snapshot.val()
     const resultPath = (dest) ? dest :  (event === 'value') ? path : path + '/' + snapshot.key()
     if(dest && event != 'child_removed') {
@@ -66,11 +94,14 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
         val: snapshot.val()
       }
     }
-    dispatch({
-      type: SET,
-      path : resultPath,
-      data
-    })
+    if (event != 'value' || snapshot.val()) {
+      dispatch({
+        type: SET,
+        path : resultPath,
+        data,
+        snapshot
+      })
+    }
   })
 
 }
