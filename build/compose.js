@@ -54,7 +54,7 @@ exports.default = function (url, config) {
         return Actions.watchEvent(firebase, dispatch, eventName, eventPath);
       };
       var unWatchEvent = function unWatchEvent(eventName, eventPath) {
-        return Actions.unWatchEvent(firebase, dispatch, eventName, eventPath);
+        return Actions.unWatchEvent(firebase, eventName, eventPath);
       };
       var login = function login(credentials) {
         return Actions.login(dispatch, firebase, credentials);
