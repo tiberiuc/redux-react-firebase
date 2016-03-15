@@ -1,11 +1,11 @@
 
 import {
-  SET,
-  SET_PROFILE,
-  LOGIN,
-  LOGOUT,
-  LOGIN_ERROR,
-  NO_VALUE
+    SET,
+    SET_PROFILE,
+    LOGIN,
+    LOGOUT,
+    LOGIN_ERROR,
+    NO_VALUE
 } from './constants'
 
 import Promise from 'bluebird'
@@ -13,8 +13,8 @@ import Promise from 'bluebird'
 
 const getWatchPath = (event, path) =>  event + ':' + ((path.substring(0,1) == '/') ? '': '/') + path
 
-const setWatcher = (firebase, event, path) => {
-  const id = getWatchPath(event, path)
+const setWatcher = (firebase, event, path, queryId=undefined) => {
+  const id = queryId || getWatchPath(event, path)
 
   if(firebase._.watchers[id]) {
     firebase._.watchers[id]++
@@ -25,25 +25,70 @@ const setWatcher = (firebase, event, path) => {
   return firebase._.watchers[id]
 }
 
-const unsetWatcher = (firebase, event, path) => {
-  const id = getWatchPath(event, path)
+const getWatcherCount = (firebase, event, path, queryId=undefined) => {
+  const id = queryId || getWatchPath(event, path)
+  return firebase._.watchers[id]
+}
+
+const getQueryIdFromPath = (path) => {
+  let pathSplitted = path.split('#');
+  path = pathSplitted[0];
+
+  let isQuery = pathSplitted.length > 1 ? true : false;
+  let queryParams = isQuery ? pathSplitted[1].split('&') : [];
+  let queryId = isQuery ? queryParams.map((param) => {
+    let splittedParam = param.split('=');
+    if (splittedParam[0] === 'queryId') {
+      return splittedParam[1]
+    }
+  }) : undefined;
+
+  return ((queryId && queryId.length > 0) ? queryId[0] : undefined);
+}
+
+const unsetWatcher = (firebase, event, path, queryId=undefined) => {
+  let id = queryId || getQueryIdFromPath(path)
+  path = path.split('#')[0];
+
+  if (!id) {
+    id = getWatchPath(event, path)
+  }
 
   if(firebase._.watchers[id] <= 1) {
     delete firebase._.watchers[id]
     if(event !== 'first_child'){
       firebase.ref.child(path).off(event)
     }
-  } else {
+  } else if(firebase._.watchers[id]){
     firebase._.watchers[id]--
   }
 }
 
 export const watchEvent = (firebase, dispatch, event, path, dest) => {
-  const pathSplitted = path.split('#');
-  path = pathSplitted[0];
+  let isQuery = false;
+  let queryParams = [];
+  let queryId = getQueryIdFromPath(path);
+
+  if (queryId) {
+    let pathSplitted = path.split('#');
+    path = pathSplitted[0];
+    isQuery = true;
+    queryParams = pathSplitted[1].split('&');
+  }
 
   const watchPath = (!dest) ? path : path + '@' + dest
-  const counter = setWatcher(firebase, event, watchPath)
+  const counter = getWatcherCount(firebase, event, watchPath, queryId)
+
+  if(counter > 0) {
+    // listen only to last query on same path
+    if (queryId) {
+      unsetWatcher(firebase, event, path, queryId);
+    } else {
+      return
+    }
+  }
+
+  setWatcher(firebase, event, watchPath, queryId)
 
   if(event == 'first_child'){
     return firebase.ref.child(path).orderByKey().limitToFirst(1).once('value', snapshot => {
@@ -58,14 +103,12 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
 
   let query = firebase.ref.child(path);
 
-  // get params from path
-  if (pathSplitted.length > 1) {
-    const params = pathSplitted[1].split('&');
+  if (isQuery) {
 
-    params.forEach((param) => {
+    queryParams.forEach((param) => {
       param = param.split('=');
       switch (param[0]) {
-         case 'orderByChild':
+        case 'orderByChild':
           query = query.orderByChild(param[1]);
           break;
         case 'limitToFirst':
@@ -81,6 +124,8 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
         case 'endAt':
           query = param.length == 3 ? query.endAt(parseInt(param[1]) || param[1], param[2]) :
               query.endAt(parseInt(param[1]) || param[1]);
+          break;
+        default:
           break;
       }});
   }
@@ -106,49 +151,49 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
 
 }
 
-export const unWatchEvent = (firebase, event, path) =>
-  unsetWatcher(firebase, event , path)
+export const unWatchEvent = (firebase, event, path, queryId=undefined) =>
+    unsetWatcher(firebase, event , path, queryId)
 
 export const watchEvents = (firebase, dispatch, events) =>
-  events.forEach( event => watchEvent(firebase, dispatch, event.name, event.path))
+    events.forEach( event => watchEvent(firebase, dispatch, event.name, event.path))
 
 export const unWatchEvents = (firebase, events) =>
-  events.forEach( event => unWatchEvent(firebase, event.name, event.path))
+    events.forEach( event => unWatchEvent(firebase, event.name, event.path))
 
 const dispatchLoginError = (dispatch, authError) =>
-  dispatch({
-    type: LOGIN_ERROR,
-    authError
-  })
+    dispatch({
+      type: LOGIN_ERROR,
+      authError
+    })
 
 const dispatchLogin = (dispatch, auth) =>
-  dispatch({
-    type: LOGIN,
-    auth,
-    authError: null
-  })
+    dispatch({
+      type: LOGIN,
+      auth,
+      authError: null
+    })
 
 const unWatchUserProfile = (firebase) => {
-    const authUid = firebase._.authUid
-    const userProfile = firebase._.config.userProfile
-    if(firebase._.profileWatch){
-      firebase.ref.child(`${userProfile}/${authUid}`).off('value', firebase._.profileWatch)
-      firebase._.profileWatch = null
-    }
+  const authUid = firebase._.authUid
+  const userProfile = firebase._.config.userProfile
+  if(firebase._.profileWatch){
+    firebase.ref.child(`${userProfile}/${authUid}`).off('value', firebase._.profileWatch)
+    firebase._.profileWatch = null
+  }
 }
 
 const watchUserProfile = (dispatch, firebase) => {
-    const authUid = firebase._.authUid
-    const userProfile = firebase._.config.userProfile
-    unWatchUserProfile(firebase)
-    if(firebase._.config.userProfile){
-      firebase._.profileWatch = firebase.ref.child(`${userProfile}/${authUid}`).on('value', snap => {
-        dispatch({
-          type: SET_PROFILE,
-          profile: snap.val()
-        })
+  const authUid = firebase._.authUid
+  const userProfile = firebase._.config.userProfile
+  unWatchUserProfile(firebase)
+  if(firebase._.config.userProfile){
+    firebase._.profileWatch = firebase.ref.child(`${userProfile}/${authUid}`).on('value', snap => {
+      dispatch({
+        type: SET_PROFILE,
+        profile: snap.val()
       })
-    }
+    })
+  }
 }
 
 
@@ -176,15 +221,15 @@ export const login = (dispatch, firebase,  credentials) => {
       }
 
       const  auth = (type === 'popup') ?
-                      ref.authWithOAuthPopup
-                    : ref.authWithOAuthRedirect
+          ref.authWithOAuthPopup
+          : ref.authWithOAuthRedirect
 
       return auth(provider, handler)
 
     }
 
     if(token) {
-     return ref.authWithCustomToken(token, handler)
+      return ref.authWithCustomToken(token, handler)
     }
 
     ref.authWithPassword(credentials, handler)
@@ -225,16 +270,17 @@ export const createUser = (dispatch, firebase, credentials, profile) => {
         return reject(err)
       }
 
+      if(profile && firebase._.config.userProfile) {
+        ref.child(`${firebase._.config.userProfile}/${userData.uid}`).set(profile)
+      }
+
       login(dispatch, firebase, credentials)
-      .then( () => {
-        if(profile && firebase._.config.userProfile) {
-          ref.child(`${firebase._.config.userProfile}/${userData.uid}`).set(profile)
-        }
-        resolve(userData.uid)
-      } )
-      .catch( err => {
-       reject(err)
-      })
+          .then( () => {
+            resolve(userData.uid)
+          } )
+          .catch( err => {
+            reject(err)
+          })
     })
   })
 }
