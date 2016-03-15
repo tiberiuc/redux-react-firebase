@@ -54,7 +54,8 @@ exports.default = function (url, config) {
         return Actions.watchEvent(firebase, dispatch, eventName, eventPath);
       };
       var unWatchEvent = function unWatchEvent(eventName, eventPath) {
-        return Actions.unWatchEvent(firebase, eventName, eventPath);
+        var queryId = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+        return Actions.unWatchEvent(firebase, eventName, eventPath, queryId);
       };
       var login = function login(credentials) {
         return Actions.login(dispatch, firebase, credentials);
