@@ -18,7 +18,9 @@ var getWatchPath = function getWatchPath(event, path) {
 };
 
 var setWatcher = function setWatcher(firebase, event, path) {
-  var id = getWatchPath(event, path);
+  var queryId = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
+
+  var id = queryId || getWatchPath(event, path);
 
   if (firebase._.watchers[id]) {
     firebase._.watchers[id]++;
@@ -29,25 +31,74 @@ var setWatcher = function setWatcher(firebase, event, path) {
   return firebase._.watchers[id];
 };
 
+var getWatcherCount = function getWatcherCount(firebase, event, path) {
+  var queryId = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
+
+  var id = queryId || getWatchPath(event, path);
+  return firebase._.watchers[id];
+};
+
+var getQueryIdFromPath = function getQueryIdFromPath(path) {
+  var pathSplitted = path.split('#');
+  path = pathSplitted[0];
+
+  var isQuery = pathSplitted.length > 1 ? true : false;
+  var queryParams = isQuery ? pathSplitted[1].split('&') : [];
+  var queryId = isQuery ? queryParams.map(function (param) {
+    var splittedParam = param.split('=');
+    if (splittedParam[0] === 'queryId') {
+      return splittedParam[1];
+    }
+  }) : undefined;
+
+  return queryId && queryId.length > 0 ? queryId[0] : undefined;
+};
+
 var unsetWatcher = function unsetWatcher(firebase, event, path) {
-  var id = getWatchPath(event, path);
+  var queryId = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
+
+  var id = queryId || getQueryIdFromPath(path);
+  path = path.split('#')[0];
+
+  if (!id) {
+    id = getWatchPath(event, path);
+  }
 
   if (firebase._.watchers[id] <= 1) {
     delete firebase._.watchers[id];
     if (event !== 'first_child') {
       firebase.ref.child(path).off(event);
     }
-  } else {
+  } else if (firebase._.watchers[id]) {
     firebase._.watchers[id]--;
   }
 };
 
 var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, event, path, dest) {
-  var pathSplitted = path.split('#');
-  path = pathSplitted[0];
+  var isQuery = false;
+  var queryParams = [];
+  var queryId = getQueryIdFromPath(path);
+
+  if (queryId) {
+    var pathSplitted = path.split('#');
+    path = pathSplitted[0];
+    isQuery = true;
+    queryParams = pathSplitted[1].split('&');
+  }
 
   var watchPath = !dest ? path : path + '@' + dest;
-  var counter = setWatcher(firebase, event, watchPath);
+  var counter = getWatcherCount(firebase, event, watchPath, queryId);
+
+  if (counter > 0) {
+    // listen only to last query on same path
+    if (queryId) {
+      unsetWatcher(firebase, event, path, queryId);
+    } else {
+      return;
+    }
+  }
+
+  setWatcher(firebase, event, watchPath, queryId);
 
   if (event == 'first_child') {
     return firebase.ref.child(path).orderByKey().limitToFirst(1).once('value', function (snapshot) {
@@ -62,11 +113,9 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 
   var query = firebase.ref.child(path);
 
-  // get params from path
-  if (pathSplitted.length > 1) {
-    var params = pathSplitted[1].split('&');
+  if (isQuery) {
 
-    params.forEach(function (param) {
+    queryParams.forEach(function (param) {
       param = param.split('=');
       switch (param[0]) {
         case 'orderByChild':
@@ -83,6 +132,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
           break;
         case 'endAt':
           query = param.length == 3 ? query.endAt(parseInt(param[1]) || param[1], param[2]) : query.endAt(parseInt(param[1]) || param[1]);
+          break;
+        default:
           break;
       }
     });
@@ -109,7 +160,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 };
 
 var unWatchEvent = exports.unWatchEvent = function unWatchEvent(firebase, event, path) {
-  return unsetWatcher(firebase, event, path);
+  var queryId = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
+  return unsetWatcher(firebase, event, path, queryId);
 };
 
 var watchEvents = exports.watchEvents = function watchEvents(firebase, dispatch, events) {
