@@ -145,14 +145,12 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
         val: snapshot.val()
       }
     }
-    if (event != 'value' || snapshot.val()) {
-      dispatch({
-        type: SET,
-        path : resultPath,
-        data,
-        snapshot
-      })
-    }
+    dispatch({
+      type: SET,
+      path : resultPath,
+      data,
+      snapshot
+    })
   })
 
 }

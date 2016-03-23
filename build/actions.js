@@ -156,14 +156,12 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         val: snapshot.val()
       };
     }
-    if (event != 'value' || snapshot.val()) {
-      dispatch({
-        type: _constants.SET,
-        path: resultPath,
-        data: data,
-        snapshot: snapshot
-      });
-    }
+    dispatch({
+      type: _constants.SET,
+      path: resultPath,
+      data: data,
+      snapshot: snapshot
+    });
   });
 };
 
