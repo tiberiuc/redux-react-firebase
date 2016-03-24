@@ -104,10 +104,16 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
   let query = firebase.ref.child(path);
 
   if (isQuery) {
+    
+    let doNotParse=false;
 
     queryParams.forEach((param) => {
       param = param.split('=');
       switch (param[0]) {
+        case 'orderByKey':
+          query = query.orderByKey();
+          doNotParse=true;
+          break;
         case 'orderByChild':
           query = query.orderByChild(param[1]);
           break;
@@ -118,12 +124,12 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
           query = query.limitToLast(parseInt(param[1]));
           break;
         case 'startAt':
-          query = param.length == 3 ? query.startAt(parseInt(param[1]) || param[1], param[2]) :
-              query.startAt(parseInt(param[1]) || param[1]);
+          query = param.length == 3 ? query.startAt((!doNotParse ? parseInt(param[1]) || param[1]: param[1]), param[2]) :
+              query.startAt(!doNotParse ? parseInt(param[1]) || param[1]: param[1]);
           break;
         case 'endAt':
-          query = param.length == 3 ? query.endAt(parseInt(param[1]) || param[1], param[2]) :
-              query.endAt(parseInt(param[1]) || param[1]);
+          query = param.length == 3 ? query.endAt((!doNotParse ? parseInt(param[1]) || param[1]: param[1]), param[2]) :
+              query.endAt(!doNotParse ? parseInt(param[1]) || param[1]: param[1]);
           break;
         default:
           break;
@@ -139,14 +145,12 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
         val: snapshot.val()
       }
     }
-    if (event != 'value' || snapshot.val()) {
-      dispatch({
-        type: SET,
-        path : resultPath,
-        data,
-        snapshot
-      })
-    }
+    dispatch({
+      type: SET,
+      path : resultPath,
+      data,
+      snapshot
+    })
   })
 
 }

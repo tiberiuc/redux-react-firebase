@@ -114,29 +114,37 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
   var query = firebase.ref.child(path);
 
   if (isQuery) {
+    (function () {
 
-    queryParams.forEach(function (param) {
-      param = param.split('=');
-      switch (param[0]) {
-        case 'orderByChild':
-          query = query.orderByChild(param[1]);
-          break;
-        case 'limitToFirst':
-          query = query.limitToFirst(parseInt(param[1]));
-          break;
-        case 'limitToLast':
-          query = query.limitToLast(parseInt(param[1]));
-          break;
-        case 'startAt':
-          query = param.length == 3 ? query.startAt(parseInt(param[1]) || param[1], param[2]) : query.startAt(parseInt(param[1]) || param[1]);
-          break;
-        case 'endAt':
-          query = param.length == 3 ? query.endAt(parseInt(param[1]) || param[1], param[2]) : query.endAt(parseInt(param[1]) || param[1]);
-          break;
-        default:
-          break;
-      }
-    });
+      var doNotParse = false;
+
+      queryParams.forEach(function (param) {
+        param = param.split('=');
+        switch (param[0]) {
+          case 'orderByKey':
+            query = query.orderByKey();
+            doNotParse = true;
+            break;
+          case 'orderByChild':
+            query = query.orderByChild(param[1]);
+            break;
+          case 'limitToFirst':
+            query = query.limitToFirst(parseInt(param[1]));
+            break;
+          case 'limitToLast':
+            query = query.limitToLast(parseInt(param[1]));
+            break;
+          case 'startAt':
+            query = param.length == 3 ? query.startAt(!doNotParse ? parseInt(param[1]) || param[1] : param[1], param[2]) : query.startAt(!doNotParse ? parseInt(param[1]) || param[1] : param[1]);
+            break;
+          case 'endAt':
+            query = param.length == 3 ? query.endAt(!doNotParse ? parseInt(param[1]) || param[1] : param[1], param[2]) : query.endAt(!doNotParse ? parseInt(param[1]) || param[1] : param[1]);
+            break;
+          default:
+            break;
+        }
+      });
+    })();
   }
 
   query.on(event, function (snapshot) {
@@ -148,14 +156,12 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         val: snapshot.val()
       };
     }
-    if (event != 'value' || snapshot.val()) {
-      dispatch({
-        type: _constants.SET,
-        path: resultPath,
-        data: data,
-        snapshot: snapshot
-      });
-    }
+    dispatch({
+      type: _constants.SET,
+      path: resultPath,
+      data: data,
+      snapshot: snapshot
+    });
   });
 };
 
