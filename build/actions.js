@@ -121,6 +121,14 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
       queryParams.forEach(function (param) {
         param = param.split('=');
         switch (param[0]) {
+          case 'orderByValue':
+            query = query.orderByValue();
+            doNotParse = true;
+            break;
+          case 'orderByPriority':
+            query = query.orderByPriority();
+            doNotParse = true;
+            break;
           case 'orderByKey':
             query = query.orderByKey();
             doNotParse = true;
@@ -137,14 +145,13 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
           case 'startAt':
             var startAtParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1];
             startAtParam = startAtParam == 'null' ? null : startAtParam;
-            query = param.length == 3 ? query.startAt(startAtParam, param[2]) :
-                query.startAt(startAtParam);
+            query = param.length == 3 ? query.startAt(startAtParam, param[2]) : query.startAt(startAtParam);
             break;
           case 'endAt':
             var endAtParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1];
             endAtParam = endAtParam == 'null' ? null : endAtParam;
-            query = param.length == 3 ? query.endAt(endAtParam, param[2]) :
-                query.endAt(endAtParam);
+            query = param.length == 3 ? query.endAt(endAtParam, param[2]) : query.endAt(endAtParam);
+            break;
             break;
           default:
             break;

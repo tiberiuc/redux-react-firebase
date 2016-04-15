@@ -104,12 +104,20 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
   let query = firebase.ref.child(path);
 
   if (isQuery) {
-    
+
     let doNotParse=false;
 
     queryParams.forEach((param) => {
       param = param.split('=');
       switch (param[0]) {
+        case 'orderByValue':
+          query = query.orderByValue();
+          doNotParse=true;
+          break;
+        case 'orderByPriority':
+          query = query.orderByPriority();
+          doNotParse=true;
+          break;
         case 'orderByKey':
           query = query.orderByKey();
           doNotParse=true;
