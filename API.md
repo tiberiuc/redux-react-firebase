@@ -102,6 +102,9 @@ nesting with connect from redux and do a firebase query that depend on data from
 
 queries support
 - orderByChild
+- orderByKey
+- orderByValue
+- orderByPriority
 - limitToFirst
 - limitToLast
 - startAt
@@ -110,6 +113,14 @@ queries support
 ```
 @firebase([
   'todos#startAt=5&limitToFirst=2'
+])
+```
+
+or 
+
+```
+@firebase([
+  'todos#orderByChild=added&startAt=5&limitToFirst=2'
 ])
 ```
 
