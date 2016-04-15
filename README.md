@@ -3,8 +3,8 @@ Use Firebase with React and Redux in ES6
 
 ## Features
 - Integrated into redux
-- Support small data ( using `value` ) or large datasets ( using `child_added`, `child_removed`, `child_changed` 
-- queries support ( only `orderByChild`, `orderByKey`, `limitToLast`, `limitToFirst`, `startAt`, `endAt` right now )
+- Support small data ( using `value` ) or large datasets ( using `child_added`, `child_removed`, `child_changed`
+- queries support ( `orderByChild`, `orderByKey`, `orderByValue`, `orderByPriority`, `limitToLast`, `limitToFirst`, `startAt`, `endAt` right now )
 - Automatic binding/unbinding
 - Declarative decorator syntax for React components
 - Support for nested props
@@ -87,7 +87,7 @@ See [API](API.md)
 You can see a complete example [here](example)
 
 ## In the future
-- More firebase queries support
+- Ideas are welcome :)
 
 ## Contributors
 - [Tiberiu Craciun](https://github.com/tiberiuc)
