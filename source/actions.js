@@ -131,6 +131,12 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
         case 'limitToLast':
           query = query.limitToLast(parseInt(param[1]));
           break;
+        case 'equalTo':
+           let equalToParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1];
+            equalToParam = equalToParam == 'null' ? null : equalToParam;
+            query = param.length == 3 ? query.equalTo(equalToParam, param[2]) :
+                query.equalTo(equalToParam);
+          break;
         case 'startAt':
            let startAtParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1];
             startAtParam = startAtParam == 'null' ? null : startAtParam;
