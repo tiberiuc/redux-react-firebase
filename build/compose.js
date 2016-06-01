@@ -51,7 +51,7 @@ exports.default = function (url, config) {
         return ref.child(path).remove(onComplete);
       };
       var watchEvent = function watchEvent(eventName, eventPath) {
-        return Actions.watchEvent(firebase, dispatch, eventName, eventPath);
+        return Actions.watchEvent(firebase, dispatch, eventName, eventPath, true);
       };
       var unWatchEvent = function unWatchEvent(eventName, eventPath) {
         var queryId = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];

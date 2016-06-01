@@ -47,6 +47,8 @@ const getQueryIdFromPath = (path) => {
 }
 
 const unsetWatcher = (firebase, event, path, queryId=undefined) => {
+
+
   let id = queryId || getQueryIdFromPath(path)
   path = path.split('#')[0];
 
@@ -64,7 +66,7 @@ const unsetWatcher = (firebase, event, path, queryId=undefined) => {
   }
 }
 
-export const watchEvent = (firebase, dispatch, event, path, dest) => {
+export const watchEvent = (firebase, dispatch, event, path, dest, onlyLastEvent = false) => {
   let isQuery = false;
   let queryParams = [];
   let queryId = getQueryIdFromPath(path);
@@ -80,17 +82,20 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
   const counter = getWatcherCount(firebase, event, watchPath, queryId)
 
   if(counter > 0) {
-    // listen only to last query on same path
-    if (queryId) {
-      unsetWatcher(firebase, event, path, queryId);
-    } else {
-      return
+    if(onlyLastEvent){
+      // listen only to last query on same path
+      if (queryId) {
+        unsetWatcher(firebase, event, path, queryId);
+      } else {
+        return
+      }
     }
   }
 
   setWatcher(firebase, event, watchPath, queryId)
 
   if(event == 'first_child'){
+    return
     return firebase.ref.child(path).orderByKey().limitToFirst(1).once('value', snapshot => {
       if(snapshot.val() === null){
         dispatch({
@@ -148,29 +153,33 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
             endAtParam = endAtParam == 'null' ? null : endAtParam;
             query = param.length == 3 ? query.endAt(endAtParam, param[2]) :
                 query.endAt(endAtParam);
-            break
           break;
         default:
           break;
       }});
   }
 
-  query.on(event, snapshot => {
-    let data = (event === 'child_removed') ? undefined : snapshot.val()
-    const resultPath = (dest) ? dest :  (event === 'value') ? path : path + '/' + snapshot.key()
-    if(dest && event != 'child_removed') {
-      data = {
-        _id: snapshot.key(),
-        val: snapshot.val()
+  const runQuery = (q, e, p) => {
+    q.on(e, snapshot => {
+      let data = (e === 'child_removed') ? undefined : snapshot.val()
+      const resultPath = (dest) ? dest :  (e === 'value') ? p : p + '/' + snapshot.key()
+      if(dest && e != 'child_removed') {
+        data = {
+          _id: snapshot.key(),
+          val: snapshot.val()
+        }
       }
-    }
-    dispatch({
-      type: SET,
-      path : resultPath,
-      data,
-      snapshot
+      dispatch({
+        type: SET,
+        path : resultPath,
+        data,
+        snapshot
+      })
     })
-  })
+
+  }
+
+  runQuery(query, event, path)
 
 }
 

@@ -75,6 +75,8 @@ var unsetWatcher = function unsetWatcher(firebase, event, path) {
 };
 
 var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, event, path, dest) {
+  var onlyLastEvent = arguments.length <= 5 || arguments[5] === undefined ? false : arguments[5];
+
   var isQuery = false;
   var queryParams = [];
   var queryId = getQueryIdFromPath(path);
@@ -90,17 +92,20 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
   var counter = getWatcherCount(firebase, event, watchPath, queryId);
 
   if (counter > 0) {
-    // listen only to last query on same path
-    if (queryId) {
-      unsetWatcher(firebase, event, path, queryId);
-    } else {
-      return;
+    if (onlyLastEvent) {
+      // listen only to last query on same path
+      if (queryId) {
+        unsetWatcher(firebase, event, path, queryId);
+      } else {
+        return;
+      }
     }
   }
 
   setWatcher(firebase, event, watchPath, queryId);
 
   if (event == 'first_child') {
+    return;
     return firebase.ref.child(path).orderByKey().limitToFirst(1).once('value', function (snapshot) {
       if (snapshot.val() === null) {
         dispatch({
@@ -157,7 +162,6 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
             endAtParam = endAtParam == 'null' ? null : endAtParam;
             query = param.length == 3 ? query.endAt(endAtParam, param[2]) : query.endAt(endAtParam);
             break;
-            break;
           default:
             break;
         }
@@ -165,22 +169,26 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
     })();
   }
 
-  query.on(event, function (snapshot) {
-    var data = event === 'child_removed' ? undefined : snapshot.val();
-    var resultPath = dest ? dest : event === 'value' ? path : path + '/' + snapshot.key();
-    if (dest && event != 'child_removed') {
-      data = {
-        _id: snapshot.key(),
-        val: snapshot.val()
-      };
-    }
-    dispatch({
-      type: _constants.SET,
-      path: resultPath,
-      data: data,
-      snapshot: snapshot
+  var runQuery = function runQuery(q, e, p) {
+    q.on(e, function (snapshot) {
+      var data = e === 'child_removed' ? undefined : snapshot.val();
+      var resultPath = dest ? dest : e === 'value' ? p : p + '/' + snapshot.key();
+      if (dest && e != 'child_removed') {
+        data = {
+          _id: snapshot.key(),
+          val: snapshot.val()
+        };
+      }
+      dispatch({
+        type: _constants.SET,
+        path: resultPath,
+        data: data,
+        snapshot: snapshot
+      });
     });
-  });
+  };
+
+  runQuery(query, event, path);
 };
 
 var unWatchEvent = exports.unWatchEvent = function unWatchEvent(firebase, event, path) {
