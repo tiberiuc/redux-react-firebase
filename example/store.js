@@ -6,7 +6,7 @@ const rootReducer = combineReducers({
 })
 
 const createStoreWithFirebase = compose(
-    reduxReactFirebase('YOUR_FIREBASE_URL'),
+    reduxReactFirebase('YOUR_FIREBASE_URL', {userProfile: 'users'}),
 )(createStore)
 
 
