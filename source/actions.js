@@ -14,7 +14,7 @@ import Promise from 'bluebird'
 const getWatchPath = (event, path) =>  event + ':' + ((path.substring(0,1) == '/') ? '': '/') + path
 
 const setWatcher = (firebase, event, path, queryId=undefined) => {
-  const id = queryId || getWatchPath(event, path)
+  const id = (queryId) ? event + ':/' + queryId : getWatchPath(event, path)
 
   if(firebase._.watchers[id]) {
     firebase._.watchers[id]++
@@ -26,11 +26,12 @@ const setWatcher = (firebase, event, path, queryId=undefined) => {
 }
 
 const getWatcherCount = (firebase, event, path, queryId=undefined) => {
-  const id = queryId || getWatchPath(event, path)
+  const id = (queryId) ? event + ':/' + queryId : getWatchPath(event, path)
   return firebase._.watchers[id]
 }
 
 const getQueryIdFromPath = (path) => {
+  const origPath = path
   let pathSplitted = path.split('#');
   path = pathSplitted[0];
 
@@ -41,9 +42,11 @@ const getQueryIdFromPath = (path) => {
     if (splittedParam[0] === 'queryId') {
       return splittedParam[1]
     }
-  }) : undefined;
+  }).filter( q => q ) : undefined;
 
-  return ((queryId && queryId.length > 0) ? queryId[0] : undefined);
+  return  (queryId && queryId.length > 0) ?
+              queryId[0]
+          :  ( (isQuery) ? origPath : undefined )
 }
 
 const unsetWatcher = (firebase, event, path, queryId=undefined) => {

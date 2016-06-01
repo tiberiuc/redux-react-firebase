@@ -20,7 +20,7 @@ var getWatchPath = function getWatchPath(event, path) {
 var setWatcher = function setWatcher(firebase, event, path) {
   var queryId = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
 
-  var id = queryId || getWatchPath(event, path);
+  var id = queryId ? event + ':/' + queryId : getWatchPath(event, path);
 
   if (firebase._.watchers[id]) {
     firebase._.watchers[id]++;
@@ -34,11 +34,12 @@ var setWatcher = function setWatcher(firebase, event, path) {
 var getWatcherCount = function getWatcherCount(firebase, event, path) {
   var queryId = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
 
-  var id = queryId || getWatchPath(event, path);
+  var id = queryId ? event + ':/' + queryId : getWatchPath(event, path);
   return firebase._.watchers[id];
 };
 
 var getQueryIdFromPath = function getQueryIdFromPath(path) {
+  var origPath = path;
   var pathSplitted = path.split('#');
   path = pathSplitted[0];
 
@@ -49,9 +50,11 @@ var getQueryIdFromPath = function getQueryIdFromPath(path) {
     if (splittedParam[0] === 'queryId') {
       return splittedParam[1];
     }
+  }).filter(function (q) {
+    return q;
   }) : undefined;
 
-  return queryId && queryId.length > 0 ? queryId[0] : undefined;
+  return queryId && queryId.length > 0 ? queryId[0] : isQuery ? origPath : undefined;
 };
 
 var unsetWatcher = function unsetWatcher(firebase, event, path) {
