@@ -109,6 +109,7 @@ queries support
 - limitToLast
 - startAt
 - endAt
+- equalTo
 
 ```
 @firebase([
