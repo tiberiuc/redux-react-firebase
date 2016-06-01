@@ -87,6 +87,7 @@ See [API](API.md)
 You can see a complete example [here](example)
 
 ## In the future
+- Add support for new  Firebase version ( lib ver 3.x )
 - Ideas are welcome :)
 
 ## Contributors
