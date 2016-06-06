@@ -25,6 +25,7 @@
     "react"
   ],
   "peerDependencies": {
+    "bluebird": "^2.10.2",
     "firebase": "^2.4.2",
     "lodash": "^4.0.0",
     "immutable": "^3.7.6",
