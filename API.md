@@ -117,7 +117,7 @@ queries support
 ])
 ```
 
-or 
+or
 
 ```
 @firebase([
