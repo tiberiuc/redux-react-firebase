@@ -29,8 +29,8 @@ exports.default = function () {
   var action = arguments[1];
   var path = action.path;
 
-  var pathArr = undefined,
-      retVal = undefined;
+  var pathArr = void 0,
+      retVal = void 0;
 
   switch (action.type) {
 
