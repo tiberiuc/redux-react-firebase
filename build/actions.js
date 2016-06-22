@@ -7,11 +7,7 @@ exports.changePassword = exports.resetPassword = exports.createUser = exports.lo
 
 var _constants = require('./constants');
 
-var _bluebird = require('bluebird');
-
-var _bluebird2 = _interopRequireDefault(_bluebird);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _es6Promise = require('es6-promise');
 
 var getWatchPath = function getWatchPath(event, path) {
   return event + ':' + (path.substring(0, 1) == '/' ? '' : '/') + path;
@@ -59,6 +55,7 @@ var getQueryIdFromPath = function getQueryIdFromPath(path) {
 
 var unsetWatcher = function unsetWatcher(firebase, event, path) {
   var queryId = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
+
 
   var id = queryId || getQueryIdFromPath(path);
   path = path.split('#')[0];
@@ -250,8 +247,9 @@ var watchUserProfile = function watchUserProfile(dispatch, firebase) {
 };
 
 var login = exports.login = function login(dispatch, firebase, credentials) {
-  return new _bluebird2.default(function (resolve, reject) {
+  return new _es6Promise.Promise(function (resolve, reject) {
     var ref = firebase.ref;
+
 
     dispatchLoginError(dispatch, null);
 
@@ -266,6 +264,7 @@ var login = exports.login = function login(dispatch, firebase, credentials) {
     var token = credentials.token;
     var provider = credentials.provider;
     var type = credentials.type;
+
 
     if (provider) {
 
@@ -315,7 +314,7 @@ var logout = exports.logout = function logout(dispatch, firebase) {
 var createUser = exports.createUser = function createUser(dispatch, firebase, credentials, profile) {
   var ref = firebase.ref;
 
-  return new _bluebird2.default(function (resolve, reject) {
+  return new _es6Promise.Promise(function (resolve, reject) {
     dispatchLoginError(dispatch, null);
     ref.createUser(credentials, function (err, userData) {
       if (err) {
