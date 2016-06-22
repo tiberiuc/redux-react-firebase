@@ -1,35 +1,29 @@
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import {watchEvents, unWatchEvents} from './actions'
-import {connect} from 'react-redux'
-import _ from 'lodash'
-
-import * as helpers from './helpers'
 
 const defaultEvent = {
   path: '',
   type: 'value'
 }
 
-const fixPath = (path) =>  ((path.substring(0,1) == '/') ? '': '/') + path
-
 const ensureCallable = maybeFn =>
-  typeof maybeFn === 'function' ? maybeFn : (_ => maybeFn)
+  typeof maybeFn === 'function' ? maybeFn : _ => maybeFn
 
-const flatMap = arr =>  (arr && arr.length) ? arr.reduce( (a,b ) => a.concat(b) ) : []
+const flatMap = arr =>  (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
 
 const createEvents = ({type, path}) => {
-  switch(type) {
+  switch (type) {
 
     case 'value':
       return [{name: 'value', path}]
 
     case 'all':
       return [
-        {name:'first_child', path},
-        {name:'child_added', path},
-        {name:'child_removed', path},
-        {name:'child_moved', path},
-        {name:'child_changed', path},
+        {name: 'first_child', path},
+        {name: 'child_added', path},
+        {name: 'child_removed', path},
+        {name: 'child_moved', path},
+        {name: 'child_changed', path}
       ]
 
     default:
@@ -63,20 +57,19 @@ const getEventsFromDefinition = def => flatMap( def.map( path => {
 }))
 
 export default (dataOrFn = []) => WrappedComponent => {
-
   class FirebaseConnect extends Component {
 
-    constructor(props, context){
+    constructor (props, context) {
       super(props, context)
       this._firebaseEvents = []
       this.firebase = null
     }
 
-    static contextTypes = {
-      store: PropTypes.object
-    };
+    // static contextTypes = {
+    //   store: PropTypes.object
+    // };
 
-    componentWillMount() {
+    componentWillMount () {
       const {firebase, dispatch} = this.context.store
 
       const linkFn = ensureCallable(dataOrFn)
@@ -89,13 +82,12 @@ export default (dataOrFn = []) => WrappedComponent => {
       watchEvents(firebase, dispatch, this._firebaseEvents)
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
       const {firebase} = this.context.store
       unWatchEvents(firebase, this._firebaseEvents)
     }
 
-
-    render() {
+    render () {
       return (
         <WrappedComponent
           {...this.props}
@@ -108,4 +100,3 @@ export default (dataOrFn = []) => WrappedComponent => {
 
   return FirebaseConnect
 }
-
