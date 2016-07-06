@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {PropTypes} from 'react'
 import {watchEvents, unWatchEvents} from './actions'
 
 const defaultEvent = {
@@ -6,10 +6,10 @@ const defaultEvent = {
   type: 'value'
 }
 
-const ensureCallable = maybeFn =>
-  typeof maybeFn === 'function' ? maybeFn : _ => maybeFn
+const ensureCallable = maybeFn => //eslint-disable-line
+  typeof maybeFn === 'function' ? maybeFn : () => maybeFn //eslint-disable-line
 
-const flatMap = arr =>  (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
+const flatMap = arr => (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
 
 const createEvents = ({type, path}) => {
   switch (type) {
@@ -33,23 +33,23 @@ const createEvents = ({type, path}) => {
 
 const transformEvent = event => Object.assign({}, defaultEvent, event)
 
-const getEventsFromDefinition = def => flatMap( def.map( path => {
-  if(typeof path === 'string' || path instanceof String) {
+const getEventsFromDefinition = def => flatMap(def.map(path => {
+  if (typeof path === 'string' || path instanceof String) {
     return createEvents(transformEvent({ path }))
   }
 
-  if(typeof path == 'array' || path instanceof Array){
-    return createEvents(transformEvent({ type: 'all', path: path[0]}))
+  if (typeof path === 'array' || path instanceof Array) { // eslint-disable-line
+    return createEvents(transformEvent({ type: 'all', path: path[0] }))
   }
 
-  if(typeof path == 'object' || path instanceof Object){
+  if (typeof path === 'object' || path instanceof Object) {
     const type = path.type || 'value'
-    switch(type){
+    switch (type) {
       case 'value':
-        return createEvents(transformEvent({ path: path.path}))
+        return createEvents(transformEvent({ path: path.path }))
 
       case 'array':
-        return createEvents(transformEvent({ type: 'all', path: path.path}))
+        return createEvents(transformEvent({ type: 'all', path: path.path }))
     }
   }
 
@@ -57,7 +57,7 @@ const getEventsFromDefinition = def => flatMap( def.map( path => {
 }))
 
 export default (dataOrFn = []) => WrappedComponent => {
-  class FirebaseConnect extends Component {
+  class FirebaseConnect extends React.Component {
 
     constructor (props, context) {
       super(props, context)
@@ -97,6 +97,10 @@ export default (dataOrFn = []) => WrappedComponent => {
       )
     }
   }
-
+  FirebaseConnect.contextTypes = {
+    store: function () {
+      return PropTypes.object.isRequired
+    }
+  }
   return FirebaseConnect
 }

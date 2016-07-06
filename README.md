@@ -27,9 +27,14 @@ import {reduxReactFirebase, firebaseStateReducer} from 'redux-react-firebase'
 const rootReducer = combineReducers({
   firebase: firebaseStateReducer
 })
-
+const config = {
+  apiKey: '<your-api-key>',
+  authDomain: '<your-auth-domain>',
+  databaseURL: '<your-database-url>',
+  storageBucket: '<your-storage-bucket>'
+}
 const createStoreWithFirebase = compose(
-    reduxReactFirebase('__YOUR_FIREBASE_URL__'),
+    reduxReactFirebase(config),
 )(createStore)
 
 

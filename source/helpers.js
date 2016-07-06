@@ -67,3 +67,5 @@ export const isLoaded = function () {
 export const isEmpty = data => {
   return !(data && size(data))
 }
+
+export default { pathToJS, dataToJS, snapshotToJS, isLoaded, isEmpty }
