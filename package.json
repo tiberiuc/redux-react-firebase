@@ -2,7 +2,7 @@
   "name": "redux-react-firebase",
   "version": "1.12.1",
   "description": "Use Firebase with React and Redux in ES6 ",
-  "main": "build/index.js",
+  "main": "source/index.js",
   "scripts": {
     "build": "babel source --out-dir build",
     "build-dev": "babel source --out-dir build --watch --source-maps inline",
@@ -36,7 +36,6 @@
     "immutable": "^3.7.6",
     "lodash": "^4.13.1",
     "react": "^0.14.6 || ^15.0.0",
-    "react-dom": "^0.14.6 || ^15.0.0",
     "react-redux": "^4.0.6",
     "redux": "^3.0.5"
   },

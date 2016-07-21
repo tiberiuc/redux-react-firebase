@@ -232,33 +232,8 @@ export const login = (dispatch, firebase, credentials) => {
   return new Promise((resolve, reject) => {
     dispatchLoginError(dispatch, null)
 
-    const handler = (err, authData) => {
-      if (err) {
-        dispatchLoginError(dispatch, err)
-        return reject(err)
-      }
-      resolve(authData)
-    }
-
-    const {token, provider, type} = credentials
-
-    if (provider) {
-      if (credentials.token) {
-        return firebase.auth().authWithOAuthToken(provider, token, handler)
-      }
-
-      const auth = (type === 'popup')
-        ? firebase.auth().authWithOAuthPopup
-        : firebase.auth().authWithOAuthRedirect
-
-      return auth(provider, handler)
-    }
-
-    if (token) {
-      return firebase.auth().authWithCustomToken(token, handler)
-    }
-
-    firebase.auth().authWithPassword(credentials, handler)
+    const {email, password} = credentials
+    firebase.auth().signInWithEmailAndPassword(email, password).then(resolve).catch(reject);
   })
 }
 
@@ -278,7 +253,7 @@ export const init = (dispatch, firebase) => {
 }
 
 export const logout = (dispatch, firebase) => {
-  firebase.auth().unauth()
+  firebase.auth().signOut()
   dispatch({type: LOGOUT})
   firebase._.authUid = null
   unWatchUserProfile(firebase)
@@ -303,9 +278,9 @@ export const createUser = (dispatch, firebase, credentials, profile) =>
     })
   })
 
-export const resetPassword = (dispatch, firebase, credentials) => {
+export const resetPassword = (dispatch, firebase, email) => {
   dispatchLoginError(dispatch, null)
-  firebase.auth().resetPassword(credentials, err => {
+  return firebase.auth().sendPasswordResetEmail(email).catch((err) => {
     if (err) {
       switch (err.code) {
         case 'INVALID_USER':
@@ -316,30 +291,7 @@ export const resetPassword = (dispatch, firebase, credentials) => {
       }
       return
     }
-
-    return dispatchLoginError(dispatch, new Error('Password reset email sent successfully!'))
-  })
+  });
 }
 
-export const changePassword = (dispatch, firebase, credentials) => {
-  dispatchLoginError(dispatch, null)
-  firebase.auth().changePassword(credentials, err => {
-    if (err) {
-      switch (err.code) {
-        case 'INVALID_PASSWORD':
-          dispatchLoginError(dispatch, new Error('The specified user account password is incorrect.'))
-          break
-        case 'INVALID_USER':
-          dispatchLoginError(dispatch, new Error('The specified user account does not exist.'))
-          break
-        default:
-          dispatchLoginError(dispatch, err)
-      }
-      return
-    }
-
-    return dispatchLoginError(dispatch, new Error('User password changed successfully!'))
-  })
-}
-
-export default { watchEvents, unWatchEvents, init, logout, createUser, resetPassword, changePassword }
+export default { watchEvents, unWatchEvents, init, logout, createUser, resetPassword }

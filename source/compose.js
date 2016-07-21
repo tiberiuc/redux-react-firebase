@@ -1,7 +1,7 @@
 import Firebase from 'firebase'
 import * as Actions from './actions'
 
-export default (url, config) => {
+export default (config) => {
   return next => (reducer, initialState) => {
     const defaultConfig = {
       userProfile: null
@@ -9,20 +9,28 @@ export default (url, config) => {
     const store = next(reducer, initialState)
 
     const {dispatch} = store
-    // console.log('firebase:', Firebase, Object.getOwnPropertyNames(Firebase))
-    try {
-      Firebase.initializeApp(url)
-    } catch (err) { console.warn('Firebase error:', err) }
 
-    const ref = Firebase.database()
+    try {
+      Firebase.initializeApp(config)
+    } catch (err) {
+      console.warn('Firebase error:', err)
+    }
+
+    const ref = Firebase.database().ref()
 
     const configs = Object.assign({}, defaultConfig, config)
 
-    const firebase = Object.assign({}, ref, Firebase, { _: {
-      watchers: {},
-      config: configs,
-      authUid: null
-    }})
+    const firebase = Object.defineProperty(Firebase, '_', {
+      value: {
+        watchers: {},
+        config: configs,
+        authUid: null
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    });
+
 
     const set = (path, value, onComplete) => ref.child(path).set(value, onComplete)
     const push = (path, value, onComplete) => ref.child(path).push(value, onComplete)
