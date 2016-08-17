@@ -1,6 +1,8 @@
 # redux-react-firebase
 Use Firebase with React and Redux in ES6
 
+**WARNING: This package is compatible with versions 1.x.x and 2.x.x of the Firebase SDK. If you are using the 3.x.x SDK, please refer to [here](https://github.com/prescottprue/redux-firebasev3).**
+
 ## Features
 - Integrated into redux
 - Support small data ( using `value` ) or large datasets ( using `child_added`, `child_removed`, `child_changed`
@@ -85,10 +87,6 @@ See [API](API.md)
 
 ## Example
 You can see a complete example [here](example)
-
-## In the future
-- Add support for new  Firebase version ( lib ver 3.x )
-- Ideas are welcome :)
 
 ## Contributors
 - [Tiberiu Craciun](https://github.com/tiberiuc)
