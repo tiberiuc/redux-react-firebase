@@ -1,14 +1,14 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 
 var _react = require('react');
 
@@ -43,6 +43,12 @@ var defaultEvent = {
 
 var fixPath = function fixPath(path) {
   return (path.substring(0, 1) == '/' ? '' : '/') + path;
+};
+
+var isEqualArrays = function isEqualArrays(a, b) {
+  return a.length == b.length && a.every(function (v, i) {
+    return v === b[i];
+  });
 };
 
 var ensureCallable = function ensureCallable(maybeFn) {
@@ -117,6 +123,7 @@ exports.default = function () {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FirebaseConnect).call(this, props, context));
 
         _this._firebaseEvents = [];
+        _this._pathsToListen = undefined;
         _this.firebase = null;
         return _this;
       }
@@ -128,15 +135,38 @@ exports.default = function () {
           var firebase = _context$store.firebase;
           var dispatch = _context$store.dispatch;
 
+
           var linkFn = ensureCallable(dataOrFn);
-          var data = linkFn(this.props, firebase);
+          this._pathsToListen = linkFn(this.props, firebase);
 
           var ref = firebase.ref;
           var helpers = firebase.helpers;
 
           this.firebase = _extends({ ref: ref }, helpers);
 
-          this._firebaseEvents = getEventsFromDefinition(data);
+          this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
+          (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
+        }
+      }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+          var _context$store2 = this.context.store;
+          var firebase = _context$store2.firebase;
+          var dispatch = _context$store2.dispatch;
+
+
+          var linkFn = ensureCallable(dataOrFn);
+          var newPathsToListen = linkFn(nextProps, firebase);
+
+          if (isEqualArrays(newPathsToListen, this._pathsToListen)) {
+            return;
+          }
+
+          this._pathsToListen = newPathsToListen;
+
+          (0, _actions.unWatchEvents)(firebase, this._firebaseEvents);
+
+          this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
           (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
         }
       }, {
@@ -159,6 +189,7 @@ exports.default = function () {
     }(_react.Component), _class.contextTypes = {
       store: _react.PropTypes.object
     }, _temp);
+
 
     return FirebaseConnect;
   };

@@ -42,7 +42,7 @@ if `userProfile` is specified then onAuth will listen for values in `${userProfi
 ### `firebase(arrayOfPathsToListen)`
 
 #### Arguments
-- `arrayOfPathToListen(props)` (*Array or Function*) A function that takes the original props passed to the object and returns an array of path to listen
+- `arrayOfPathToListen(props)` (*Array or Function*) A function that takes the original props passed to the object and returns an array of path to listen. Function is invoked when component mounted and each time new props arrive so it is possible to dynamically change observed paths based on latest `props`.
 
 #### Returns
 A function that takes the component and wraps it, add `firebase` object into props and start the needed listeners for respective paths. when a firebase event is happening the value is automatically set into firebase store into `firebase.data.[...path]`
@@ -117,7 +117,7 @@ queries support
 ])
 ```
 
-or 
+or
 
 ```
 @firebase([

@@ -60,6 +60,7 @@ var getQueryIdFromPath = function getQueryIdFromPath(path) {
 var unsetWatcher = function unsetWatcher(firebase, event, path) {
   var queryId = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
 
+
   var id = queryId || getQueryIdFromPath(path);
   path = path.split('#')[0];
 
@@ -253,6 +254,7 @@ var login = exports.login = function login(dispatch, firebase, credentials) {
   return new _bluebird2.default(function (resolve, reject) {
     var ref = firebase.ref;
 
+
     dispatchLoginError(dispatch, null);
 
     var handler = function handler(err, authData) {
@@ -266,6 +268,7 @@ var login = exports.login = function login(dispatch, firebase, credentials) {
     var token = credentials.token;
     var provider = credentials.provider;
     var type = credentials.type;
+
 
     if (provider) {
 
