@@ -1,7 +1,7 @@
 # redux-react-firebase
 Use Firebase with React and Redux in ES6
 
-# IMPORTANT !!! - use this branch for Firebase older then v3
+# IMPORTANT !!! - use this branch for Firebase older then v3 ( for v3 use [Master Branch](https://github.com/tiberiuc/redux-react-firebase/tree/master))
 
 ## Features
 - Integrated into redux
