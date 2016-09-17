@@ -16,31 +16,37 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = function (url, config) {
+exports.default = function (config) {
   return function (next) {
     return function (reducer, initialState) {
-
       var defaultConfig = {
         userProfile: null
       };
-
       var store = next(reducer, initialState);
 
       var dispatch = store.dispatch;
 
 
-      var ref = new _firebase2.default(url);
+      try {
+        _firebase2.default.initializeApp(config);
+      } catch (err) {
+        console.warn('Firebase error:', err);
+      }
+
+      var ref = _firebase2.default.database().ref();
 
       var configs = Object.assign({}, defaultConfig, config);
 
-      var firebase = {
-        ref: ref,
-        _: {
+      var firebase = Object.defineProperty(_firebase2.default, '_', {
+        value: {
           watchers: {},
           config: configs,
           authUid: null
-        }
-      };
+        },
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
 
       var set = function set(path, value, onComplete) {
         return ref.child(path).set(value, onComplete);
