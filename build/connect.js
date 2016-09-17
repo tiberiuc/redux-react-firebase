@@ -16,18 +16,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _actions = require('./actions');
 
-var _reactRedux = require('react-redux');
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _helpers = require('./helpers');
-
-var helpers = _interopRequireWildcard(_helpers);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -90,11 +78,12 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
       return createEvents(transformEvent({ path: path }));
     }
 
-    if (typeof path == 'array' || path instanceof Array) {
+    if (typeof path === 'array' || path instanceof Array) {
+      // eslint-disable-line
       return createEvents(transformEvent({ type: 'all', path: path[0] }));
     }
 
-    if ((typeof path === 'undefined' ? 'undefined' : _typeof(path)) == 'object' || path instanceof Object) {
+    if ((typeof path === 'undefined' ? 'undefined' : _typeof(path)) === 'object' || path instanceof Object) {
       var type = path.type || 'value';
       switch (type) {
         case 'value':
@@ -112,21 +101,23 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
 exports.default = function () {
   var dataOrFn = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
   return function (WrappedComponent) {
-    var _class, _temp;
-
-    var FirebaseConnect = (_temp = _class = function (_Component) {
-      _inherits(FirebaseConnect, _Component);
+    var FirebaseConnect = function (_React$Component) {
+      _inherits(FirebaseConnect, _React$Component);
 
       function FirebaseConnect(props, context) {
         _classCallCheck(this, FirebaseConnect);
 
-        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FirebaseConnect).call(this, props, context));
+        var _this = _possibleConstructorReturn(this, (FirebaseConnect.__proto__ || Object.getPrototypeOf(FirebaseConnect)).call(this, props, context));
 
         _this._firebaseEvents = [];
         _this._pathsToListen = undefined;
         _this.firebase = null;
         return _this;
       }
+
+      // static contextTypes = {
+      //   store: PropTypes.object
+      // };
 
       _createClass(FirebaseConnect, [{
         key: 'componentWillMount',
@@ -186,11 +177,13 @@ exports.default = function () {
       }]);
 
       return FirebaseConnect;
-    }(_react.Component), _class.contextTypes = {
-      store: _react.PropTypes.object
-    }, _temp);
+    }(_react2.default.Component);
 
-
+    FirebaseConnect.contextTypes = {
+      store: function store() {
+        return _react.PropTypes.object.isRequired;
+      }
+    };
     return FirebaseConnect;
   };
 };
