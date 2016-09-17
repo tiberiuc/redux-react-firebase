@@ -1,6 +1,8 @@
 # redux-react-firebase
 Use Firebase with React and Redux in ES6
 
+# IMPORTANT !!! - use this branch for Firebase older then v3
+
 ## Features
 - Integrated into redux
 - Support small data ( using `value` ) or large datasets ( using `child_added`, `child_removed`, `child_changed`
