@@ -96,3 +96,4 @@ You can see a complete example [here](example)
 ## Contributors
 - [Tiberiu Craciun](https://github.com/tiberiuc)
 - [Rahav Lussto](https://github.com/RahavLussato)
+- [Prescott Prue](https://github.com/prescottprue)
