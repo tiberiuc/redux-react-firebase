@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, {PropTypes} from 'react'
+=======
+import React, {Component} from 'react'
+>>>>>>> cb42bba950e45b7b67bfd206c8d9f8440ce429f5
 import {watchEvents, unWatchEvents} from './actions'
 
 const defaultEvent = {
@@ -6,14 +10,21 @@ const defaultEvent = {
   type: 'value'
 }
 
+<<<<<<< HEAD
 const fixPath = (path) =>  ((path.substring(0,1) == '/') ? '': '/') + path
 
 const isEqualArrays = (a, b) => a.length == b.length && a.every((v,i) => v === b[i])
 
+=======
+>>>>>>> cb42bba950e45b7b67bfd206c8d9f8440ce429f5
 const ensureCallable = maybeFn =>
-  typeof maybeFn === 'function' ? maybeFn : (_ => maybeFn)
+  typeof maybeFn === 'function' ? maybeFn : _ => maybeFn
 
+<<<<<<< HEAD
 const flatMap = arr => (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
+=======
+const flatMap = arr =>  (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
+>>>>>>> cb42bba950e45b7b67bfd206c8d9f8440ce429f5
 
 const createEvents = ({type, path}) => {
   switch (type) {
@@ -61,7 +72,11 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
 }))
 
 export default (dataOrFn = []) => WrappedComponent => {
+<<<<<<< HEAD
   class FirebaseConnect extends React.Component {
+=======
+  class FirebaseConnect extends Component {
+>>>>>>> cb42bba950e45b7b67bfd206c8d9f8440ce429f5
 
     constructor (props, context) {
       super(props, context)
@@ -87,6 +102,7 @@ export default (dataOrFn = []) => WrappedComponent => {
       watchEvents(firebase, dispatch, this._firebaseEvents)
     }
 
+<<<<<<< HEAD
     componentWillReceiveProps(nextProps) {
       const {firebase, dispatch} = this.context.store
 
@@ -99,17 +115,24 @@ export default (dataOrFn = []) => WrappedComponent => {
 
       this._pathsToListen = newPathsToListen;
 
+=======
+    componentWillUnmount () {
+      const {firebase} = this.context.store
+>>>>>>> cb42bba950e45b7b67bfd206c8d9f8440ce429f5
       unWatchEvents(firebase, this._firebaseEvents)
 
       this._firebaseEvents = getEventsFromDefinition(this._pathsToListen)
       watchEvents(firebase, dispatch, this._firebaseEvents)
     }
 
+<<<<<<< HEAD
     componentWillUnmount () {
       const {firebase} = this.context.store
       unWatchEvents(firebase, this._firebaseEvents)
     }
 
+=======
+>>>>>>> cb42bba950e45b7b67bfd206c8d9f8440ce429f5
     render () {
       return (
         <WrappedComponent
