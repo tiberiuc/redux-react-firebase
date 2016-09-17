@@ -101,8 +101,8 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
 exports.default = function () {
   var dataOrFn = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
   return function (WrappedComponent) {
-    var FirebaseConnect = function (_React$Component) {
-      _inherits(FirebaseConnect, _React$Component);
+    var FirebaseConnect = function (_Component) {
+      _inherits(FirebaseConnect, _Component);
 
       function FirebaseConnect(props, context) {
         _classCallCheck(this, FirebaseConnect);
@@ -177,7 +177,7 @@ exports.default = function () {
       }]);
 
       return FirebaseConnect;
-    }(_react2.default.Component);
+    }(_react.Component);
 
     FirebaseConnect.contextTypes = {
       store: function store() {
