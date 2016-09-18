@@ -70,9 +70,9 @@ export default (dataOrFn = []) => WrappedComponent => {
       this.firebase = null
     }
 
-    // static contextTypes = {
-    //   store: PropTypes.object
-    // };
+    static contextTypes = {
+      store: PropTypes.object.isRequired
+    };
 
     componentWillMount () {
       const {firebase, dispatch} = this.context.store
@@ -118,11 +118,6 @@ export default (dataOrFn = []) => WrappedComponent => {
           firebase={this.firebase}
         />
       )
-    }
-  }
-  FirebaseConnect.contextTypes = {
-    store: function () {
-      return PropTypes.object.isRequired
     }
   }
   return FirebaseConnect
