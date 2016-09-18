@@ -3,7 +3,7 @@ Use Firebase with React and Redux in ES6
 
 
 ## Features
-- Suport for Firebase v3 (for older Firebase version use branch 1.x)
+- Suport for Firebase v3 (for older Firebase version use [Branch 1.x](https://github.com/tiberiuc/redux-react-firebase/tree/1.x))
 - Integrated into redux
 - Support small data ( using `value` ) or large datasets ( using `child_added`, `child_removed`, `child_changed`
 - queries support ( `orderByChild`, `orderByKey`, `orderByValue`, `orderByPriority`, `limitToLast`, `limitToFirst`, `startAt`, `endAt`, `equalTo` right now )
@@ -96,3 +96,4 @@ You can see a complete example [here](example)
 ## Contributors
 - [Tiberiu Craciun](https://github.com/tiberiuc)
 - [Rahav Lussto](https://github.com/RahavLussato)
+- [Prescott Prue](https://github.com/prescottprue)
