@@ -51,6 +51,7 @@
     "babel-preset-stage-1": "^6.3.13",
     "babel-register": "^6.16.3",
     "chai": "^3.5.0",
+    "chai-spies": "^0.7.1",
     "eslint": "^2.13.1",
     "eslint-config-standard": "^5.3.1",
     "eslint-config-standard-react": "^2.5.0",
