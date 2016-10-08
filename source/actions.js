@@ -252,9 +252,9 @@ export const init = (dispatch, firebase) => {
   firebase.auth().currentUser
 }
 
-export const logout = (dispatch, firebase) => {
+export const logout = (dispatch, firebase, preserve = [], remove = []) => {
   firebase.auth().signOut()
-  dispatch({type: LOGOUT})
+  dispatch({type: LOGOUT, preserve, remove})
   firebase._.authUid = null
   unWatchUserProfile(firebase)
 }
@@ -291,7 +291,7 @@ export const resetPassword = (dispatch, firebase, email) => {
       }
       return
     }
-  });
+  })
 }
 
 export default { watchEvents, unWatchEvents, init, logout, createUser, resetPassword }

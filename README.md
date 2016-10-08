@@ -93,6 +93,13 @@ See [API](API.md)
 ## Example
 You can see a complete example [here](example)
 
+## Tests
+Mocha.js is used as test runner. To run the tests, run
+
+```
+npm run test
+```
+
 ## Contributors
 - [Tiberiu Craciun](https://github.com/tiberiuc)
 - [Rahav Lussto](https://github.com/RahavLussato)
