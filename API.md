@@ -190,8 +190,10 @@ Always authenticate the new user in case of success
 #### Return
 Return a promise with authData in case of success or the error otherwise.
 
-### `logout()`
-Logout from Firebase and delete all data from the store (`store.state.firebase.data`).
+### `logout(preserve = [], remove = [])`
+Logout from Firebase and delete data from the store (`store.state.firebase.data`) except for paths defined in the `preserve` array argument.
+If you want to delete some parts of the preserved subtrees, you can specify the paths in the `remove` argument. Both of these arguments are
+optional and are empty arrays by default. If you do not specify them, all the data is deleted. 
 
 `store.state.firebase.auth` is set to `null`
 

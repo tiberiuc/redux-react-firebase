@@ -52,13 +52,35 @@ export default (state = initialState, action) => {
         : state.deleteIn(['profile'])
 
     case LOGOUT:
-      return fromJS({
-        auth: null,
-        authError: null,
-        profile: null,
-        data: {},
-        snapshot: {}
+      const {preserve = [], remove = []} = action
+      let preserved = fromJS({data: {}, snapshot: {}});
+
+      // preserving and removing must be applied to both the 'data' and 'snapshot' subtrees of the state
+      ['data', 'snapshot'].map(type => {
+        // some predefined paths should not be removed after logout
+        preserve
+          .map(path => [type, ...pathToArr(path)])
+          .map(pathArr => {
+            if (state.hasIn(pathArr)) {
+              preserved = preserved.setIn(pathArr, state.getIn(pathArr))
+            }
+          })
+
+        // but some sub-parts of this preserved state should be still removed
+        remove
+          .map(path => [type, ...pathToArr(path)])
+          .map(pathArr => {
+            preserved = preserved.removeIn(pathArr)
+          })
       })
+
+      return preserved.merge(
+        fromJS({
+          auth: null,
+          authError: null,
+          profile: null
+        })
+      )
 
     case LOGIN:
       return state.setIn(['auth'], fromJS(action.auth))
