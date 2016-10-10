@@ -233,7 +233,12 @@ export const login = (dispatch, firebase, credentials) => {
     dispatchLoginError(dispatch, null)
 
     const {email, password} = credentials
-    firebase.auth().signInWithEmailAndPassword(email, password).then(resolve).catch(reject);
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(resolve)
+      .catch(err => {
+        dispatchLoginError(dispatch, err)
+        reject(err)
+      });
   })
 }
 
