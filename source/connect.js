@@ -8,7 +8,11 @@ const defaultEvent = {
 
 const fixPath = (path) =>  ((path.substring(0,1) == '/') ? '': '/') + path
 
-const isEqualArrays = (a, b) => a.length == b.length && a.every((v,i) => v === b[i])
+const isEqualArrays = (a, b) => a.length == b.length && a.every((v,i) => {
+  const v1 = typeof v === 'string' ? v : v[0];
+  const v2 = typeof b[i] === 'string' ? b[i] : b[i][0];
+  return v1 === v2;
+})
 
 const ensureCallable = maybeFn =>
   typeof maybeFn === 'function' ? maybeFn : _ => maybeFn
