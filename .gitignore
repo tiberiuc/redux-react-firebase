@@ -1,6 +1,6 @@
 # Dependency directory
 node_modules
-build
+#build
 
 # Logs
 *.log
