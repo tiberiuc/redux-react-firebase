@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import {watchEvents, unWatchEvents} from './actions'
+import { isEqual } from 'lodash'
 
 const defaultEvent = {
   path: '',
@@ -7,12 +8,6 @@ const defaultEvent = {
 }
 
 const fixPath = (path) =>  ((path.substring(0,1) == '/') ? '': '/') + path
-
-const isEqualArrays = (a, b) => a.length == b.length && a.every((v,i) => {
-  const v1 = typeof v === 'string' ? v : v[0];
-  const v2 = typeof b[i] === 'string' ? b[i] : b[i][0];
-  return v1 === v2;
-})
 
 const ensureCallable = maybeFn =>
   typeof maybeFn === 'function' ? maybeFn : _ => maybeFn
@@ -25,9 +20,12 @@ const createEvents = ({type, path}) => {
     case 'value':
       return [{name: 'value', path}]
 
+    case 'once':
+      return [{name: 'once', path}]
+
     case 'all':
       return [
-        {name: 'first_child', path},
+        //{name: 'first_child', path},
         {name: 'child_added', path},
         {name: 'child_removed', path},
         {name: 'child_moved', path},
@@ -55,6 +53,9 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
     switch (type) {
       case 'value':
         return createEvents(transformEvent({ path: path.path }))
+
+      case 'once':
+        return createEvents(transformEvent({ type: 'once', path: path.path }))
 
       case 'array':
         return createEvents(transformEvent({ type: 'all', path: path.path }))
@@ -97,21 +98,19 @@ export default (dataOrFn = []) => WrappedComponent => {
       const linkFn = ensureCallable(dataOrFn)
       const newPathsToListen = linkFn(nextProps, firebase)
 
-      if (isEqualArrays(newPathsToListen, this._pathsToListen)) {
-        return;
+      if (!isEqual(newPathsToListen, this._pathsToListen)) {
+          this._pathsToListen = newPathsToListen;
+
+          unWatchEvents(firebase, dispatch, this._firebaseEvents, false)
+
+          this._firebaseEvents = getEventsFromDefinition(this._pathsToListen)
+          watchEvents(firebase, dispatch, this._firebaseEvents)
       }
-
-      this._pathsToListen = newPathsToListen;
-
-      unWatchEvents(firebase, this._firebaseEvents)
-
-      this._firebaseEvents = getEventsFromDefinition(this._pathsToListen)
-      watchEvents(firebase, dispatch, this._firebaseEvents)
     }
 
     componentWillUnmount () {
-      const {firebase} = this.context.store
-      unWatchEvents(firebase, this._firebaseEvents)
+      const {firebase, dispatch} = this.context.store
+      unWatchEvents(firebase, dispatch, this._firebaseEvents, true)
     }
 
     render () {
