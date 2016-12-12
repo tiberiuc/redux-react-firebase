@@ -24,6 +24,22 @@ export const pathToJS = (data, path, notSetValue) => {
   return data
 }
 
+export const customToJS = (data, path, custom, notSetValue) => {
+    if (!(data && data.getIn)) {
+        return notSetValue
+    }
+
+    const customPath = '/' + custom + fixPath(path)
+
+    const pathArr = customPath.split(/\//).slice(1)
+
+    if (data.getIn) {
+        return toJS(data.getIn(pathArr, notSetValue))
+    }
+
+    return data
+}
+
 export const dataToJS = (data, path, notSetValue) => {
   if (!(data && data.getIn)) {
     return notSetValue
@@ -68,4 +84,4 @@ export const isEmpty = data => {
   return !(data && size(data))
 }
 
-export default { pathToJS, dataToJS, snapshotToJS, isLoaded, isEmpty }
+export default { pathToJS, dataToJS, snapshotToJS, isLoaded, isEmpty, customToJS }
