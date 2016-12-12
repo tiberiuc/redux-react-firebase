@@ -133,9 +133,12 @@ exports.default = function () {
           this._pathsToListen = linkFn(this.props, firebase);
 
           var ref = firebase.ref,
-              helpers = firebase.helpers;
+              helpers = firebase.helpers,
+              storage = firebase.storage,
+              database = firebase.database,
+              auth = firebase.auth;
 
-          this.firebase = _extends({ ref: ref }, helpers);
+          this.firebase = _extends({ ref: ref, storage: storage, database: database, auth: auth }, helpers);
 
           this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
           (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);

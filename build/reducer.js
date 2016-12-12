@@ -32,7 +32,10 @@ var pathToArr = function pathToArr(path) {
 exports.default = function () {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
   var action = arguments[1];
-  var path = action.path;
+  var path = action.path,
+      timestamp = action.timestamp,
+      requesting = action.requesting,
+      requested = action.requested;
 
   var pathArr = void 0;
   var rootPathArr = void 0;
@@ -64,6 +67,7 @@ exports.default = function () {
 
       case _constants.SET:
         var data = action.data,
+            snapshot = action.snapshot,
             rootPath = action.rootPath;
 
         pathArr = pathToArr(path);

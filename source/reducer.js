@@ -24,7 +24,7 @@ const initialState = fromJS({
 const pathToArr = path => path.split(/\//).filter(p => !!p)
 
 export default (state = initialState, action) => {
-  const {path} = action
+  const {path, timestamp, requesting, requested} = action
   let pathArr
   let rootPathArr
   let retVal
@@ -53,7 +53,7 @@ export default (state = initialState, action) => {
         return retVal
 
     case SET:
-        const { data, rootPath } = action
+        const { data, snapshot, rootPath } = action
         pathArr = pathToArr(path)
         rootPathArr = pathToArr(rootPath)
 
