@@ -8,6 +8,6 @@ module.exports = {
   LOGOUT: `${prefix}LOGOUT`,
   LOGIN_ERROR: `${prefix}LOGIN_ERROR`,
 //  NO_VALUE: `${prefix}NO_VALUE`,
-  START: `${actionsPrefix}START`,
-  INIT_BY_PATH: `${actionsPrefix}INIT_BY_PATH`
+  START: `${prefix}START`,
+  INIT_BY_PATH: `${prefix}INIT_BY_PATH`
 }
