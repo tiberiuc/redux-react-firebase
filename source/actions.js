@@ -302,6 +302,11 @@ export const init = (dispatch, firebase) => {
   })
 
   firebase.auth().currentUser
+
+  // Run onAuthStateChanged if it exists in config
+  if (firebase._.config.onAuthStateChanged) {
+      firebase._.config.onAuthStateChanged(authData, firebase)
+  }
 }
 
 export const logout = (dispatch, firebase, preserve = [], remove = []) => {

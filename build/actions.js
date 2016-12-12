@@ -317,6 +317,11 @@ var init = exports.init = function init(dispatch, firebase) {
   });
 
   firebase.auth().currentUser;
+
+  // Run onAuthStateChanged if it exists in config
+  if (firebase._.config.onAuthStateChanged) {
+    firebase._.config.onAuthStateChanged(authData, firebase);
+  }
 };
 
 var logout = exports.logout = function logout(dispatch, firebase) {

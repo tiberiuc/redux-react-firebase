@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isEmpty = exports.isLoaded = exports.snapshotToJS = exports.dataToJS = exports.pathToJS = exports.toJS = undefined;
+exports.isEmpty = exports.isLoaded = exports.snapshotToJS = exports.dataToJS = exports.customToJS = exports.pathToJS = exports.toJS = undefined;
 
 var _lodash = require('lodash');
 
@@ -25,6 +25,22 @@ var pathToJS = exports.pathToJS = function pathToJS(data, path, notSetValue) {
   }
 
   var pathArr = fixPath(path).split(/\//).slice(1);
+
+  if (data.getIn) {
+    return toJS(data.getIn(pathArr, notSetValue));
+  }
+
+  return data;
+};
+
+var customToJS = exports.customToJS = function customToJS(data, path, custom, notSetValue) {
+  if (!(data && data.getIn)) {
+    return notSetValue;
+  }
+
+  var customPath = '/' + custom + fixPath(path);
+
+  var pathArr = customPath.split(/\//).slice(1);
 
   if (data.getIn) {
     return toJS(data.getIn(pathArr, notSetValue));
@@ -81,4 +97,4 @@ var isEmpty = exports.isEmpty = function isEmpty(data) {
   return !(data && (0, _lodash.size)(data));
 };
 
-exports.default = { pathToJS: pathToJS, dataToJS: dataToJS, snapshotToJS: snapshotToJS, isLoaded: isLoaded, isEmpty: isEmpty };
+exports.default = { pathToJS: pathToJS, dataToJS: dataToJS, snapshotToJS: snapshotToJS, isLoaded: isLoaded, isEmpty: isEmpty, customToJS: customToJS };
