@@ -34,11 +34,11 @@ export default (state = initialState, action) => {
     case START:
       pathArr = pathToArr(path)
       retVal = (requesting !== undefined)
-          ? state.setIn(['requesting', ...pathArr], fromJS(requesting))
+          ? state.setIn(['requesting', ...pathArr], fromJS({requesting: requesting}))
           : state.deleteIn(['requesting', ...pathArr])
 
       retVal = (requested !== undefined)
-          ? retVal.setIn(['requested', ...pathArr], fromJS(requested))
+          ? retVal.setIn(['requested', ...pathArr], fromJS({requested: requested}))
           : retVal.deleteIn(['requested', ...pathArr])
 
       return retVal;
@@ -66,15 +66,15 @@ export default (state = initialState, action) => {
             : retVal.deleteIn(['snapshot', ...pathArr])
 
         retVal = (timestamp !== undefined)
-            ? retVal.setIn(['timestamp', ...rootPathArr], fromJS(timestamp))
+            ? retVal.setIn(['timestamp', ...rootPathArr], fromJS({timestamp: timestamp}))
             : retVal.deleteIn(['timestamp', ...rootPathArr])
 
         retVal = (requesting !== undefined)
-            ? retVal.setIn(['requesting', ...rootPathArr], fromJS(requesting))
+            ? retVal.setIn(['requesting', ...rootPathArr], fromJS({requesting: requesting}))
             : retVal.deleteIn(['requesting', ...rootPathArr])
 
         retVal = (requested !== undefined)
-            ? retVal.setIn(['requested', ...rootPathArr], fromJS(requested))
+            ? retVal.setIn(['requested', ...rootPathArr], fromJS({requested: requested}))
             : retVal.deleteIn(['requested', ...rootPathArr])
 
         return retVal

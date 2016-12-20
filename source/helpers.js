@@ -34,7 +34,14 @@ export const customToJS = (data, path, custom, notSetValue) => {
     const pathArr = customPath.split(/\//).slice(1)
 
     if (data.getIn) {
-        return toJS(data.getIn(pathArr, notSetValue))
+        let retVal = toJS(data.getIn(pathArr, notSetValue));
+
+        if (retVal && (custom === 'timestamp' || custom === 'requesting' || custom === 'requested')) {
+            retVal = retVal[custom];
+
+        }
+
+        return retVal
     }
 
     return data
