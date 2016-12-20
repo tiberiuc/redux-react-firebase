@@ -38,7 +38,6 @@ export const customToJS = (data, path, custom, notSetValue) => {
 
         if (retVal) {
             retVal = retVal[custom];
-
         }
 
         return retVal
@@ -61,7 +60,6 @@ export const dataToJS = (data, path, notSetValue) => {
 
       if (retVal) {
           retVal = retVal['data'];
-
       }
 
       return retVal
@@ -84,7 +82,6 @@ export const snapshotToJS = (snapshot, path, notSetValue) => {
 
       if (retVal) {
           retVal = retVal['snapshot'];
-
       }
 
       return retVal
