@@ -46,9 +46,9 @@ exports.default = function () {
 
       case _constants.START:
         pathArr = pathToArr(path);
-        retVal = requesting !== undefined ? state.setIn(['requesting'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(requesting)) : state.deleteIn(['requesting'].concat(_toConsumableArray(pathArr)));
+        retVal = requesting !== undefined ? state.setIn(['requesting'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)({ requesting: requesting })) : state.deleteIn(['requesting'].concat(_toConsumableArray(pathArr)));
 
-        retVal = requested !== undefined ? retVal.setIn(['requested'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(requested)) : retVal.deleteIn(['requested'].concat(_toConsumableArray(pathArr)));
+        retVal = requested !== undefined ? retVal.setIn(['requested'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)({ requested: requested })) : retVal.deleteIn(['requested'].concat(_toConsumableArray(pathArr)));
 
         return {
           v: retVal
@@ -77,11 +77,11 @@ exports.default = function () {
 
         retVal = snapshot !== undefined ? retVal.setIn(['snapshot'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(snapshot)) : retVal.deleteIn(['snapshot'].concat(_toConsumableArray(pathArr)));
 
-        retVal = timestamp !== undefined ? retVal.setIn(['timestamp'].concat(_toConsumableArray(rootPathArr)), (0, _immutable.fromJS)(timestamp)) : retVal.deleteIn(['timestamp'].concat(_toConsumableArray(rootPathArr)));
+        retVal = timestamp !== undefined ? retVal.setIn(['timestamp'].concat(_toConsumableArray(rootPathArr)), (0, _immutable.fromJS)({ timestamp: timestamp })) : retVal.deleteIn(['timestamp'].concat(_toConsumableArray(rootPathArr)));
 
-        retVal = requesting !== undefined ? retVal.setIn(['requesting'].concat(_toConsumableArray(rootPathArr)), (0, _immutable.fromJS)(requesting)) : retVal.deleteIn(['requesting'].concat(_toConsumableArray(rootPathArr)));
+        retVal = requesting !== undefined ? retVal.setIn(['requesting'].concat(_toConsumableArray(rootPathArr)), (0, _immutable.fromJS)({ requesting: requesting })) : retVal.deleteIn(['requesting'].concat(_toConsumableArray(rootPathArr)));
 
-        retVal = requested !== undefined ? retVal.setIn(['requested'].concat(_toConsumableArray(rootPathArr)), (0, _immutable.fromJS)(requested)) : retVal.deleteIn(['requested'].concat(_toConsumableArray(rootPathArr)));
+        retVal = requested !== undefined ? retVal.setIn(['requested'].concat(_toConsumableArray(rootPathArr)), (0, _immutable.fromJS)({ requested: requested })) : retVal.deleteIn(['requested'].concat(_toConsumableArray(rootPathArr)));
 
         return {
           v: retVal

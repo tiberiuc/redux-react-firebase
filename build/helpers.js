@@ -43,7 +43,13 @@ var customToJS = exports.customToJS = function customToJS(data, path, custom, no
   var pathArr = customPath.split(/\//).slice(1);
 
   if (data.getIn) {
-    return toJS(data.getIn(pathArr, notSetValue));
+    var retVal = toJS(data.getIn(pathArr, notSetValue));
+
+    if (retVal && (custom === 'timestamp' || custom === 'requesting' || custom === 'requested')) {
+      retVal = retVal[custom];
+    }
+
+    return retVal;
   }
 
   return data;
