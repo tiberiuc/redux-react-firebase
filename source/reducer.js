@@ -33,22 +33,39 @@ export default (state = initialState, action) => {
 
     case START:
       pathArr = pathToArr(path)
-      retVal = (requesting !== undefined)
-          ? state.setIn(['requesting', ...pathArr], fromJS({requesting: requesting}))
-          : state.deleteIn(['requesting', ...pathArr])
 
+      pathArr.push('requesting')
+      retVal = (requesting !== undefined)
+          ? state.setIn(['requesting', ...pathArr], fromJS(requesting))
+          : state.deleteIn(['requesting', ...pathArr])
+      pathArr.pop()
+
+      pathArr.push('requested')
       retVal = (requested !== undefined)
-          ? retVal.setIn(['requested', ...pathArr], fromJS({requested: requested}))
+          ? retVal.setIn(['requested', ...pathArr], fromJS(requested))
           : retVal.deleteIn(['requested', ...pathArr])
+      pathArr.pop()
 
       return retVal;
 
     case INIT_BY_PATH:
         pathArr = pathToArr(path)
+
+        pathArr.push('data')
         retVal = state.deleteIn(['data', ...pathArr])
+        pathArr.pop()
+
+        pathArr.push('timestamp')
         retVal = retVal.deleteIn(['timestamp', ...pathArr])
+        pathArr.pop()
+
+        pathArr.push('requesting')
         retVal = retVal.deleteIn(['requesting', ...pathArr])
+        pathArr.pop()
+
+        pathArr.push('requested')
         retVal = retVal.deleteIn(['requested', ...pathArr])
+        pathArr.pop()
 
         return retVal
 
@@ -57,25 +74,35 @@ export default (state = initialState, action) => {
         pathArr = pathToArr(path)
         rootPathArr = pathToArr(rootPath)
 
+        pathArr.push('data')
         retVal = (data !== undefined)
             ? state.setIn(['data', ...pathArr], fromJS(data))
             : state.deleteIn(['data', ...pathArr])
+        pathArr.pop()
 
+        pathArr.push('snapshot')
         retVal = (snapshot !== undefined)
             ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
             : retVal.deleteIn(['snapshot', ...pathArr])
+        pathArr.pop()
 
+        rootPathArr.push('timestamp')
         retVal = (timestamp !== undefined)
-            ? retVal.setIn(['timestamp', ...rootPathArr], fromJS({timestamp: timestamp}))
+            ? retVal.setIn(['timestamp', ...rootPathArr], fromJS(timestamp))
             : retVal.deleteIn(['timestamp', ...rootPathArr])
+        rootPathArr.pop()
 
+        rootPathArr.push('requesting')
         retVal = (requesting !== undefined)
-            ? retVal.setIn(['requesting', ...rootPathArr], fromJS({requesting: requesting}))
+            ? retVal.setIn(['requesting', ...rootPathArr], fromJS(requesting))
             : retVal.deleteIn(['requesting', ...rootPathArr])
+        rootPathArr.pop()
 
+        rootPathArr.push('requested')
         retVal = (requested !== undefined)
             ? retVal.setIn(['requested', ...rootPathArr], fromJS({requested: requested}))
             : retVal.deleteIn(['requested', ...rootPathArr])
+        rootPathArr.pop()
 
         return retVal
 
