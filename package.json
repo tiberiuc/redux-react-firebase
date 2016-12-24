@@ -29,7 +29,8 @@
     "react"
   ],
   "dependencies": {
-    "es6-promise": "^3.2.1"
+    "es6-promise": "^3.2.1",
+    "lodash": "^4.17.2"
   },
   "peerDependencies": {
     "firebase": "^3.1.0",
