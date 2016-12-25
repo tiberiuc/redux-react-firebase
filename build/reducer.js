@@ -107,7 +107,7 @@ exports.default = function () {
                 rootPathArr.pop();
 
                 rootPathArr.push('requested');
-                retVal = requested !== undefined ? retVal.setIn(['requested'].concat(_toConsumableArray(rootPathArr)), (0, _immutable.fromJS)({ requested: requested })) : retVal.deleteIn(['requested'].concat(_toConsumableArray(rootPathArr)));
+                retVal = requested !== undefined ? retVal.setIn(['requested'].concat(_toConsumableArray(rootPathArr)), (0, _immutable.fromJS)(requested)) : retVal.deleteIn(['requested'].concat(_toConsumableArray(rootPathArr)));
                 rootPathArr.pop();
 
                 return {
