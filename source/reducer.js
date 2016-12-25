@@ -100,7 +100,7 @@ export default (state = initialState, action) => {
 
         rootPathArr.push('requested')
         retVal = (requested !== undefined)
-            ? retVal.setIn(['requested', ...rootPathArr], fromJS({requested: requested}))
+            ? retVal.setIn(['requested', ...rootPathArr], fromJS(requested))
             : retVal.deleteIn(['requested', ...rootPathArr])
         rootPathArr.pop()
 
