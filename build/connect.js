@@ -1,7 +1,7 @@
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -27,165 +27,168 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var defaultEvent = {
-  path: '',
-  type: 'value'
+    path: '',
+    type: 'value',
+    isListenOnlyOnDelta: false
 };
 
 var fixPath = function fixPath(path) {
-  return (path.substring(0, 1) == '/' ? '' : '/') + path;
+    return (path.substring(0, 1) == '/' ? '' : '/') + path;
 };
 
 var ensureCallable = function ensureCallable(maybeFn) {
-  return typeof maybeFn === 'function' ? maybeFn : function (_) {
-    return maybeFn;
-  };
+    return typeof maybeFn === 'function' ? maybeFn : function (_) {
+        return maybeFn;
+    };
 };
 
 var flatMap = function flatMap(arr) {
-  return arr && arr.length ? arr.reduce(function (a, b) {
-    return a.concat(b);
-  }) : [];
+    return arr && arr.length ? arr.reduce(function (a, b) {
+        return a.concat(b);
+    }) : [];
 };
 
 var createEvents = function createEvents(_ref) {
-  var type = _ref.type,
-      path = _ref.path;
+    var type = _ref.type,
+        path = _ref.path,
+        isListenOnlyOnDelta = _ref.isListenOnlyOnDelta;
 
-  switch (type) {
+    switch (type) {
 
-    case 'value':
-      return [{ name: 'value', path: path }];
+        case 'value':
+            return [{ name: 'value', path: path }];
 
-    case 'once':
-      return [{ name: 'once', path: path }];
+        case 'once':
+            return [{ name: 'once', path: path }];
 
-    case 'all':
-      return [
-      //{name: 'first_child', path},
-      { name: 'child_added', path: path }, { name: 'child_removed', path: path }, { name: 'child_moved', path: path }, { name: 'child_changed', path: path }];
+        case 'all':
+            return [
+            //{name: 'first_child', path},
+            { name: 'child_added', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_removed', path: path }, { name: 'child_moved', path: path }, { name: 'child_changed', path: path }];
 
-    default:
-      return [];
-  }
+        default:
+            return [];
+    }
 };
 
 var transformEvent = function transformEvent(event) {
-  return Object.assign({}, defaultEvent, event);
+    return Object.assign({}, defaultEvent, event);
 };
 
 var getEventsFromDefinition = function getEventsFromDefinition(def) {
-  return flatMap(def.map(function (path) {
-    if (typeof path === 'string' || path instanceof String) {
-      return createEvents(transformEvent({ path: path }));
-    }
+    return flatMap(def.map(function (path) {
+        if (typeof path === 'string' || path instanceof String) {
+            return createEvents(transformEvent({ path: path }));
+        }
 
-    if (typeof path === 'array' || path instanceof Array) {
-      // eslint-disable-line
-      return createEvents(transformEvent({ type: 'all', path: path[0] }));
-    }
+        if (typeof path === 'array' || path instanceof Array) {
+            // eslint-disable-line
+            return createEvents(transformEvent({ type: 'all', path: path[0] }));
+        }
 
-    if ((typeof path === 'undefined' ? 'undefined' : _typeof(path)) === 'object' || path instanceof Object) {
-      var type = path.type || 'value';
-      switch (type) {
-        case 'value':
-          return createEvents(transformEvent({ path: path.path }));
+        if ((typeof path === 'undefined' ? 'undefined' : _typeof(path)) === 'object' || path instanceof Object) {
+            var type = path.type || 'value';
+            switch (type) {
+                case 'value':
+                    return createEvents(transformEvent({ path: path.path }));
 
-        case 'once':
-          return createEvents(transformEvent({ type: 'once', path: path.path }));
+                case 'once':
+                    return createEvents(transformEvent({ type: 'once', path: path.path }));
 
-        case 'array':
-          return createEvents(transformEvent({ type: 'all', path: path.path }));
-      }
-    }
+                case 'array':
+                case 'all':
+                    return createEvents(transformEvent({ type: 'all', path: path.path, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta }));
+            }
+        }
 
-    return [];
-  }));
+        return [];
+    }));
 };
 
 exports.default = function () {
-  var dataOrFn = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-  return function (WrappedComponent) {
-    var _class, _temp;
+    var dataOrFn = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+    return function (WrappedComponent) {
+        var _class, _temp;
 
-    var FirebaseConnect = (_temp = _class = function (_Component) {
-      _inherits(FirebaseConnect, _Component);
+        var FirebaseConnect = (_temp = _class = function (_Component) {
+            _inherits(FirebaseConnect, _Component);
 
-      function FirebaseConnect(props, context) {
-        _classCallCheck(this, FirebaseConnect);
+            function FirebaseConnect(props, context) {
+                _classCallCheck(this, FirebaseConnect);
 
-        var _this = _possibleConstructorReturn(this, (FirebaseConnect.__proto__ || Object.getPrototypeOf(FirebaseConnect)).call(this, props, context));
+                var _this = _possibleConstructorReturn(this, (FirebaseConnect.__proto__ || Object.getPrototypeOf(FirebaseConnect)).call(this, props, context));
 
-        _this._firebaseEvents = [];
-        _this._pathsToListen = undefined;
-        _this.firebase = null;
-        return _this;
-      }
+                _this._firebaseEvents = [];
+                _this._pathsToListen = undefined;
+                _this.firebase = null;
+                return _this;
+            }
 
-      _createClass(FirebaseConnect, [{
-        key: 'componentWillMount',
-        value: function componentWillMount() {
-          var _context$store = this.context.store,
-              firebase = _context$store.firebase,
-              dispatch = _context$store.dispatch;
-
-
-          var linkFn = ensureCallable(dataOrFn);
-          this._pathsToListen = linkFn(this.props, firebase);
-
-          var ref = firebase.ref,
-              helpers = firebase.helpers,
-              storage = firebase.storage,
-              database = firebase.database,
-              auth = firebase.auth;
-
-          this.firebase = _extends({ ref: ref, storage: storage, database: database, auth: auth }, helpers);
-
-          this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
-          (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
-        }
-      }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps) {
-          var _context$store2 = this.context.store,
-              firebase = _context$store2.firebase,
-              dispatch = _context$store2.dispatch;
+            _createClass(FirebaseConnect, [{
+                key: 'componentWillMount',
+                value: function componentWillMount() {
+                    var _context$store = this.context.store,
+                        firebase = _context$store.firebase,
+                        dispatch = _context$store.dispatch;
 
 
-          var linkFn = ensureCallable(dataOrFn);
-          var newPathsToListen = linkFn(nextProps, firebase);
+                    var linkFn = ensureCallable(dataOrFn);
+                    this._pathsToListen = linkFn(this.props, firebase);
 
-          if (!(0, _lodash.isEqual)(newPathsToListen, this._pathsToListen)) {
-            this._pathsToListen = newPathsToListen;
+                    var ref = firebase.ref,
+                        helpers = firebase.helpers,
+                        storage = firebase.storage,
+                        database = firebase.database,
+                        auth = firebase.auth;
 
-            (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, nextProps.isNeedToClean != undefined ? nextProps.isNeedToClean : false);
+                    this.firebase = _extends({ ref: ref, storage: storage, database: database, auth: auth }, helpers);
 
-            this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
-            (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
-          }
-        }
-      }, {
-        key: 'componentWillUnmount',
-        value: function componentWillUnmount() {
-          var _context$store3 = this.context.store,
-              firebase = _context$store3.firebase,
-              dispatch = _context$store3.dispatch;
+                    this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
+                    (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
+                }
+            }, {
+                key: 'componentWillReceiveProps',
+                value: function componentWillReceiveProps(nextProps) {
+                    var _context$store2 = this.context.store,
+                        firebase = _context$store2.firebase,
+                        dispatch = _context$store2.dispatch;
 
-          (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, true);
-        }
-      }, {
-        key: 'render',
-        value: function render() {
-          return _react2.default.createElement(WrappedComponent, _extends({}, this.props, this.state, {
-            firebase: this.firebase
-          }));
-        }
-      }]);
 
-      return FirebaseConnect;
-    }(_react.Component), _class.contextTypes = {
-      store: _react.PropTypes.object.isRequired
-    }, _temp);
+                    var linkFn = ensureCallable(dataOrFn);
+                    var newPathsToListen = linkFn(nextProps, firebase);
 
-    return FirebaseConnect;
-  };
+                    if (!(0, _lodash.isEqual)(newPathsToListen, this._pathsToListen)) {
+                        this._pathsToListen = newPathsToListen;
+
+                        (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, nextProps.isNeedToClean != undefined ? nextProps.isNeedToClean : false);
+
+                        this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
+                        (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
+                    }
+                }
+            }, {
+                key: 'componentWillUnmount',
+                value: function componentWillUnmount() {
+                    var _context$store3 = this.context.store,
+                        firebase = _context$store3.firebase,
+                        dispatch = _context$store3.dispatch;
+
+                    (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, true);
+                }
+            }, {
+                key: 'render',
+                value: function render() {
+                    return _react2.default.createElement(WrappedComponent, _extends({}, this.props, this.state, {
+                        firebase: this.firebase
+                    }));
+                }
+            }]);
+
+            return FirebaseConnect;
+        }(_react.Component), _class.contextTypes = {
+            store: _react.PropTypes.object.isRequired
+        }, _temp);
+
+        return FirebaseConnect;
+    };
 };

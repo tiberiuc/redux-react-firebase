@@ -1,7 +1,7 @@
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 
 var _firebase = require('firebase');
@@ -17,87 +17,87 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function (config) {
-  return function (next) {
-    return function (reducer, initialState) {
-      var defaultConfig = {
-        userProfile: null
-      };
-      var store = next(reducer, initialState);
+    return function (next) {
+        return function (reducer, initialState) {
+            var defaultConfig = {
+                userProfile: null
+            };
+            var store = next(reducer, initialState);
 
-      var dispatch = store.dispatch;
+            var dispatch = store.dispatch;
 
 
-      try {
-        _firebase2.default.initializeApp(config);
-      } catch (err) {
-        console.warn('Firebase error:', err);
-      }
+            try {
+                _firebase2.default.initializeApp(config);
+            } catch (err) {
+                console.warn('Firebase error:', err);
+            }
 
-      var ref = _firebase2.default.database().ref();
+            var ref = _firebase2.default.database().ref();
 
-      var configs = Object.assign({}, defaultConfig, config);
+            var configs = Object.assign({}, defaultConfig, config);
 
-      var firebase = Object.defineProperty(_firebase2.default, '_', {
-        value: {
-          watchers: {},
-          config: configs,
-          authUid: null
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      });
+            var firebase = Object.defineProperty(_firebase2.default, '_', {
+                value: {
+                    watchers: {},
+                    config: configs,
+                    authUid: null
+                },
+                writable: true,
+                enumerable: true,
+                configurable: true
+            });
 
-      var set = function set(path, value, onComplete) {
-        return ref.child(path).set(value, onComplete);
-      };
-      var push = function push(path, value, onComplete) {
-        return ref.child(path).push(value, onComplete);
-      };
-      var remove = function remove(path, onComplete) {
-        return ref.child(path).remove(onComplete);
-      };
-      var update = function update(path, value, onComplete) {
-        return ref.child(path).update(value, onComplete);
-      };
-      var watchEvent = function watchEvent(eventName, eventPath) {
-        return Actions.watchEvent(firebase, dispatch, eventName, eventPath);
-      };
-      var unWatchEvent = function unWatchEvent(eventName, eventPath) {
-        var isCleanState = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-        return Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, isCleanState);
-      };
-      var login = function login(credentials) {
-        return Actions.login(dispatch, firebase, credentials);
-      };
-      var logout = function logout() {
-        var preserve = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-        var remove = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-        return Actions.logout(dispatch, firebase, preserve, remove);
-      };
-      var createUser = function createUser(credentials, profile) {
-        return Actions.createUser(dispatch, firebase, credentials, profile);
-      };
-      var resetPassword = function resetPassword(credentials) {
-        return Actions.resetPassword(dispatch, firebase, credentials);
-      };
-      var changePassword = function changePassword(credentials) {
-        return Actions.changePassword(dispatch, firebase, credentials);
-      };
+            var set = function set(path, value, onComplete) {
+                return ref.child(path).set(value, onComplete);
+            };
+            var push = function push(path, value, onComplete) {
+                return ref.child(path).push(value, onComplete);
+            };
+            var remove = function remove(path, onComplete) {
+                return ref.child(path).remove(onComplete);
+            };
+            var update = function update(path, value, onComplete) {
+                return ref.child(path).update(value, onComplete);
+            };
+            var watchEvent = function watchEvent(eventName, eventPath, isListenOnlyOnDelta) {
+                return Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta);
+            };
+            var unWatchEvent = function unWatchEvent(eventName, eventPath) {
+                var isCleanState = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+                return Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, isCleanState);
+            };
+            var login = function login(credentials) {
+                return Actions.login(dispatch, firebase, credentials);
+            };
+            var logout = function logout() {
+                var preserve = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+                var remove = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+                return Actions.logout(dispatch, firebase, preserve, remove);
+            };
+            var createUser = function createUser(credentials, profile) {
+                return Actions.createUser(dispatch, firebase, credentials, profile);
+            };
+            var resetPassword = function resetPassword(credentials) {
+                return Actions.resetPassword(dispatch, firebase, credentials);
+            };
+            var changePassword = function changePassword(credentials) {
+                return Actions.changePassword(dispatch, firebase, credentials);
+            };
 
-      firebase.helpers = {
-        set: set, push: push, remove: remove, update: update,
-        createUser: createUser,
-        login: login, logout: logout,
-        resetPassword: resetPassword, changePassword: changePassword,
-        watchEvent: watchEvent, unWatchEvent: unWatchEvent
-      };
+            firebase.helpers = {
+                set: set, push: push, remove: remove, update: update,
+                createUser: createUser,
+                login: login, logout: logout,
+                resetPassword: resetPassword, changePassword: changePassword,
+                watchEvent: watchEvent, unWatchEvent: unWatchEvent
+            };
 
-      Actions.init(dispatch, firebase);
+            Actions.init(dispatch, firebase);
 
-      store.firebase = firebase;
+            store.firebase = firebase;
 
-      return store;
+            return store;
+        };
     };
-  };
 };
