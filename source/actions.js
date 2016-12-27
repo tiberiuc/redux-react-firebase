@@ -75,7 +75,7 @@ const unsetWatcher = (firebase, dispatch, event, path, queryId = undefined, isCl
   }
 }
 
-export const watchEvent = (firebase, dispatch, event, path, dest) => {
+export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=false) => {
   let isQuery = false
   let queryParams = []
   let queryId = getQueryIdFromPath(path, event)
@@ -87,7 +87,7 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
     queryParams = pathSplitted[1].split('&')
   }
 
-  const watchPath = (!dest) ? path : path + '@' + dest
+  const watchPath = path
   const counter = getWatcherCount(firebase, event, watchPath, queryId)
 
   if (counter > 0) {
@@ -180,18 +180,45 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
         return q.once('value')
             .then(snapshot => {
                 if (snapshot.val() !== null) {
-                    let data = {
-                        _id: snapshot.key,
-                        val: snapshot.val()
-                    }
-                    let resultPath = dest || (e === 'value') ? p : p + '/' + snapshot.key
-                    let rootPath = dest || path
-
                     dispatch({
                         type: SET,
-                        path: resultPath,
-                        rootPath,
-                        data,
+                        path: p,
+                        rootPath: path,
+                        data: snapshot.val(),
+                        snapshot,
+                        timestamp: Date.now(),
+                        requesting : false,
+                        requested : true
+                    })
+                }
+                return snapshot
+            })
+    } else if (e === 'child_added' && isListenOnlyOnDelta) {
+        let newItems = false;
+
+        q.on(e, snapshot => {
+            if (!newItems) return;
+            dispatch({
+                type: SET,
+                path: p + '/' + snapshot.key,
+                rootPath: path,
+                data: snapshot.val(),
+                snapshot,
+                timestamp: Date.now(),
+                requesting : false,
+                requested : true
+            })
+        })
+
+        return q.once('value')
+            .then(snapshot => {
+                newItems = true;
+                if (snapshot.val() !== null) {
+                    dispatch({
+                        type: SET,
+                        path: p + '/' + snapshot.key,
+                        rootPath: path,
+                        data: snapshot.val(),
                         snapshot,
                         timestamp: Date.now(),
                         requesting : false,
@@ -204,18 +231,17 @@ export const watchEvent = (firebase, dispatch, event, path, dest) => {
 
     q.on(e, snapshot => {
       let data = (e === 'child_removed') ? undefined : snapshot.val()
-      const resultPath = dest || (e === 'value') ? p : p + '/' + snapshot.key
-      const rootPath = dest || path
-      if (dest && e !== 'child_removed') {
-        data = {
-          _id: snapshot.key,
-          val: snapshot.val()
-        }
-      }
+      const resultPath = (e === 'value') ? p : p + '/' + snapshot.key
+      // if (e !== 'child_removed') {
+      //   data = {
+      //     _id: snapshot.key,
+      //     val: snapshot.val()
+      //   }
+      // }
       dispatch({
         type: SET,
         path: resultPath,
-        rootPath,
+        rootPath: path,
         data,
         snapshot,
         timestamp: Date.now(),
@@ -234,7 +260,7 @@ export const unWatchEvent = (firebase, dispatch, event, path, isCleanState=true)
 }
 
 export const watchEvents = (firebase, dispatch, events) =>
-    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path))
+    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta))
 
 export const unWatchEvents = (firebase, dispatch, events, isCleanState=true) =>
     events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, isCleanState))

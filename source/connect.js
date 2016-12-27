@@ -4,7 +4,8 @@ import { isEqual } from 'lodash'
 
 const defaultEvent = {
   path: '',
-  type: 'value'
+  type: 'value',
+  isListenOnlyOnDelta: false
 }
 
 const fixPath = (path) =>  ((path.substring(0,1) == '/') ? '': '/') + path
@@ -14,7 +15,7 @@ const ensureCallable = maybeFn =>
 
 const flatMap = arr => (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
 
-const createEvents = ({type, path}) => {
+const createEvents = ({type, path, isListenOnlyOnDelta}) => {
   switch (type) {
 
     case 'value':
@@ -26,7 +27,7 @@ const createEvents = ({type, path}) => {
     case 'all':
       return [
         //{name: 'first_child', path},
-        {name: 'child_added', path},
+        {name: 'child_added', path, isListenOnlyOnDelta},
         {name: 'child_removed', path},
         {name: 'child_moved', path},
         {name: 'child_changed', path}
@@ -58,7 +59,8 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
         return createEvents(transformEvent({ type: 'once', path: path.path }))
 
       case 'array':
-        return createEvents(transformEvent({ type: 'all', path: path.path }))
+      case 'all':
+        return createEvents(transformEvent({ type: 'all', path: path.path, isListenOnlyOnDelta:!!path.isListenOnlyOnDelta }))
     }
   }
 

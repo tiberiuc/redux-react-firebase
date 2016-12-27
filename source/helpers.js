@@ -37,7 +37,7 @@ export const customToJS = (data, path, custom, notSetValue) => {
         let retVal = toJS(data.getIn(pathArr, notSetValue));
 
         if (retVal) {
-            retVal = retVal[custom];
+            retVal = retVal[custom] || retVal;
         }
 
         return retVal
@@ -56,13 +56,14 @@ export const dataToJS = (data, path, notSetValue) => {
     const pathArr = dataPath.split(/\//).slice(1)
 
     if (data.getIn) {
-        let retVal = toJS(data.getIn(pathArr, notSetValue));
-
-        if (retVal) {
-            retVal = retVal['data'];
-        }
-
-        return retVal
+        return toJS(data.getIn(pathArr, notSetValue));
+        // let retVal = toJS(data.getIn(pathArr, notSetValue));
+        //
+        // if (retVal) {
+        //     retVal = retVal['data'] || retVal;
+        // }
+        //
+        // return retVal
     }
 
     return data
@@ -78,13 +79,14 @@ export const snapshotToJS = (snapshot, path, notSetValue) => {
     const pathArr = snapshotPath.split(/\//).slice(1)
 
     if (snapshot.getIn) {
-        let retVal = toJS(snapshot.getIn(pathArr, notSetValue));
-
-        if (retVal) {
-            retVal = retVal['snapshot'];
-        }
-
-        return retVal
+        return toJS(snapshot.getIn(pathArr, notSetValue));
+        // let retVal = toJS(snapshot.getIn(pathArr, notSetValue));
+        //
+        // if (retVal) {
+        //     retVal = retVal['snapshot'] || retVal;
+        // }
+        //
+        // return retVal
     }
 
     return snapshot

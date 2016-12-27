@@ -51,9 +51,13 @@ export default (state = initialState, action) => {
     case INIT_BY_PATH:
         pathArr = pathToArr(path)
 
-        pathArr.push('data')
+        //pathArr.push('data')
         retVal = state.deleteIn(['data', ...pathArr])
-        pathArr.pop()
+        //pathArr.pop()
+
+        //pathArr.push('snapshot')
+        retVal = retVal.deleteIn(['snapshot', ...pathArr])
+        //pathArr.pop()
 
         pathArr.push('timestamp')
         retVal = retVal.deleteIn(['timestamp', ...pathArr])
@@ -74,17 +78,17 @@ export default (state = initialState, action) => {
         pathArr = pathToArr(path)
         rootPathArr = pathToArr(rootPath)
 
-        pathArr.push('data')
+        //pathArr.push('data')
         retVal = (data !== undefined)
             ? state.setIn(['data', ...pathArr], fromJS(data))
             : state.deleteIn(['data', ...pathArr])
-        pathArr.pop()
+        //pathArr.pop()
 
-        pathArr.push('snapshot')
+        //pathArr.push('snapshot')
         retVal = (snapshot !== undefined)
             ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
             : retVal.deleteIn(['snapshot', ...pathArr])
-        pathArr.pop()
+        //pathArr.pop()
 
         rootPathArr.push('timestamp')
         retVal = (timestamp !== undefined)
