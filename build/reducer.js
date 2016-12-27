@@ -98,9 +98,9 @@ exports.default = function () {
                 retVal = data !== undefined ? state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
                 //pathArr.pop()
 
-                pathArr.push('snapshot');
+                //pathArr.push('snapshot')
                 retVal = snapshot !== undefined ? retVal.setIn(['snapshot'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(snapshot)) : retVal.deleteIn(['snapshot'].concat(_toConsumableArray(pathArr)));
-                pathArr.pop();
+                //pathArr.pop()
 
                 rootPathArr.push('timestamp');
                 retVal = timestamp !== undefined ? retVal.setIn(['timestamp'].concat(_toConsumableArray(rootPathArr)), (0, _immutable.fromJS)(timestamp)) : retVal.deleteIn(['timestamp'].concat(_toConsumableArray(rootPathArr)));

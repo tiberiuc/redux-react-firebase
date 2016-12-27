@@ -84,11 +84,11 @@ export default (state = initialState, action) => {
                 : state.deleteIn(['data', ...pathArr])
             //pathArr.pop()
 
-            pathArr.push('snapshot')
+            //pathArr.push('snapshot')
             retVal = (snapshot !== undefined)
                 ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
                 : retVal.deleteIn(['snapshot', ...pathArr])
-            pathArr.pop()
+            //pathArr.pop()
 
             rootPathArr.push('timestamp')
             retVal = (timestamp !== undefined)
