@@ -46,7 +46,7 @@ var customToJS = exports.customToJS = function customToJS(data, path, custom, no
         var retVal = toJS(data.getIn(pathArr, notSetValue));
 
         if (retVal) {
-            retVal = retVal[custom] || retVal;
+            retVal = retVal[custom];
         }
 
         return retVal;
@@ -68,7 +68,7 @@ var dataToJS = exports.dataToJS = function dataToJS(data, path, notSetValue) {
         var retVal = toJS(data.getIn(pathArr, notSetValue));
 
         if (retVal) {
-            retVal = retVal['data'] || retVal;
+            retVal = retVal['data'];
         }
 
         return retVal;
@@ -90,7 +90,7 @@ var snapshotToJS = exports.snapshotToJS = function snapshotToJS(snapshot, path, 
         var retVal = toJS(snapshot.getIn(pathArr, notSetValue));
 
         if (retVal) {
-            retVal = retVal['snapshot'] || retVal;
+            retVal = retVal['snapshot'];
         }
 
         return retVal;
