@@ -65,13 +65,14 @@ var dataToJS = exports.dataToJS = function dataToJS(data, path, notSetValue) {
     var pathArr = dataPath.split(/\//).slice(1);
 
     if (data.getIn) {
-        var retVal = toJS(data.getIn(pathArr, notSetValue));
-
-        if (retVal) {
-            retVal = retVal['data'];
-        }
-
-        return retVal;
+        return toJS(data.getIn(pathArr, notSetValue));
+        // let retVal = toJS(data.getIn(pathArr, notSetValue));
+        //
+        // if (retVal) {
+        //     retVal = retVal['data'];
+        // }
+        //
+        // return retVal
     }
 
     return data;
@@ -87,13 +88,14 @@ var snapshotToJS = exports.snapshotToJS = function snapshotToJS(snapshot, path, 
     var pathArr = snapshotPath.split(/\//).slice(1);
 
     if (snapshot.getIn) {
-        var retVal = toJS(snapshot.getIn(pathArr, notSetValue));
-
-        if (retVal) {
-            retVal = retVal['snapshot'];
-        }
-
-        return retVal;
+        return toJS(snapshot.getIn(pathArr, notSetValue));
+        // let retVal = toJS(snapshot.getIn(pathArr, notSetValue));
+        //
+        // if (retVal) {
+        //     retVal = retVal['snapshot'];
+        // }
+        //
+        // return retVal
     }
 
     return snapshot;
