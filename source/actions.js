@@ -183,12 +183,13 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                         dispatch({
                             type: SET,
                             path: p,
-                            rootPath: path,
                             data: snapshot.val(),
                             snapshot,
                             timestamp: Date.now(),
                             requesting : false,
-                            requested : true
+                            requested : true,
+                            isChild: false,
+                            isMixSnapshot: false
                         })
                     }
                     return snapshot
@@ -200,13 +201,14 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                 if (!newItems) return;
                 dispatch({
                     type: SET,
-                    path: p + '/' + snapshot.key,
-                    rootPath: path,
+                    path: p,
                     data: snapshot.val(),
                     snapshot,
                     timestamp: Date.now(),
                     requesting : false,
-                    requested : true
+                    requested : true,
+                    isChild: true,
+                    isMixSnapshot: true
                 })
             })
 
@@ -216,13 +218,14 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                     if (snapshot.val() !== null) {
                         dispatch({
                             type: SET,
-                            path: p + '/' + snapshot.key,
-                            rootPath: path,
+                            path: p,
                             data: snapshot.val(),
                             snapshot,
                             timestamp: Date.now(),
                             requesting : false,
-                            requested : true
+                            requested : true,
+                            isChild: false,
+                            isMixSnapshot: true
                         })
                     }
                     return snapshot
@@ -231,7 +234,6 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
 
         q.on(e, snapshot => {
             let data = (e === 'child_removed') ? undefined : snapshot.val()
-            const resultPath = (e === 'value') ? p : p + '/' + snapshot.key
             // if (e !== 'child_removed') {
             //   data = {
             //     _id: snapshot.key,
@@ -240,13 +242,14 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
             // }
             dispatch({
                 type: SET,
-                path: resultPath,
-                rootPath: path,
+                path: p,
                 data,
                 snapshot,
                 timestamp: Date.now(),
                 requesting : false,
-                requested : true
+                requested : true,
+                isChild: e !== 'value',
+                isMixSnapshot: false
             })
         })
     }

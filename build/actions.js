@@ -191,12 +191,13 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                     dispatch({
                         type: _constants.SET,
                         path: p,
-                        rootPath: path,
                         data: snapshot.val(),
                         snapshot: snapshot,
                         timestamp: Date.now(),
                         requesting: false,
-                        requested: true
+                        requested: true,
+                        isChild: false,
+                        isMixSnapshot: false
                     });
                 }
                 return snapshot;
@@ -209,13 +210,14 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                     if (!newItems) return;
                     dispatch({
                         type: _constants.SET,
-                        path: p + '/' + snapshot.key,
-                        rootPath: path,
+                        path: p,
                         data: snapshot.val(),
                         snapshot: snapshot,
                         timestamp: Date.now(),
                         requesting: false,
-                        requested: true
+                        requested: true,
+                        isChild: true,
+                        isMixSnapshot: true
                     });
                 });
 
@@ -225,13 +227,14 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                         if (snapshot.val() !== null) {
                             dispatch({
                                 type: _constants.SET,
-                                path: p + '/' + snapshot.key,
-                                rootPath: path,
+                                path: p,
                                 data: snapshot.val(),
                                 snapshot: snapshot,
                                 timestamp: Date.now(),
                                 requesting: false,
-                                requested: true
+                                requested: true,
+                                isChild: false,
+                                isMixSnapshot: true
                             });
                         }
                         return snapshot;
@@ -244,7 +247,6 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 
         q.on(e, function (snapshot) {
             var data = e === 'child_removed' ? undefined : snapshot.val();
-            var resultPath = e === 'value' ? p : p + '/' + snapshot.key;
             // if (e !== 'child_removed') {
             //   data = {
             //     _id: snapshot.key,
@@ -253,13 +255,14 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
             // }
             dispatch({
                 type: _constants.SET,
-                path: resultPath,
-                rootPath: path,
+                path: p,
                 data: data,
                 snapshot: snapshot,
                 timestamp: Date.now(),
                 requesting: false,
-                requested: true
+                requested: true,
+                isChild: e !== 'value',
+                isMixSnapshot: false
             });
         });
     };

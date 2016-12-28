@@ -26,7 +26,6 @@ const pathToArr = path => path.split(/\//).filter(p => !!p)
 export default (state = initialState, action) => {
     const {path, timestamp, requesting, requested} = action
     let pathArr
-    let rootPathArr
     let retVal
 
     switch (action.type) {
@@ -52,61 +51,66 @@ export default (state = initialState, action) => {
             pathArr = pathToArr(path)
 
             pathArr.push('data')
-            retVal = state.deleteIn(['data', ...pathArr])
+            retVal = state.getIn(['data', ...pathArr]) ? state.deleteIn(['data', ...pathArr]) : state
             pathArr.pop()
 
             pathArr.push('snapshot')
-            retVal = retVal.deleteIn(['snapshot', ...pathArr])
+            retVal = retVal.getIn(['snapshot', ...pathArr]) ? retVal.deleteIn(['snapshot', ...pathArr]) : retVal
             pathArr.pop()
 
             pathArr.push('timestamp')
-            retVal = retVal.deleteIn(['timestamp', ...pathArr])
+            retVal = retVal.getIn(['timestamp', ...pathArr]) ? retVal.deleteIn(['timestamp', ...pathArr]) : retVal
             pathArr.pop()
 
             pathArr.push('requesting')
-            retVal = retVal.deleteIn(['requesting', ...pathArr])
+            retVal = retVal.getIn(['requesting', ...pathArr]) ? retVal.deleteIn(['requesting', ...pathArr]) : retVal
             pathArr.pop()
 
             pathArr.push('requested')
-            retVal = retVal.deleteIn(['requested', ...pathArr])
+            retVal = retVal.getIn(['requested', ...pathArr]) ? retVal.deleteIn(['requested', ...pathArr]) : retVal
             pathArr.pop()
 
             return retVal
 
         case SET:
-            const { data, snapshot, rootPath } = action
+            const { data, snapshot, isChild, isMixSnapshot } = action
             pathArr = pathToArr(path)
-            rootPathArr = pathToArr(rootPath)
 
             pathArr.push('data')
+            isChild ? pathArr.push(snapshot.key()) : {}
             retVal = (data !== undefined)
                 ? state.setIn(['data', ...pathArr], fromJS(data))
                 : state.deleteIn(['data', ...pathArr])
+            isChild ? pathArr.pop() : {}
             pathArr.pop()
 
             pathArr.push('snapshot')
+            isMixSnapshot ? (isChild ? pathArr.push('snapshot_deltas') : pathArr.push('snapshot_initial')) : {}
+            isChild ? pathArr.push(snapshot.key()) : {}
             retVal = (snapshot !== undefined)
                 ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
                 : retVal.deleteIn(['snapshot', ...pathArr])
+            isMixSnapshot ? pathArr.pop() : {}
+            isChild ? pathArr.pop() : {}
             pathArr.pop()
 
-            rootPathArr.push('timestamp')
+            pathArr.push('timestamp')
             retVal = (timestamp !== undefined)
-                ? retVal.setIn(['timestamp', ...rootPathArr], fromJS(timestamp))
-                : retVal.deleteIn(['timestamp', ...rootPathArr])
-            rootPathArr.pop()
+                ? retVal.setIn(['timestamp', ...pathArr], fromJS(timestamp))
+                : retVal.deleteIn(['timestamp', ...pathArr])
+            pathArr.pop()
 
-            rootPathArr.push('requesting')
+            pathArr.push('requesting')
             retVal = (requesting !== undefined)
-                ? retVal.setIn(['requesting', ...rootPathArr], fromJS(requesting))
-                : retVal.deleteIn(['requesting', ...rootPathArr])
-            rootPathArr.pop()
+                ? retVal.setIn(['requesting', ...pathArr], fromJS(requesting))
+                : retVal.deleteIn(['requesting', ...pathArr])
+            pathArr.pop()
 
-            rootPathArr.push('requested')
+            pathArr.push('requested')
             retVal = (requested !== undefined)
-                ? retVal.setIn(['requested', ...rootPathArr], fromJS(requested))
-                : retVal.deleteIn(['requested', ...rootPathArr])
-            rootPathArr.pop()
+                ? retVal.setIn(['requested', ...pathArr], fromJS(requested))
+                : retVal.deleteIn(['requested', ...pathArr])
+            pathArr.pop()
 
             return retVal
 
