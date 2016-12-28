@@ -94,14 +94,14 @@ exports.default = function () {
                 pathArr = pathToArr(path);
 
                 pathArr.push('data');
-                isChild ? pathArr.push(snapshot.key()) : {};
+                isChild ? pathArr.push(snapshot.key) : {};
                 retVal = data !== undefined ? state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
                 isChild ? pathArr.pop() : {};
                 pathArr.pop();
 
                 pathArr.push('snapshot');
                 isMixSnapshot ? isChild ? pathArr.push('snapshot_deltas') : pathArr.push('snapshot_initial') : {};
-                isChild ? pathArr.push(snapshot.key()) : {};
+                isChild ? pathArr.push(snapshot.key) : {};
                 retVal = snapshot !== undefined ? retVal.setIn(['snapshot'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(snapshot)) : retVal.deleteIn(['snapshot'].concat(_toConsumableArray(pathArr)));
                 isMixSnapshot ? pathArr.pop() : {};
                 isChild ? pathArr.pop() : {};
