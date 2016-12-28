@@ -64,7 +64,7 @@ var createEvents = function createEvents(_ref) {
         case 'all':
             return [
             //{name: 'first_child', path},
-            { name: 'child_added', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_removed', path: path }, { name: 'child_moved', path: path }, { name: 'child_changed', path: path }];
+            { name: 'child_added', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_removed', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_moved', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_changed', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }];
 
         default:
             return [];

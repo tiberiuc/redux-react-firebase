@@ -177,7 +177,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
         })
 
         if (e === 'once') {
-            return q.once('value')
+            q.once('value')
                 .then(snapshot => {
                     if (snapshot.val() !== null) {
                         dispatch({
@@ -185,6 +185,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                             path: p,
                             data: snapshot.val(),
                             snapshot,
+                            key: snapshot.key,
                             timestamp: Date.now(),
                             requesting : false,
                             requested : true,
@@ -192,18 +193,19 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                             isMixSnapshot: false
                         })
                     }
-                    return snapshot
                 })
         } else if (e === 'child_added' && isListenOnlyOnDelta) {
             let newItems = false;
 
             q.on(e, snapshot => {
                 if (!newItems) return;
+
                 dispatch({
                     type: SET,
                     path: p,
                     data: snapshot.val(),
                     snapshot,
+                    key: snapshot.key,
                     timestamp: Date.now(),
                     requesting : false,
                     requested : true,
@@ -212,7 +214,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                 })
             })
 
-            return q.once('value')
+            q.once('value')
                 .then(snapshot => {
                     newItems = true;
                     if (snapshot.val() !== null) {
@@ -221,6 +223,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                             path: p,
                             data: snapshot.val(),
                             snapshot,
+                            key: snapshot.key,
                             timestamp: Date.now(),
                             requesting : false,
                             requested : true,
@@ -228,30 +231,31 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                             isMixSnapshot: true
                         })
                     }
-                    return snapshot
                 })
-        }
-
-        q.on(e, snapshot => {
-            let data = (e === 'child_removed') ? undefined : snapshot.val()
-            // if (e !== 'child_removed') {
-            //   data = {
-            //     _id: snapshot.key,
-            //     val: snapshot.val()
-            //   }
-            // }
-            dispatch({
-                type: SET,
-                path: p,
-                data,
-                snapshot,
-                timestamp: Date.now(),
-                requesting : false,
-                requested : true,
-                isChild: e !== 'value',
-                isMixSnapshot: false
+        } else {
+            q.on(e, snapshot => {
+                let data = (e === 'child_removed') ? undefined : snapshot.val();
+                let tempSnapshot = (e === 'child_removed') ? {} : snapshot;
+                // if (e !== 'child_removed') {
+                //   data = {
+                //     _id: snapshot.key,
+                //     val: snapshot.val()
+                //   }
+                // }
+                dispatch({
+                    type: SET,
+                    path: p,
+                    data,
+                    snapshot: tempSnapshot,
+                    key: snapshot.key,
+                    timestamp: Date.now(),
+                    requesting : false,
+                    requested : true,
+                    isChild: e !== 'value',
+                    isMixSnapshot: isListenOnlyOnDelta
+                })
             })
-        })
+        }
     }
 
     runQuery(query, event, path)

@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.resetPassword = exports.createUser = exports.logout = exports.init = exports.login = exports.unWatchEvents = exports.watchEvents = exports.unWatchEvent = exports.watchEvent = undefined;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _constants = require('./constants');
 
 var _es6Promise = require('es6-promise');
@@ -186,13 +184,14 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         });
 
         if (e === 'once') {
-            return q.once('value').then(function (snapshot) {
+            q.once('value').then(function (snapshot) {
                 if (snapshot.val() !== null) {
                     dispatch({
                         type: _constants.SET,
                         path: p,
                         data: snapshot.val(),
                         snapshot: snapshot,
+                        key: snapshot.key,
                         timestamp: Date.now(),
                         requesting: false,
                         requested: true,
@@ -200,19 +199,20 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                         isMixSnapshot: false
                     });
                 }
-                return snapshot;
             });
         } else if (e === 'child_added' && isListenOnlyOnDelta) {
-            var _ret2 = function () {
+            (function () {
                 var newItems = false;
 
                 q.on(e, function (snapshot) {
                     if (!newItems) return;
+
                     dispatch({
                         type: _constants.SET,
                         path: p,
                         data: snapshot.val(),
                         snapshot: snapshot,
+                        key: snapshot.key,
                         timestamp: Date.now(),
                         requesting: false,
                         requested: true,
@@ -221,50 +221,48 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                     });
                 });
 
-                return {
-                    v: q.once('value').then(function (snapshot) {
-                        newItems = true;
-                        if (snapshot.val() !== null) {
-                            dispatch({
-                                type: _constants.SET,
-                                path: p,
-                                data: snapshot.val(),
-                                snapshot: snapshot,
-                                timestamp: Date.now(),
-                                requesting: false,
-                                requested: true,
-                                isChild: false,
-                                isMixSnapshot: true
-                            });
-                        }
-                        return snapshot;
-                    })
-                };
-            }();
-
-            if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
-        }
-
-        q.on(e, function (snapshot) {
-            var data = e === 'child_removed' ? undefined : snapshot.val();
-            // if (e !== 'child_removed') {
-            //   data = {
-            //     _id: snapshot.key,
-            //     val: snapshot.val()
-            //   }
-            // }
-            dispatch({
-                type: _constants.SET,
-                path: p,
-                data: data,
-                snapshot: snapshot,
-                timestamp: Date.now(),
-                requesting: false,
-                requested: true,
-                isChild: e !== 'value',
-                isMixSnapshot: false
+                q.once('value').then(function (snapshot) {
+                    newItems = true;
+                    if (snapshot.val() !== null) {
+                        dispatch({
+                            type: _constants.SET,
+                            path: p,
+                            data: snapshot.val(),
+                            snapshot: snapshot,
+                            key: snapshot.key,
+                            timestamp: Date.now(),
+                            requesting: false,
+                            requested: true,
+                            isChild: false,
+                            isMixSnapshot: true
+                        });
+                    }
+                });
+            })();
+        } else {
+            q.on(e, function (snapshot) {
+                var data = e === 'child_removed' ? undefined : snapshot.val();
+                var tempSnapshot = e === 'child_removed' ? {} : snapshot;
+                // if (e !== 'child_removed') {
+                //   data = {
+                //     _id: snapshot.key,
+                //     val: snapshot.val()
+                //   }
+                // }
+                dispatch({
+                    type: _constants.SET,
+                    path: p,
+                    data: data,
+                    snapshot: tempSnapshot,
+                    key: snapshot.key,
+                    timestamp: Date.now(),
+                    requesting: false,
+                    requested: true,
+                    isChild: e !== 'value',
+                    isMixSnapshot: isListenOnlyOnDelta
+                });
             });
-        });
+        }
     };
 
     runQuery(query, event, path);

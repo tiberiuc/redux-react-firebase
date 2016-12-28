@@ -28,9 +28,9 @@ const createEvents = ({type, path, isListenOnlyOnDelta}) => {
             return [
                 //{name: 'first_child', path},
                 {name: 'child_added', path, isListenOnlyOnDelta},
-                {name: 'child_removed', path},
-                {name: 'child_moved', path},
-                {name: 'child_changed', path}
+                {name: 'child_removed', path, isListenOnlyOnDelta},
+                {name: 'child_moved', path, isListenOnlyOnDelta},
+                {name: 'child_changed', path, isListenOnlyOnDelta}
             ]
 
         default:
