@@ -36,7 +36,7 @@ export default (config) => {
         const remove = (path, onComplete) => ref.child(path).remove(onComplete)
         const update = (path, value, onComplete) => ref.child(path).update(value, onComplete)
         const watchEvent = (eventName, eventPath, isListenOnlyOnDelta) => Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta)
-        const unWatchEvent = (eventName, eventPath, isCleanState=true) => Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, isCleanState)
+        const unWatchEvent = (eventName, eventPath, isSkipClean=false) => Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, isSkipClean)
         const login = credentials => Actions.login(dispatch, firebase, credentials)
         const logout = (preserve = [], remove = []) => Actions.logout(dispatch, firebase, preserve, remove)
         const createUser = (credentials, profile) => Actions.createUser(dispatch, firebase, credentials, profile)

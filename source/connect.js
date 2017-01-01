@@ -5,7 +5,8 @@ import { isEqual } from 'lodash'
 const defaultEvent = {
     path: '',
     type: 'value',
-    isListenOnlyOnDelta: false
+    isListenOnlyOnDelta: false,
+    isSkipClean: false
 }
 
 const fixPath = (path) =>  ((path.substring(0,1) == '/') ? '': '/') + path
@@ -15,22 +16,22 @@ const ensureCallable = maybeFn =>
 
 const flatMap = arr => (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
 
-const createEvents = ({type, path, isNeedClean=false, isListenOnlyOnDelta=false}) => {
+const createEvents = ({type, path, isSkipClean=false, isListenOnlyOnDelta=false}) => {
     switch (type) {
 
         case 'value':
-            return [{name: 'value', path, isNeedClean}]
+            return [{name: 'value', path, isSkipClean }]
 
         case 'once':
-            return [{name: 'once', path, isNeedClean}]
+            return [{name: 'once', path, isSkipClean}]
 
         case 'all':
             return [
                 //{name: 'first_child', path},
-                {name: 'child_added', path, isNeedClean, isListenOnlyOnDelta},
-                {name: 'child_removed', path, isNeedClean, isListenOnlyOnDelta},
-                {name: 'child_moved', path, isNeedClean, isListenOnlyOnDelta},
-                {name: 'child_changed', path, isNeedClean, isListenOnlyOnDelta}
+                {name: 'child_added', path, isSkipClean, isListenOnlyOnDelta},
+                {name: 'child_removed', path, isSkipClean, isListenOnlyOnDelta},
+                {name: 'child_moved', path, isSkipClean, isListenOnlyOnDelta},
+                {name: 'child_changed', path, isSkipClean, isListenOnlyOnDelta}
             ]
 
         default:
@@ -53,14 +54,14 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
         const type = path.type || 'value'
         switch (type) {
             case 'value':
-                return createEvents(transformEvent({ path: path.path, isNeedClean:!!path.isNeedClean }))
+                return createEvents(transformEvent({ path: path.path, isSkipClean:!!path.isSkipClean }))
 
             case 'once':
-                return createEvents(transformEvent({ type: 'once', path: path.path, isNeedClean:!!path.isNeedClean }))
+                return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean:!!path.isSkipClean }))
 
             case 'array':
             case 'all':
-                return createEvents(transformEvent({ type: 'all', path: path.path, isNeedClean:!!path.isNeedClean, isListenOnlyOnDelta:!!path.isListenOnlyOnDelta }))
+                return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean:!!path.isSkipClean, isListenOnlyOnDelta:!!path.isListenOnlyOnDelta }))
         }
     }
 
@@ -103,7 +104,7 @@ export default (dataOrFn = []) => WrappedComponent => {
             if (!isEqual(newPathsToListen, this._pathsToListen)) {
                 this._pathsToListen = newPathsToListen;
 
-                unWatchEvents(firebase, dispatch, this._firebaseEvents, false, true);
+                unWatchEvents(firebase, dispatch, this._firebaseEvents);
 
                 this._firebaseEvents = getEventsFromDefinition(this._pathsToListen)
                 watchEvents(firebase, dispatch, this._firebaseEvents)
@@ -112,7 +113,7 @@ export default (dataOrFn = []) => WrappedComponent => {
 
         componentWillUnmount () {
             const {firebase, dispatch} = this.context.store
-            unWatchEvents(firebase, dispatch, this._firebaseEvents, true)
+            unWatchEvents(firebase, dispatch, this._firebaseEvents)
         }
 
         render () {
