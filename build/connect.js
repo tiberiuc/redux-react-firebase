@@ -160,7 +160,7 @@ exports.default = function () {
                     if (!(0, _lodash.isEqual)(newPathsToListen, this._pathsToListen)) {
                         this._pathsToListen = newPathsToListen;
 
-                        (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, nextProps.isNeedToClean != undefined ? nextProps.isNeedToClean : false);
+                        (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, false);
 
                         this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
                         (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
