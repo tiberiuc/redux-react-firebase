@@ -51,7 +51,8 @@ var flatMap = function flatMap(arr) {
 var createEvents = function createEvents(_ref) {
     var type = _ref.type,
         path = _ref.path,
-        isNeedClean = _ref.isNeedClean,
+        _ref$isNeedClean = _ref.isNeedClean,
+        isNeedClean = _ref$isNeedClean === undefined ? false : _ref$isNeedClean,
         isListenOnlyOnDelta = _ref.isListenOnlyOnDelta;
 
     switch (type) {

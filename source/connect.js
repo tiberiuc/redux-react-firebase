@@ -15,7 +15,7 @@ const ensureCallable = maybeFn =>
 
 const flatMap = arr => (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
 
-const createEvents = ({type, path, isNeedClean, isListenOnlyOnDelta}) => {
+const createEvents = ({type, path, isNeedClean=false, isListenOnlyOnDelta}) => {
     switch (type) {
 
         case 'value':
