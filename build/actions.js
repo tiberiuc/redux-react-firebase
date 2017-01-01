@@ -59,7 +59,7 @@ var getQueryIdFromPath = function getQueryIdFromPath(path) {
 
 var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
     var queryId = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : undefined;
-    var isCleanFromState = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
+    var isSkipClean = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
 
     var id = queryId || getQueryIdFromPath(path, event) || getWatchPath(event, path);
     path = path.split('#')[0];
@@ -71,7 +71,7 @@ var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
             //   firebase.database().ref().child(path).off(event)
             // }
             firebase.database().ref().child(path).off(event);
-            if (isCleanFromState) {
+            if (!isSkipClean) {
                 dispatch({
                     type: _constants.INIT_BY_PATH,
                     path: path
@@ -269,10 +269,10 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 };
 
 var unWatchEvent = exports.unWatchEvent = function unWatchEvent(firebase, dispatch, event, path) {
-    var isCleanState = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
+    var isSkipClean = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
     var queryId = getQueryIdFromPath(path, event);
-    unsetWatcher(firebase, dispatch, event, path, queryId, isCleanState);
+    unsetWatcher(firebase, dispatch, event, path, queryId, isSkipClean);
 };
 
 var watchEvents = exports.watchEvents = function watchEvents(firebase, dispatch, events) {
@@ -282,10 +282,9 @@ var watchEvents = exports.watchEvents = function watchEvents(firebase, dispatch,
 };
 
 var unWatchEvents = exports.unWatchEvents = function unWatchEvents(firebase, dispatch, events) {
-    var isCleanState = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-    var isUpdateClean = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+    var isSkipClean = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return events.forEach(function (event) {
-        return unWatchEvent(firebase, dispatch, event.name, event.path, !isUpdateClean ? isCleanState : event.isNeedClean);
+        return unWatchEvent(firebase, dispatch, event.name, event.path, event.isSkipClean);
     });
 };
 

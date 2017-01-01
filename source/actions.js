@@ -52,7 +52,7 @@ const getQueryIdFromPath = (path, event=undefined) => {
         : ((isQuery) ? origPath : undefined)
 }
 
-const unsetWatcher = (firebase, dispatch, event, path, queryId = undefined, isCleanFromState=true) => {
+const unsetWatcher = (firebase, dispatch, event, path, queryId = undefined, isSkipClean=false) => {
     const id = queryId || getQueryIdFromPath(path,event) || getWatchPath(event, path)
     path = path.split('#')[0]
 
@@ -63,7 +63,7 @@ const unsetWatcher = (firebase, dispatch, event, path, queryId = undefined, isCl
             //   firebase.database().ref().child(path).off(event)
             // }
             firebase.database().ref().child(path).off(event)
-            if(isCleanFromState){
+            if(!isSkipClean){
                 dispatch({
                     type: INIT_BY_PATH,
                     path
@@ -261,16 +261,16 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
     runQuery(query, event, path)
 }
 
-export const unWatchEvent = (firebase, dispatch, event, path, isCleanState=true) => {
+export const unWatchEvent = (firebase, dispatch, event, path, isSkipClean=false) => {
     let queryId = getQueryIdFromPath(path, event)
-    unsetWatcher(firebase, dispatch, event, path, queryId, isCleanState)
+    unsetWatcher(firebase, dispatch, event, path, queryId, isSkipClean)
 }
 
 export const watchEvents = (firebase, dispatch, events) =>
     events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta))
 
-export const unWatchEvents = (firebase, dispatch, events, isCleanState=true, isUpdateClean=false) =>
-    events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, !isUpdateClean ? isCleanState : event.isNeedClean))
+export const unWatchEvents = (firebase, dispatch, events, isSkipClean=false) =>
+    events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, event.isSkipClean))
 
 const dispatchLoginError = (dispatch, authError) =>
     dispatch({

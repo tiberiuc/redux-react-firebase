@@ -29,7 +29,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var defaultEvent = {
     path: '',
     type: 'value',
-    isListenOnlyOnDelta: false
+    isListenOnlyOnDelta: false,
+    isSkipClean: false
 };
 
 var fixPath = function fixPath(path) {
@@ -51,23 +52,23 @@ var flatMap = function flatMap(arr) {
 var createEvents = function createEvents(_ref) {
     var type = _ref.type,
         path = _ref.path,
-        _ref$isNeedClean = _ref.isNeedClean,
-        isNeedClean = _ref$isNeedClean === undefined ? false : _ref$isNeedClean,
+        _ref$isSkipClean = _ref.isSkipClean,
+        isSkipClean = _ref$isSkipClean === undefined ? false : _ref$isSkipClean,
         _ref$isListenOnlyOnDe = _ref.isListenOnlyOnDelta,
         isListenOnlyOnDelta = _ref$isListenOnlyOnDe === undefined ? false : _ref$isListenOnlyOnDe;
 
     switch (type) {
 
         case 'value':
-            return [{ name: 'value', path: path, isNeedClean: isNeedClean }];
+            return [{ name: 'value', path: path, isSkipClean: isSkipClean }];
 
         case 'once':
-            return [{ name: 'once', path: path, isNeedClean: isNeedClean }];
+            return [{ name: 'once', path: path, isSkipClean: isSkipClean }];
 
         case 'all':
             return [
             //{name: 'first_child', path},
-            { name: 'child_added', path: path, isNeedClean: isNeedClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_removed', path: path, isNeedClean: isNeedClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_moved', path: path, isNeedClean: isNeedClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_changed', path: path, isNeedClean: isNeedClean, isListenOnlyOnDelta: isListenOnlyOnDelta }];
+            { name: 'child_added', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_removed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_moved', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_changed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta }];
 
         default:
             return [];
@@ -93,14 +94,14 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
             var type = path.type || 'value';
             switch (type) {
                 case 'value':
-                    return createEvents(transformEvent({ path: path.path, isNeedClean: !!path.isNeedClean }));
+                    return createEvents(transformEvent({ path: path.path, isSkipClean: !!path.isSkipClean }));
 
                 case 'once':
-                    return createEvents(transformEvent({ type: 'once', path: path.path, isNeedClean: !!path.isNeedClean }));
+                    return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean: !!path.isSkipClean }));
 
                 case 'array':
                 case 'all':
-                    return createEvents(transformEvent({ type: 'all', path: path.path, isNeedClean: !!path.isNeedClean, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta }));
+                    return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean: !!path.isSkipClean, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta }));
             }
         }
 
@@ -163,7 +164,7 @@ exports.default = function () {
                     if (!(0, _lodash.isEqual)(newPathsToListen, this._pathsToListen)) {
                         this._pathsToListen = newPathsToListen;
 
-                        (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, false, true);
+                        (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents);
 
                         this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
                         (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
@@ -176,7 +177,7 @@ exports.default = function () {
                         firebase = _context$store3.firebase,
                         dispatch = _context$store3.dispatch;
 
-                    (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, true);
+                    (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents);
                 }
             }, {
                 key: 'render',

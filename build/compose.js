@@ -64,8 +64,8 @@ exports.default = function (config) {
                 return Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta);
             };
             var unWatchEvent = function unWatchEvent(eventName, eventPath) {
-                var isCleanState = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-                return Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, isCleanState);
+                var isSkipClean = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+                return Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, isSkipClean);
             };
             var login = function login(credentials) {
                 return Actions.login(dispatch, firebase, credentials);
