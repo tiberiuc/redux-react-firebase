@@ -53,7 +53,8 @@ var createEvents = function createEvents(_ref) {
         path = _ref.path,
         _ref$isNeedClean = _ref.isNeedClean,
         isNeedClean = _ref$isNeedClean === undefined ? false : _ref$isNeedClean,
-        isListenOnlyOnDelta = _ref.isListenOnlyOnDelta;
+        _ref$isListenOnlyOnDe = _ref.isListenOnlyOnDelta,
+        isListenOnlyOnDelta = _ref$isListenOnlyOnDe === undefined ? false : _ref$isListenOnlyOnDe;
 
     switch (type) {
 
