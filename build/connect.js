@@ -51,20 +51,21 @@ var flatMap = function flatMap(arr) {
 var createEvents = function createEvents(_ref) {
     var type = _ref.type,
         path = _ref.path,
+        isNeedClean = _ref.isNeedClean,
         isListenOnlyOnDelta = _ref.isListenOnlyOnDelta;
 
     switch (type) {
 
         case 'value':
-            return [{ name: 'value', path: path }];
+            return [{ name: 'value', path: path, isNeedClean: isNeedClean }];
 
         case 'once':
-            return [{ name: 'once', path: path }];
+            return [{ name: 'once', path: path, isNeedClean: isNeedClean }];
 
         case 'all':
             return [
             //{name: 'first_child', path},
-            { name: 'child_added', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_removed', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_moved', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_changed', path: path, isListenOnlyOnDelta: isListenOnlyOnDelta }];
+            { name: 'child_added', path: path, isNeedClean: isNeedClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_removed', path: path, isNeedClean: isNeedClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_moved', path: path, isNeedClean: isNeedClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_changed', path: path, isNeedClean: isNeedClean, isListenOnlyOnDelta: isListenOnlyOnDelta }];
 
         default:
             return [];
@@ -90,14 +91,14 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
             var type = path.type || 'value';
             switch (type) {
                 case 'value':
-                    return createEvents(transformEvent({ path: path.path }));
+                    return createEvents(transformEvent({ path: path.path, isNeedClean: !!path.isNeedClean }));
 
                 case 'once':
-                    return createEvents(transformEvent({ type: 'once', path: path.path }));
+                    return createEvents(transformEvent({ type: 'once', path: path.path, isNeedClean: !!path.isNeedClean }));
 
                 case 'array':
                 case 'all':
-                    return createEvents(transformEvent({ type: 'all', path: path.path, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta }));
+                    return createEvents(transformEvent({ type: 'all', path: path.path, isNeedClean: !!path.isNeedClean, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta }));
             }
         }
 
@@ -160,7 +161,7 @@ exports.default = function () {
                     if (!(0, _lodash.isEqual)(newPathsToListen, this._pathsToListen)) {
                         this._pathsToListen = newPathsToListen;
 
-                        (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, false);
+                        (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, false, true);
 
                         this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
                         (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);

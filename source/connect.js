@@ -15,22 +15,22 @@ const ensureCallable = maybeFn =>
 
 const flatMap = arr => (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
 
-const createEvents = ({type, path, isListenOnlyOnDelta}) => {
+const createEvents = ({type, path, isNeedClean, isListenOnlyOnDelta}) => {
     switch (type) {
 
         case 'value':
-            return [{name: 'value', path}]
+            return [{name: 'value', path, isNeedClean}]
 
         case 'once':
-            return [{name: 'once', path}]
+            return [{name: 'once', path, isNeedClean}]
 
         case 'all':
             return [
                 //{name: 'first_child', path},
-                {name: 'child_added', path, isListenOnlyOnDelta},
-                {name: 'child_removed', path, isListenOnlyOnDelta},
-                {name: 'child_moved', path, isListenOnlyOnDelta},
-                {name: 'child_changed', path, isListenOnlyOnDelta}
+                {name: 'child_added', path, isNeedClean, isListenOnlyOnDelta},
+                {name: 'child_removed', path, isNeedClean, isListenOnlyOnDelta},
+                {name: 'child_moved', path, isNeedClean, isListenOnlyOnDelta},
+                {name: 'child_changed', path, isNeedClean, isListenOnlyOnDelta}
             ]
 
         default:
@@ -53,14 +53,14 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
         const type = path.type || 'value'
         switch (type) {
             case 'value':
-                return createEvents(transformEvent({ path: path.path }))
+                return createEvents(transformEvent({ path: path.path, isNeedClean:!!path.isNeedClean }))
 
             case 'once':
-                return createEvents(transformEvent({ type: 'once', path: path.path }))
+                return createEvents(transformEvent({ type: 'once', path: path.path, isNeedClean:!!path.isNeedClean }))
 
             case 'array':
             case 'all':
-                return createEvents(transformEvent({ type: 'all', path: path.path, isListenOnlyOnDelta:!!path.isListenOnlyOnDelta }))
+                return createEvents(transformEvent({ type: 'all', path: path.path, isNeedClean:!!path.isNeedClean, isListenOnlyOnDelta:!!path.isListenOnlyOnDelta }))
         }
     }
 
@@ -103,7 +103,7 @@ export default (dataOrFn = []) => WrappedComponent => {
             if (!isEqual(newPathsToListen, this._pathsToListen)) {
                 this._pathsToListen = newPathsToListen;
 
-                unWatchEvents(firebase, dispatch, this._firebaseEvents, false);
+                unWatchEvents(firebase, dispatch, this._firebaseEvents, false, true);
 
                 this._firebaseEvents = getEventsFromDefinition(this._pathsToListen)
                 watchEvents(firebase, dispatch, this._firebaseEvents)

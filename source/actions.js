@@ -269,8 +269,8 @@ export const unWatchEvent = (firebase, dispatch, event, path, isCleanState=true)
 export const watchEvents = (firebase, dispatch, events) =>
     events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta))
 
-export const unWatchEvents = (firebase, dispatch, events, isCleanState=true) =>
-    events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, isCleanState))
+export const unWatchEvents = (firebase, dispatch, events, isCleanState=true, isUpdateClean=false) =>
+    events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, !isUpdateClean ? isCleanState : event.isNeedClean))
 
 const dispatchLoginError = (dispatch, authError) =>
     dispatch({

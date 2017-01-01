@@ -283,8 +283,9 @@ var watchEvents = exports.watchEvents = function watchEvents(firebase, dispatch,
 
 var unWatchEvents = exports.unWatchEvents = function unWatchEvents(firebase, dispatch, events) {
     var isCleanState = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+    var isUpdateClean = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     return events.forEach(function (event) {
-        return unWatchEvent(firebase, dispatch, event.name, event.path, isCleanState);
+        return unWatchEvent(firebase, dispatch, event.name, event.path, !isUpdateClean ? isCleanState : event.isNeedClean);
     });
 };
 
