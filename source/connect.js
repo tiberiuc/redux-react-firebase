@@ -6,6 +6,7 @@ const defaultEvent = {
     path: '',
     type: 'value',
     isListenOnlyOnDelta: false,
+    isAggregation: false,
     isSkipClean: false
 }
 
@@ -16,7 +17,7 @@ const ensureCallable = maybeFn =>
 
 const flatMap = arr => (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
 
-const createEvents = ({type, path, isSkipClean=false, isListenOnlyOnDelta=false}) => {
+const createEvents = ({type, path, isSkipClean=false, isListenOnlyOnDelta=false, isAggregation=false}) => {
     switch (type) {
 
         case 'value':
@@ -28,10 +29,10 @@ const createEvents = ({type, path, isSkipClean=false, isListenOnlyOnDelta=false}
         case 'all':
             return [
                 //{name: 'first_child', path},
-                {name: 'child_added', path, isSkipClean, isListenOnlyOnDelta},
-                {name: 'child_removed', path, isSkipClean, isListenOnlyOnDelta},
-                {name: 'child_moved', path, isSkipClean, isListenOnlyOnDelta},
-                {name: 'child_changed', path, isSkipClean, isListenOnlyOnDelta}
+                {name: 'child_added', path, isSkipClean, isListenOnlyOnDelta, isAggregation},
+                {name: 'child_removed', path, isSkipClean, isListenOnlyOnDelta, isAggregation},
+                {name: 'child_moved', path, isSkipClean, isListenOnlyOnDelta, isAggregation},
+                {name: 'child_changed', path, isSkipClean, isListenOnlyOnDelta, isAggregation}
             ]
 
         default:
@@ -61,7 +62,7 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
 
             case 'array':
             case 'all':
-                return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean:!!path.isSkipClean, isListenOnlyOnDelta:!!path.isListenOnlyOnDelta }))
+                return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean:!!path.isSkipClean, isListenOnlyOnDelta:!!path.isListenOnlyOnDelta, isAggregation:!!path.isAggregation }))
         }
     }
 

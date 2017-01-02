@@ -75,7 +75,7 @@ const unsetWatcher = (firebase, dispatch, event, path, queryId = undefined, isSk
     }
 }
 
-export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=false) => {
+export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=false, isAggregation=false) => {
     let isQuery = false
     let queryParams = []
     let queryId = getQueryIdFromPath(path, event)
@@ -176,6 +176,11 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
             path
         })
 
+        let aggregationId = getQueryIdFromPath(path, event) || getWatchPath('child_aggregation', path);
+        if (!firebase._.timeouts[aggregationId]) {
+            firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
+        }
+
         if (e === 'once') {
             q.once('value')
                 .then(snapshot => {
@@ -200,18 +205,23 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
             q.on(e, snapshot => {
                 if (!newItems) return;
 
-                dispatch({
-                    type: SET,
-                    path: p,
-                    data: snapshot.val(),
-                    snapshot,
-                    key: snapshot.key,
-                    timestamp: Date.now(),
-                    requesting : false,
-                    requested : true,
-                    isChild: true,
-                    isMixSnapshot: true
-                })
+                if (isAggregation) {
+                    firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val()
+                    firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = snapshot
+                } else {
+                    dispatch({
+                        type: SET,
+                        path: p,
+                        data: snapshot.val(),
+                        snapshot,
+                        key: snapshot.key,
+                        timestamp: Date.now(),
+                        requesting : false,
+                        requested : true,
+                        isChild: true,
+                        isMixSnapshot: true
+                    })
+                }
             })
 
             q.once('value')
@@ -242,20 +252,45 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                 //     val: snapshot.val()
                 //   }
                 // }
-                dispatch({
-                    type: SET,
-                    path: p,
-                    data,
-                    snapshot: tempSnapshot,
-                    key: snapshot.key,
-                    timestamp: Date.now(),
-                    requesting : false,
-                    requested : true,
-                    isChild: e !== 'value',
-                    isMixSnapshot: isListenOnlyOnDelta
-                })
+
+                if (e !== 'value' && isAggregation) {
+                    firebase._.aggregatedData[aggregationId][snapshot.key] = data
+                    firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot
+                } else {
+                    dispatch({
+                        type: SET,
+                        path: p,
+                        data,
+                        snapshot: tempSnapshot,
+                        key: snapshot.key,
+                        timestamp: Date.now(),
+                        requesting : false,
+                        requested : true,
+                        isChild: e !== 'value',
+                        isMixSnapshot: isListenOnlyOnDelta
+                    })
+                }
             })
         }
+    }
+
+    const dispatchBulk = (p, aggregationId) => {
+        dispatch({
+            type: SET,
+            path: p,
+            data: firebase._.aggregatedData[aggregationId],
+            snapshot: firebase._.aggregatedSnapshot[aggregationId],
+            key: 'NONE',
+            timestamp: Date.now(),
+            requesting : false,
+            requested : true,
+            isChild: false,
+            isMixSnapshot: true
+        })
+
+        firebase._.aggregatedData[aggregationId] = {}
+        firebase._.aggregatedSnapshot[aggregationId] = {}
+        firebase._.timeouts[aggregationId] = undefined
     }
 
     runQuery(query, event, path)
@@ -267,7 +302,7 @@ export const unWatchEvent = (firebase, dispatch, event, path, isSkipClean=false)
 }
 
 export const watchEvents = (firebase, dispatch, events) =>
-    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta))
+    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta, event.isAggregation))
 
 export const unWatchEvents = (firebase, dispatch, events, isSkipClean=false) =>
     events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, event.isSkipClean))

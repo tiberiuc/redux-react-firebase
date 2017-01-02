@@ -40,6 +40,9 @@ exports.default = function (config) {
             var firebase = Object.defineProperty(_firebase2.default, '_', {
                 value: {
                     watchers: {},
+                    timeouts: {},
+                    aggregatedData: {},
+                    aggregatedSnapshot: {},
                     config: configs,
                     authUid: null
                 },
@@ -60,8 +63,8 @@ exports.default = function (config) {
             var update = function update(path, value, onComplete) {
                 return ref.child(path).update(value, onComplete);
             };
-            var watchEvent = function watchEvent(eventName, eventPath, isListenOnlyOnDelta) {
-                return Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta);
+            var watchEvent = function watchEvent(eventName, eventPath, isListenOnlyOnDelta, isAggregation) {
+                return Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta, isAggregation);
             };
             var unWatchEvent = function unWatchEvent(eventName, eventPath) {
                 var isSkipClean = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;

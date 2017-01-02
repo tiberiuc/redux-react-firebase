@@ -30,6 +30,7 @@ var defaultEvent = {
     path: '',
     type: 'value',
     isListenOnlyOnDelta: false,
+    isAggregation: false,
     isSkipClean: false
 };
 
@@ -55,7 +56,9 @@ var createEvents = function createEvents(_ref) {
         _ref$isSkipClean = _ref.isSkipClean,
         isSkipClean = _ref$isSkipClean === undefined ? false : _ref$isSkipClean,
         _ref$isListenOnlyOnDe = _ref.isListenOnlyOnDelta,
-        isListenOnlyOnDelta = _ref$isListenOnlyOnDe === undefined ? false : _ref$isListenOnlyOnDe;
+        isListenOnlyOnDelta = _ref$isListenOnlyOnDe === undefined ? false : _ref$isListenOnlyOnDe,
+        _ref$isAggregation = _ref.isAggregation,
+        isAggregation = _ref$isAggregation === undefined ? false : _ref$isAggregation;
 
     switch (type) {
 
@@ -68,7 +71,7 @@ var createEvents = function createEvents(_ref) {
         case 'all':
             return [
             //{name: 'first_child', path},
-            { name: 'child_added', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_removed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_moved', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta }, { name: 'child_changed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta }];
+            { name: 'child_added', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation }, { name: 'child_removed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation }, { name: 'child_moved', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation }, { name: 'child_changed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation }];
 
         default:
             return [];
@@ -101,7 +104,7 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
 
                 case 'array':
                 case 'all':
-                    return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean: !!path.isSkipClean, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta }));
+                    return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean: !!path.isSkipClean, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta, isAggregation: !!path.isAggregation }));
             }
         }
 

@@ -85,6 +85,7 @@ var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
 
 var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, event, path) {
     var isListenOnlyOnDelta = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+    var isAggregation = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
 
     var isQuery = false;
     var queryParams = [];
@@ -183,6 +184,13 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
             path: path
         });
 
+        var aggregationId = getQueryIdFromPath(path, event) || getWatchPath('child_aggregation', path);
+        if (!firebase._.timeouts[aggregationId]) {
+            firebase._.timeouts[aggregationId] = setTimeout(function () {
+                dispatchBulk(p, aggregationId);
+            }, 1000);
+        }
+
         if (e === 'once') {
             q.once('value').then(function (snapshot) {
                 if (snapshot.val() !== null) {
@@ -207,18 +215,23 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                 q.on(e, function (snapshot) {
                     if (!newItems) return;
 
-                    dispatch({
-                        type: _constants.SET,
-                        path: p,
-                        data: snapshot.val(),
-                        snapshot: snapshot,
-                        key: snapshot.key,
-                        timestamp: Date.now(),
-                        requesting: false,
-                        requested: true,
-                        isChild: true,
-                        isMixSnapshot: true
-                    });
+                    if (isAggregation) {
+                        firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val();
+                        firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = snapshot;
+                    } else {
+                        dispatch({
+                            type: _constants.SET,
+                            path: p,
+                            data: snapshot.val(),
+                            snapshot: snapshot,
+                            key: snapshot.key,
+                            timestamp: Date.now(),
+                            requesting: false,
+                            requested: true,
+                            isChild: true,
+                            isMixSnapshot: true
+                        });
+                    }
                 });
 
                 q.once('value').then(function (snapshot) {
@@ -249,20 +262,45 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                 //     val: snapshot.val()
                 //   }
                 // }
-                dispatch({
-                    type: _constants.SET,
-                    path: p,
-                    data: data,
-                    snapshot: tempSnapshot,
-                    key: snapshot.key,
-                    timestamp: Date.now(),
-                    requesting: false,
-                    requested: true,
-                    isChild: e !== 'value',
-                    isMixSnapshot: isListenOnlyOnDelta
-                });
+
+                if (e !== 'value' && isAggregation) {
+                    firebase._.aggregatedData[aggregationId][snapshot.key] = data;
+                    firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
+                } else {
+                    dispatch({
+                        type: _constants.SET,
+                        path: p,
+                        data: data,
+                        snapshot: tempSnapshot,
+                        key: snapshot.key,
+                        timestamp: Date.now(),
+                        requesting: false,
+                        requested: true,
+                        isChild: e !== 'value',
+                        isMixSnapshot: isListenOnlyOnDelta
+                    });
+                }
             });
         }
+    };
+
+    var dispatchBulk = function dispatchBulk(p, aggregationId) {
+        dispatch({
+            type: _constants.SET,
+            path: p,
+            data: firebase._.aggregatedData[aggregationId],
+            snapshot: firebase._.aggregatedSnapshot[aggregationId],
+            key: 'NONE',
+            timestamp: Date.now(),
+            requesting: false,
+            requested: true,
+            isChild: false,
+            isMixSnapshot: true
+        });
+
+        firebase._.aggregatedData[aggregationId] = {};
+        firebase._.aggregatedSnapshot[aggregationId] = {};
+        firebase._.timeouts[aggregationId] = undefined;
     };
 
     runQuery(query, event, path);
@@ -277,7 +315,7 @@ var unWatchEvent = exports.unWatchEvent = function unWatchEvent(firebase, dispat
 
 var watchEvents = exports.watchEvents = function watchEvents(firebase, dispatch, events) {
     return events.forEach(function (event) {
-        return watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta);
+        return watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta, event.isAggregation);
     });
 };
 
