@@ -212,6 +212,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 
                     if (isAggregation) {
                         if (!firebase._.timeouts[aggregationId]) {
+                            firebase._.aggregatedData[aggregationId] = {};
+                            firebase._.aggregatedSnapshot[aggregationId] = {};
                             firebase._.timeouts[aggregationId] = setTimeout(function () {
                                 dispatchBulk(p, aggregationId);
                             }, 1000);
@@ -266,6 +268,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 
                 if (e !== 'value' && isAggregation) {
                     if (!firebase._.timeouts[aggregationId]) {
+                        firebase._.aggregatedData[aggregationId] = {};
+                        firebase._.aggregatedSnapshot[aggregationId] = {};
                         firebase._.timeouts[aggregationId] = setTimeout(function () {
                             dispatchBulk(p, aggregationId);
                         }, 1000);
@@ -305,8 +309,6 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
             isMixSnapshot: true
         });
 
-        firebase._.aggregatedData[aggregationId] = {};
-        firebase._.aggregatedSnapshot[aggregationId] = {};
         firebase._.timeouts[aggregationId] = undefined;
     };
 
