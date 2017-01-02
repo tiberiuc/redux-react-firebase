@@ -177,9 +177,6 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
         })
 
         let aggregationId = getQueryIdFromPath(path, event) || getWatchPath('child_aggregation', path);
-        if (!firebase._.timeouts[aggregationId]) {
-            firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
-        }
 
         if (e === 'once') {
             q.once('value')
@@ -206,6 +203,10 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                 if (!newItems) return;
 
                 if (isAggregation) {
+                    if (!firebase._.timeouts[aggregationId]) {
+                        firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
+                    }
+
                     firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val()
                     firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = snapshot
                 } else {
@@ -254,6 +255,10 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                 // }
 
                 if (e !== 'value' && isAggregation) {
+                    if (!firebase._.timeouts[aggregationId]) {
+                        firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
+                    }
+
                     firebase._.aggregatedData[aggregationId][snapshot.key] = data
                     firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot
                 } else {

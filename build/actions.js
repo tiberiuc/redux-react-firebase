@@ -185,11 +185,6 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         });
 
         var aggregationId = getQueryIdFromPath(path, event) || getWatchPath('child_aggregation', path);
-        if (!firebase._.timeouts[aggregationId]) {
-            firebase._.timeouts[aggregationId] = setTimeout(function () {
-                dispatchBulk(p, aggregationId);
-            }, 1000);
-        }
 
         if (e === 'once') {
             q.once('value').then(function (snapshot) {
@@ -216,6 +211,12 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                     if (!newItems) return;
 
                     if (isAggregation) {
+                        if (!firebase._.timeouts[aggregationId]) {
+                            firebase._.timeouts[aggregationId] = setTimeout(function () {
+                                dispatchBulk(p, aggregationId);
+                            }, 1000);
+                        }
+
                         firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val();
                         firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = snapshot;
                     } else {
@@ -264,6 +265,12 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                 // }
 
                 if (e !== 'value' && isAggregation) {
+                    if (!firebase._.timeouts[aggregationId]) {
+                        firebase._.timeouts[aggregationId] = setTimeout(function () {
+                            dispatchBulk(p, aggregationId);
+                        }, 1000);
+                    }
+
                     firebase._.aggregatedData[aggregationId][snapshot.key] = data;
                     firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
                 } else {
