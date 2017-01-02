@@ -192,7 +192,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                             requesting : false,
                             requested : true,
                             isChild: false,
-                            isMixSnapshot: false
+                            isMixSnapshot: false,
+                            isMergeDeep: false
                         })
                     }
                 })
@@ -222,7 +223,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                         requesting : false,
                         requested : true,
                         isChild: true,
-                        isMixSnapshot: true
+                        isMixSnapshot: true,
+                        isMergeDeep: false
                     })
                 }
             })
@@ -241,7 +243,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                             requesting : false,
                             requested : true,
                             isChild: false,
-                            isMixSnapshot: true
+                            isMixSnapshot: true,
+                            isMergeDeep: false
                         })
                     }
                 })
@@ -276,7 +279,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                         requesting : false,
                         requested : true,
                         isChild: e !== 'value',
-                        isMixSnapshot: isListenOnlyOnDelta
+                        isMixSnapshot: isListenOnlyOnDelta,
+                        isMergeDeep: false
                     })
                 }
             })
@@ -294,7 +298,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
             requesting : false,
             requested : true,
             isChild: false,
-            isMixSnapshot: true
+            isMixSnapshot: true,
+            isMergeDeep: true
         })
 
         firebase._.timeouts[aggregationId] = undefined

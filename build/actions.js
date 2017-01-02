@@ -199,7 +199,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                         requesting: false,
                         requested: true,
                         isChild: false,
-                        isMixSnapshot: false
+                        isMixSnapshot: false,
+                        isMergeDeep: false
                     });
                 }
             });
@@ -232,7 +233,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                             requesting: false,
                             requested: true,
                             isChild: true,
-                            isMixSnapshot: true
+                            isMixSnapshot: true,
+                            isMergeDeep: false
                         });
                     }
                 });
@@ -250,7 +252,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                             requesting: false,
                             requested: true,
                             isChild: false,
-                            isMixSnapshot: true
+                            isMixSnapshot: true,
+                            isMergeDeep: false
                         });
                     }
                 });
@@ -288,7 +291,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                         requesting: false,
                         requested: true,
                         isChild: e !== 'value',
-                        isMixSnapshot: isListenOnlyOnDelta
+                        isMixSnapshot: isListenOnlyOnDelta,
+                        isMergeDeep: false
                     });
                 }
             });
@@ -306,7 +310,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
             requesting: false,
             requested: true,
             isChild: false,
-            isMixSnapshot: true
+            isMixSnapshot: true,
+            isMergeDeep: true
         });
 
         firebase._.timeouts[aggregationId] = undefined;

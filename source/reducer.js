@@ -73,13 +73,13 @@ export default (state = initialState, action) => {
             return retVal
 
         case SET:
-            const { data, snapshot, isChild, isMixSnapshot, key } = action
+            const { data, snapshot, isChild, isMixSnapshot, key, isMergeDeep } = action
             pathArr = pathToArr(path)
 
             pathArr.push('data')
             isChild ? pathArr.push(key) : {}
             retVal = (data !== undefined)
-                ? state.setIn(['data', ...pathArr], fromJS(data))
+                ? !isMergeDeep ? state.setIn(['data', ...pathArr], fromJS(data)) : state.updateIn(['data', ...pathArr], fromJS(data))
                 : state.deleteIn(['data', ...pathArr])
             isChild ? pathArr.pop() : {}
             pathArr.pop()
@@ -88,7 +88,7 @@ export default (state = initialState, action) => {
             isMixSnapshot ? (isChild ? pathArr.push('snapshot_deltas') : pathArr.push('snapshot_initial')) : {}
             isChild ? pathArr.push(key) : {}
             retVal = (snapshot !== undefined)
-                ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
+                ? !isMergeDeep ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot)) : retVal.updateIn(['snapshot', ...pathArr], fromJS(snapshot))
                 : retVal.deleteIn(['snapshot', ...pathArr])
             isMixSnapshot ? pathArr.pop() : {}
             isChild ? pathArr.pop() : {}

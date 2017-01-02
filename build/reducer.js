@@ -90,20 +90,21 @@ exports.default = function () {
                     snapshot = action.snapshot,
                     isChild = action.isChild,
                     isMixSnapshot = action.isMixSnapshot,
-                    key = action.key;
+                    key = action.key,
+                    isMergeDeep = action.isMergeDeep;
 
                 pathArr = pathToArr(path);
 
                 pathArr.push('data');
                 isChild ? pathArr.push(key) : {};
-                retVal = data !== undefined ? state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
+                retVal = data !== undefined ? !isMergeDeep ? state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : state.updateIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
                 isChild ? pathArr.pop() : {};
                 pathArr.pop();
 
                 pathArr.push('snapshot');
                 isMixSnapshot ? isChild ? pathArr.push('snapshot_deltas') : pathArr.push('snapshot_initial') : {};
                 isChild ? pathArr.push(key) : {};
-                retVal = snapshot !== undefined ? retVal.setIn(['snapshot'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(snapshot)) : retVal.deleteIn(['snapshot'].concat(_toConsumableArray(pathArr)));
+                retVal = snapshot !== undefined ? !isMergeDeep ? retVal.setIn(['snapshot'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(snapshot)) : retVal.updateIn(['snapshot'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(snapshot)) : retVal.deleteIn(['snapshot'].concat(_toConsumableArray(pathArr)));
                 isMixSnapshot ? pathArr.pop() : {};
                 isChild ? pathArr.pop() : {};
                 pathArr.pop();
