@@ -23,6 +23,9 @@ export default (config) => {
         const firebase = Object.defineProperty(Firebase, '_', {
             value: {
                 watchers: {},
+                timeouts: {},
+                aggregatedData: {},
+                aggregatedSnapshot: {},
                 config: configs,
                 authUid: null
             },
@@ -35,7 +38,7 @@ export default (config) => {
         const push = (path, value, onComplete) => ref.child(path).push(value, onComplete)
         const remove = (path, onComplete) => ref.child(path).remove(onComplete)
         const update = (path, value, onComplete) => ref.child(path).update(value, onComplete)
-        const watchEvent = (eventName, eventPath, isListenOnlyOnDelta) => Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta)
+        const watchEvent = (eventName, eventPath, isListenOnlyOnDelta, isAggregation) => Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta, isAggregation)
         const unWatchEvent = (eventName, eventPath, isSkipClean=false) => Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, isSkipClean)
         const login = credentials => Actions.login(dispatch, firebase, credentials)
         const logout = (preserve = [], remove = []) => Actions.logout(dispatch, firebase, preserve, remove)

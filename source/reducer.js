@@ -73,26 +73,32 @@ export default (state = initialState, action) => {
             return retVal
 
         case SET:
-            const { data, snapshot, isChild, isMixSnapshot, key } = action
+            const { data, snapshot, isChild, isMixSnapshot, key, isMergeDeep } = action
             pathArr = pathToArr(path)
 
-            pathArr.push('data')
-            isChild ? pathArr.push(key) : {}
-            retVal = (data !== undefined)
-                ? state.setIn(['data', ...pathArr], fromJS(data))
-                : state.deleteIn(['data', ...pathArr])
-            isChild ? pathArr.pop() : {}
-            pathArr.pop()
 
-            pathArr.push('snapshot')
-            isMixSnapshot ? (isChild ? pathArr.push('snapshot_deltas') : pathArr.push('snapshot_initial')) : {}
-            isChild ? pathArr.push(key) : {}
+
+            pathArr.push('data');
+            isChild ? pathArr.push(key) : {};
+            retVal = (data !== undefined)
+                ? (!isMergeDeep || (isMergeDeep && !state.getIn(['data', ...pathArr])))
+                    ? state.setIn(['data', ...pathArr], fromJS(data))
+                    : state.updateIn(['data', ...pathArr], (oldData)=>{return oldData.mergeDeepWith((prev, next) => !next ? prev : next === '_child_removed' ? undefined : next, fromJS(data))})
+                : state.deleteIn(['data', ...pathArr]);
+            isChild ? pathArr.pop() : {};
+            pathArr.pop();
+
+            pathArr.push('snapshot');
+            isMixSnapshot ? (isChild || isMergeDeep) ? pathArr.push('snapshot_deltas') : pathArr.push('snapshot_initial') : {};
+            isChild ? pathArr.push(key) : {};
             retVal = (snapshot !== undefined)
-                ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
-                : retVal.deleteIn(['snapshot', ...pathArr])
-            isMixSnapshot ? pathArr.pop() : {}
-            isChild ? pathArr.pop() : {}
-            pathArr.pop()
+                ? (!isMergeDeep || (isMergeDeep && !retVal.getIn(['snapshot', ...pathArr])))
+                    ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
+                    : retVal.updateIn(['snapshot', ...pathArr], (oldSnapshot)=>{return oldSnapshot.mergeDeepWith((prev, next) => !next ? prev : next, fromJS(snapshot))})
+                : retVal.deleteIn(['snapshot', ...pathArr]);
+            isMixSnapshot ? pathArr.pop() : {};
+            isChild ? pathArr.pop() : {};
+            pathArr.pop();
 
             pathArr.push('timestamp')
             retVal = (timestamp !== undefined)
