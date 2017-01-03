@@ -205,8 +205,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
 
                 if (isAggregation) {
                     if (!firebase._.timeouts[aggregationId]) {
-                        firebase._.aggregatedData[aggregationId] = {}
-                        firebase._.aggregatedSnapshot[aggregationId] = {}
+                        firebase._.aggregatedData[aggregationId] = []
+                        firebase._.aggregatedSnapshot[aggregationId] = []
                         firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
                     }
 
@@ -250,8 +250,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                 })
         } else {
             q.on(e, snapshot => {
-                let data = (e === 'child_removed') ? undefined : snapshot.val();
-                let tempSnapshot = (e === 'child_removed') ? {} : snapshot;
+                let data = (e === 'child_removed') ? '_child_removed' : snapshot.val();
+                let tempSnapshot = (e === 'child_removed') ? '_child_removed' : snapshot;
                 // if (e !== 'child_removed') {
                 //   data = {
                 //     _id: snapshot.key,
@@ -261,8 +261,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
 
                 if (e !== 'value' && isAggregation) {
                     if (!firebase._.timeouts[aggregationId]) {
-                        firebase._.aggregatedData[aggregationId] = {}
-                        firebase._.aggregatedSnapshot[aggregationId] = {}
+                        firebase._.aggregatedData[aggregationId] = []
+                        firebase._.aggregatedSnapshot[aggregationId] = []
                         firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
                     }
 
@@ -293,7 +293,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
             path: p,
             data: firebase._.aggregatedData[aggregationId],
             snapshot: firebase._.aggregatedSnapshot[aggregationId],
-            key: 'NONE',
+            key: '_NONE',
             timestamp: Date.now(),
             requesting : false,
             requested : true,
