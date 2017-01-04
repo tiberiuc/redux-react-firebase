@@ -132,6 +132,9 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
             queryParams.forEach(function (param) {
                 param = param.split('=');
                 switch (param[0]) {
+                    case 'doNotParse':
+                        doNotParse = true;
+                        break;
                     case 'orderByValue':
                         query = query.orderByValue();
                         doNotParse = true;
