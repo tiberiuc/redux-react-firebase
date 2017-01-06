@@ -120,6 +120,9 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
         queryParams.forEach((param) => {
             param = param.split('=')
             switch (param[0]) {
+                case 'doNotParse':
+                    doNotParse = true
+                    break
                 case 'orderByValue':
                     query = query.orderByValue()
                     doNotParse = true
