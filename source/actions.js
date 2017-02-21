@@ -319,8 +319,8 @@ export const unWatchEvent = (firebase, dispatch, event, path, isSkipClean=false)
 export const watchEvents = (firebase, dispatch, events) =>
     events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta, event.isAggregation))
 
-export const unWatchEvents = (firebase, dispatch, events, isSkipClean=false) =>
-    events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, event.isSkipClean))
+export const unWatchEvents = (firebase, dispatch, events, isUnmount=false) =>
+    events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, isUnmount ? false : event.isSkipClean))
 
 const dispatchLoginError = (dispatch, authError) =>
     dispatch({
