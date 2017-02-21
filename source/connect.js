@@ -114,7 +114,7 @@ export default (dataOrFn = []) => WrappedComponent => {
 
         componentWillUnmount () {
             const {firebase, dispatch} = this.context.store
-            unWatchEvents(firebase, dispatch, this._firebaseEvents)
+            unWatchEvents(firebase, dispatch, this._firebaseEvents, true)
         }
 
         render () {

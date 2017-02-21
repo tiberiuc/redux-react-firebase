@@ -180,7 +180,7 @@ exports.default = function () {
                         firebase = _context$store3.firebase,
                         dispatch = _context$store3.dispatch;
 
-                    (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents);
+                    (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, true);
                 }
             }, {
                 key: 'render',

@@ -337,9 +337,9 @@ var watchEvents = exports.watchEvents = function watchEvents(firebase, dispatch,
 };
 
 var unWatchEvents = exports.unWatchEvents = function unWatchEvents(firebase, dispatch, events) {
-    var isSkipClean = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    var isUnmount = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return events.forEach(function (event) {
-        return unWatchEvent(firebase, dispatch, event.name, event.path, event.isSkipClean);
+        return unWatchEvent(firebase, dispatch, event.name, event.path, isUnmount ? false : event.isSkipClean);
     });
 };
 
