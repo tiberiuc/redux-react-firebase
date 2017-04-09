@@ -1,4 +1,3 @@
-
 const prefix = '@@reactReduxFirebase/'
 
 module.exports = {
