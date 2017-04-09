@@ -63,8 +63,8 @@ exports.default = function (config) {
             var update = function update(path, value, onComplete) {
                 return ref.child(path).update(value, onComplete);
             };
-            var watchEvent = function watchEvent(eventName, eventPath, isListenOnlyOnDelta, isAggregation) {
-                return Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta, isAggregation);
+            var watchEvent = function watchEvent(eventName, eventPath, isListenOnlyOnDelta, isAggregation, setFunc) {
+                return Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta, isAggregation, setFunc);
             };
             var unWatchEvent = function unWatchEvent(eventName, eventPath) {
                 var isSkipClean = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;

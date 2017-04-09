@@ -86,6 +86,7 @@ var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
 var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, event, path) {
     var isListenOnlyOnDelta = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     var isAggregation = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
+    var setFunc = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : undefined;
 
     var isQuery = false;
     var queryParams = [];
@@ -192,19 +193,31 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         if (e === 'once') {
             q.once('value').then(function (snapshot) {
                 if (snapshot.val() !== null) {
-                    dispatch({
-                        type: _constants.SET,
-                        path: p,
-                        data: snapshot.val(),
-                        snapshot: snapshot,
-                        key: snapshot.key,
-                        timestamp: Date.now(),
-                        requesting: false,
-                        requested: true,
-                        isChild: false,
-                        isMixSnapshot: false,
-                        isMergeDeep: false
-                    });
+                    if (setFunc) {
+                        setFunc(snapshot, 'value', dispatch);
+                        dispatch({
+                            type: _constants.SET_REQUESTED,
+                            path: p,
+                            key: snapshot.key,
+                            timestamp: Date.now(),
+                            requesting: false,
+                            requested: true
+                        });
+                    } else {
+                        dispatch({
+                            type: _constants.SET,
+                            path: p,
+                            data: snapshot.val(),
+                            snapshot: snapshot,
+                            key: snapshot.key,
+                            timestamp: Date.now(),
+                            requesting: false,
+                            requested: true,
+                            isChild: false,
+                            isMixSnapshot: false,
+                            isMergeDeep: false
+                        });
+                    }
                 }
             });
         } else if (e === 'child_added' && isListenOnlyOnDelta) {
@@ -226,38 +239,62 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                         firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val();
                         firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = snapshot;
                     } else {
-                        dispatch({
-                            type: _constants.SET,
-                            path: p,
-                            data: snapshot.val(),
-                            snapshot: snapshot,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting: false,
-                            requested: true,
-                            isChild: true,
-                            isMixSnapshot: true,
-                            isMergeDeep: false
-                        });
+                        if (setFunc) {
+                            setFunc(snapshot, 'child_added', dispatch);
+                            dispatch({
+                                type: _constants.SET_REQUESTED,
+                                path: p,
+                                key: snapshot.key,
+                                timestamp: Date.now(),
+                                requesting: false,
+                                requested: true
+                            });
+                        } else {
+                            dispatch({
+                                type: _constants.SET,
+                                path: p,
+                                data: snapshot.val(),
+                                snapshot: snapshot,
+                                key: snapshot.key,
+                                timestamp: Date.now(),
+                                requesting: false,
+                                requested: true,
+                                isChild: true,
+                                isMixSnapshot: true,
+                                isMergeDeep: false
+                            });
+                        }
                     }
                 });
 
                 q.once('value').then(function (snapshot) {
                     newItems = true;
                     if (snapshot.val() !== null) {
-                        dispatch({
-                            type: _constants.SET,
-                            path: p,
-                            data: snapshot.val(),
-                            snapshot: snapshot,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting: false,
-                            requested: true,
-                            isChild: false,
-                            isMixSnapshot: true,
-                            isMergeDeep: false
-                        });
+                        if (setFunc) {
+                            setFunc(snapshot, 'value', dispatch);
+                            dispatch({
+                                type: _constants.SET_REQUESTED,
+                                path: p,
+                                key: snapshot.key,
+                                timestamp: Date.now(),
+                                requesting: false,
+                                requested: true
+                            });
+                        } else {
+                            dispatch({
+                                type: _constants.SET,
+                                path: p,
+                                data: snapshot.val(),
+                                snapshot: snapshot,
+                                key: snapshot.key,
+                                timestamp: Date.now(),
+                                requesting: false,
+                                requested: true,
+                                isChild: false,
+                                isMixSnapshot: true,
+                                isMergeDeep: false
+                            });
+                        }
                     }
                 });
             })();
@@ -284,38 +321,62 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                     firebase._.aggregatedData[aggregationId][snapshot.key] = data;
                     firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
                 } else {
-                    dispatch({
-                        type: _constants.SET,
-                        path: p,
-                        data: data,
-                        snapshot: tempSnapshot,
-                        key: snapshot.key,
-                        timestamp: Date.now(),
-                        requesting: false,
-                        requested: true,
-                        isChild: e !== 'value',
-                        isMixSnapshot: isListenOnlyOnDelta,
-                        isMergeDeep: false
-                    });
+                    if (setFunc) {
+                        setFunc(tempSnapshot, e, dispatch);
+                        dispatch({
+                            type: _constants.SET_REQUESTED,
+                            path: p,
+                            key: snapshot.key,
+                            timestamp: Date.now(),
+                            requesting: false,
+                            requested: true
+                        });
+                    } else {
+                        dispatch({
+                            type: _constants.SET,
+                            path: p,
+                            data: data,
+                            snapshot: tempSnapshot,
+                            key: snapshot.key,
+                            timestamp: Date.now(),
+                            requesting: false,
+                            requested: true,
+                            isChild: e !== 'value',
+                            isMixSnapshot: isListenOnlyOnDelta,
+                            isMergeDeep: false
+                        });
+                    }
                 }
             });
         }
     };
 
     var dispatchBulk = function dispatchBulk(p, aggregationId) {
-        dispatch({
-            type: _constants.SET,
-            path: p,
-            data: firebase._.aggregatedData[aggregationId],
-            snapshot: firebase._.aggregatedSnapshot[aggregationId],
-            key: '_NONE',
-            timestamp: Date.now(),
-            requesting: false,
-            requested: true,
-            isChild: false,
-            isMixSnapshot: true,
-            isMergeDeep: true
-        });
+        if (setFunc) {
+            setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch);
+            dispatch({
+                type: _constants.SET_REQUESTED,
+                path: p,
+                key: '_NONE',
+                timestamp: Date.now(),
+                requesting: false,
+                requested: true
+            });
+        } else {
+            dispatch({
+                type: _constants.SET,
+                path: p,
+                data: firebase._.aggregatedData[aggregationId],
+                snapshot: firebase._.aggregatedSnapshot[aggregationId],
+                key: '_NONE',
+                timestamp: Date.now(),
+                requesting: false,
+                requested: true,
+                isChild: false,
+                isMixSnapshot: true,
+                isMergeDeep: true
+            });
+        }
 
         firebase._.timeouts[aggregationId] = undefined;
     };
@@ -332,7 +393,7 @@ var unWatchEvent = exports.unWatchEvent = function unWatchEvent(firebase, dispat
 
 var watchEvents = exports.watchEvents = function watchEvents(firebase, dispatch, events) {
     return events.forEach(function (event) {
-        return watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta, event.isAggregation);
+        return watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta, event.isAggregation, event.setFunc);
     });
 };
 

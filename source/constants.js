@@ -1,3 +1,4 @@
+
 const prefix = '@@reactReduxFirebase/'
 
 module.exports = {
@@ -8,5 +9,6 @@ module.exports = {
   LOGIN_ERROR: `${prefix}LOGIN_ERROR`,
 //  NO_VALUE: `${prefix}NO_VALUE`,
   START: `${prefix}START`,
-  INIT_BY_PATH: `${prefix}INIT_BY_PATH`
+  INIT_BY_PATH: `${prefix}INIT_BY_PATH`,
+  SET_REQUESTED: `${prefix}SET_REQUESTED`
 }

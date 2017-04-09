@@ -133,6 +133,26 @@ exports.default = function () {
                     v: retVal
                 };
 
+            case _constants.SET_REQUESTED:
+
+                pathArr = pathToArr(path);
+
+                pathArr.push('timestamp');
+                retVal = timestamp !== undefined ? state.setIn(['timestamp'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(timestamp)) : state.deleteIn(['timestamp'].concat(_toConsumableArray(pathArr)));
+                pathArr.pop();
+
+                pathArr.push('requesting');
+                retVal = requesting !== undefined ? retVal.setIn(['requesting'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(requesting)) : retVal.deleteIn(['requesting'].concat(_toConsumableArray(pathArr)));
+                pathArr.pop();
+
+                pathArr.push('requested');
+                retVal = requested !== undefined ? retVal.setIn(['requested'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(requested)) : retVal.deleteIn(['requested'].concat(_toConsumableArray(pathArr)));
+                pathArr.pop();
+
+                return {
+                    v: retVal
+                };
+
             // case NO_VALUE:
             //   pathArr = pathToArr(path)
             //   retVal = state.setIn(['data', ...pathArr], fromJS({}))

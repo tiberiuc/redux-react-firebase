@@ -7,7 +7,8 @@ import {
     LOGIN_ERROR,
 //  NO_VALUE,
     START,
-    INIT_BY_PATH
+    INIT_BY_PATH,
+    SET_REQUESTED,
 } from './constants'
 
 const initialState = fromJS({
@@ -76,8 +77,6 @@ export default (state = initialState, action) => {
             const { data, snapshot, isChild, isMixSnapshot, key, isMergeDeep } = action
             pathArr = pathToArr(path)
 
-
-
             pathArr.push('data');
             isChild ? pathArr.push(key) : {};
             retVal = (data !== undefined)
@@ -104,6 +103,30 @@ export default (state = initialState, action) => {
             retVal = (timestamp !== undefined)
                 ? retVal.setIn(['timestamp', ...pathArr], fromJS(timestamp))
                 : retVal.deleteIn(['timestamp', ...pathArr])
+            pathArr.pop()
+
+            pathArr.push('requesting')
+            retVal = (requesting !== undefined)
+                ? retVal.setIn(['requesting', ...pathArr], fromJS(requesting))
+                : retVal.deleteIn(['requesting', ...pathArr])
+            pathArr.pop()
+
+            pathArr.push('requested')
+            retVal = (requested !== undefined)
+                ? retVal.setIn(['requested', ...pathArr], fromJS(requested))
+                : retVal.deleteIn(['requested', ...pathArr])
+            pathArr.pop()
+
+            return retVal
+
+        case SET_REQUESTED:
+
+            pathArr = pathToArr(path)
+
+            pathArr.push('timestamp')
+            retVal = (timestamp !== undefined)
+                ? state.setIn(['timestamp', ...pathArr], fromJS(timestamp))
+                : state.deleteIn(['timestamp', ...pathArr])
             pathArr.pop()
 
             pathArr.push('requesting')
