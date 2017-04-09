@@ -120,11 +120,11 @@ export default (dataOrFn = []) => WrappedComponent => {
         render () {
             return (
                 <WrappedComponent
-                    {...this.props}
-                    {...this.state}
-                    firebase={this.firebase}
-                />
-            )
+            {...this.props}
+            {...this.state}
+            firebase={this.firebase}
+        />
+        )
         }
     }
     return FirebaseConnect
