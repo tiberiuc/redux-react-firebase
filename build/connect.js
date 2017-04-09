@@ -30,6 +30,7 @@ var defaultEvent = {
     path: '',
     type: 'value',
     isListenOnlyOnDelta: false,
+    setFunc: undefined,
     isAggregation: false,
     isSkipClean: false
 };
@@ -58,7 +59,9 @@ var createEvents = function createEvents(_ref) {
         _ref$isListenOnlyOnDe = _ref.isListenOnlyOnDelta,
         isListenOnlyOnDelta = _ref$isListenOnlyOnDe === undefined ? false : _ref$isListenOnlyOnDe,
         _ref$isAggregation = _ref.isAggregation,
-        isAggregation = _ref$isAggregation === undefined ? false : _ref$isAggregation;
+        isAggregation = _ref$isAggregation === undefined ? false : _ref$isAggregation,
+        _ref$setFunc = _ref.setFunc,
+        setFunc = _ref$setFunc === undefined ? undefined : _ref$setFunc;
 
     switch (type) {
 
@@ -71,7 +74,7 @@ var createEvents = function createEvents(_ref) {
         case 'all':
             return [
             //{name: 'first_child', path},
-            { name: 'child_added', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation }, { name: 'child_removed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation }, { name: 'child_moved', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation }, { name: 'child_changed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation }];
+            { name: 'child_added', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc }, { name: 'child_removed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc }, { name: 'child_moved', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc }, { name: 'child_changed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc }];
 
         default:
             return [];
@@ -104,7 +107,7 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
 
                 case 'array':
                 case 'all':
-                    return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean: !!path.isSkipClean, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta, isAggregation: !!path.isAggregation }));
+                    return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean: !!path.isSkipClean, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta, isAggregation: !!path.isAggregation, setFunc: path.setFunc }));
             }
         }
 

@@ -1,6 +1,7 @@
 
 import {
     SET,
+    SET_REQUESTED,
     SET_PROFILE,
     LOGIN,
     LOGOUT,
@@ -75,7 +76,7 @@ const unsetWatcher = (firebase, dispatch, event, path, queryId = undefined, isSk
     }
 }
 
-export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=false, isAggregation=false) => {
+export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=false, isAggregation=false, setFunc=undefined) => {
     let isQuery = false
     let queryParams = []
     let queryId = getQueryIdFromPath(path, event)
@@ -185,19 +186,31 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
             q.once('value')
                 .then(snapshot => {
                     if (snapshot.val() !== null) {
-                        dispatch({
-                            type: SET,
-                            path: p,
-                            data: snapshot.val(),
-                            snapshot,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting : false,
-                            requested : true,
-                            isChild: false,
-                            isMixSnapshot: false,
-                            isMergeDeep: false
-                        })
+                        if (setFunc) {
+                            setFunc(snapshot, 'value', dispatch);
+                            dispatch({
+                                type: SET_REQUESTED,
+                                path: p,
+                                key: snapshot.key,
+                                timestamp: Date.now(),
+                                requesting: false,
+                                requested: true
+                            });
+                        } else {
+                            dispatch({
+                                type: SET,
+                                path: p,
+                                data: snapshot.val(),
+                                snapshot,
+                                key: snapshot.key,
+                                timestamp: Date.now(),
+                                requesting : false,
+                                requested : true,
+                                isChild: false,
+                                isMixSnapshot: false,
+                                isMergeDeep: false
+                            })
+                        }
                     }
                 })
         } else if (e === 'child_added' && isListenOnlyOnDelta) {
@@ -216,26 +229,17 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                     firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val()
                     firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = snapshot
                 } else {
-                    dispatch({
-                        type: SET,
-                        path: p,
-                        data: snapshot.val(),
-                        snapshot,
-                        key: snapshot.key,
-                        timestamp: Date.now(),
-                        requesting : false,
-                        requested : true,
-                        isChild: true,
-                        isMixSnapshot: true,
-                        isMergeDeep: false
-                    })
-                }
-            })
-
-            q.once('value')
-                .then(snapshot => {
-                    newItems = true;
-                    if (snapshot.val() !== null) {
+                    if (setFunc) {
+                        setFunc(snapshot, 'child_added', dispatch);
+                        dispatch({
+                            type: SET_REQUESTED,
+                            path: p,
+                            key: snapshot.key,
+                            timestamp: Date.now(),
+                            requesting: false,
+                            requested: true
+                        });
+                    } else {
                         dispatch({
                             type: SET,
                             path: p,
@@ -245,10 +249,43 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                             timestamp: Date.now(),
                             requesting : false,
                             requested : true,
-                            isChild: false,
+                            isChild: true,
                             isMixSnapshot: true,
                             isMergeDeep: false
                         })
+                    }
+                }
+            })
+
+            q.once('value')
+                .then(snapshot => {
+                    newItems = true;
+                    if (snapshot.val() !== null) {
+                        if (setFunc) {
+                            setFunc(snapshot, 'value', dispatch);
+                            dispatch({
+                                type: SET_REQUESTED,
+                                path: p,
+                                key: snapshot.key,
+                                timestamp: Date.now(),
+                                requesting: false,
+                                requested: true
+                            });
+                        } else {
+                            dispatch({
+                                type: SET,
+                                path: p,
+                                data: snapshot.val(),
+                                snapshot,
+                                key: snapshot.key,
+                                timestamp: Date.now(),
+                                requesting : false,
+                                requested : true,
+                                isChild: false,
+                                isMixSnapshot: true,
+                                isMergeDeep: false
+                            })
+                        }
                     }
                 })
         } else {
@@ -272,38 +309,62 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                     firebase._.aggregatedData[aggregationId][snapshot.key] = data
                     firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot
                 } else {
-                    dispatch({
-                        type: SET,
-                        path: p,
-                        data,
-                        snapshot: tempSnapshot,
-                        key: snapshot.key,
-                        timestamp: Date.now(),
-                        requesting : false,
-                        requested : true,
-                        isChild: e !== 'value',
-                        isMixSnapshot: isListenOnlyOnDelta,
-                        isMergeDeep: false
-                    })
+                    if (setFunc) {
+                        setFunc(tempSnapshot, e, dispatch);
+                        dispatch({
+                            type: SET_REQUESTED,
+                            path: p,
+                            key: snapshot.key,
+                            timestamp: Date.now(),
+                            requesting: false,
+                            requested: true
+                        });
+                    } else {
+                        dispatch({
+                            type: SET,
+                            path: p,
+                            data,
+                            snapshot: tempSnapshot,
+                            key: snapshot.key,
+                            timestamp: Date.now(),
+                            requesting : false,
+                            requested : true,
+                            isChild: e !== 'value',
+                            isMixSnapshot: isListenOnlyOnDelta,
+                            isMergeDeep: false
+                        })
+                    }
                 }
             })
         }
     }
 
     const dispatchBulk = (p, aggregationId) => {
-        dispatch({
-            type: SET,
-            path: p,
-            data: firebase._.aggregatedData[aggregationId],
-            snapshot: firebase._.aggregatedSnapshot[aggregationId],
-            key: '_NONE',
-            timestamp: Date.now(),
-            requesting : false,
-            requested : true,
-            isChild: false,
-            isMixSnapshot: true,
-            isMergeDeep: true
-        })
+        if (setFunc) {
+            setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch);
+            dispatch({
+                type: SET_REQUESTED,
+                path: p,
+                key: '_NONE',
+                timestamp: Date.now(),
+                requesting: false,
+                requested: true
+            });
+        } else {
+            dispatch({
+                type: SET,
+                path: p,
+                data: firebase._.aggregatedData[aggregationId],
+                snapshot: firebase._.aggregatedSnapshot[aggregationId],
+                key: '_NONE',
+                timestamp: Date.now(),
+                requesting : false,
+                requested : true,
+                isChild: false,
+                isMixSnapshot: true,
+                isMergeDeep: true
+            })
+        }
 
         firebase._.timeouts[aggregationId] = undefined
     }
@@ -317,7 +378,7 @@ export const unWatchEvent = (firebase, dispatch, event, path, isSkipClean=false)
 }
 
 export const watchEvents = (firebase, dispatch, events) =>
-    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta, event.isAggregation))
+    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta, event.isAggregation, event.setFunc))
 
 export const unWatchEvents = (firebase, dispatch, events, isUnmount=false) =>
     events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, isUnmount ? false : event.isSkipClean))
