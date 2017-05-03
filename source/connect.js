@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
 import {watchEvents, unWatchEvents} from './actions'
 import { isEqual } from 'lodash'
 
@@ -84,7 +84,7 @@ export default (dataOrFn = []) => WrappedComponent => {
             store: PropTypes.object.isRequired
         };
 
-        componentWillMount () {
+        componentDidMount () {
             const {firebase, dispatch} = this.context.store
 
             const linkFn = ensureCallable(dataOrFn)
@@ -113,7 +113,7 @@ export default (dataOrFn = []) => WrappedComponent => {
             }
         }
 
-        componentWillUnmount () {
+        componentDidUnmount () {
             const {firebase, dispatch} = this.context.store
             unWatchEvents(firebase, dispatch, this._firebaseEvents, true)
         }
