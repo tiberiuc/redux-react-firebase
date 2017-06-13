@@ -221,8 +221,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
 
                 if (isAggregation) {
                     if (!firebase._.timeouts[aggregationId]) {
-                        firebase._.aggregatedData[aggregationId] = []
-                        firebase._.aggregatedSnapshot[aggregationId] = []
+                        firebase._.aggregatedData[aggregationId] = {}
+                        firebase._.aggregatedSnapshot[aggregationId] = {}
                         firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
                     }
 
@@ -301,8 +301,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
 
                 if (e !== 'value' && isAggregation) {
                     if (!firebase._.timeouts[aggregationId]) {
-                        firebase._.aggregatedData[aggregationId] = []
-                        firebase._.aggregatedSnapshot[aggregationId] = []
+                        firebase._.aggregatedData[aggregationId] = {}
+                        firebase._.aggregatedSnapshot[aggregationId] = {}
                         firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
                     }
 

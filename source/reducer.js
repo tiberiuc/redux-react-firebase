@@ -93,8 +93,10 @@ export default (state = initialState, action) => {
             retVal = (snapshot !== undefined)
                 ? (!isMergeDeep || (isMergeDeep && !retVal.getIn(['snapshot', ...pathArr])))
                     ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
-                    : retVal.updateIn(['snapshot', ...pathArr], (oldSnapshot)=>{return oldSnapshot.mergeDeepWith((prev, next) => !next ? prev : next, fromJS(snapshot))})
-                : retVal.deleteIn(['snapshot', ...pathArr]);
+                    : isMixSnapshot
+                        ? retVal.deleteIn(['snapshot', ...pathArr]) && retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
+                        : retVal.updateIn(['snapshot', ...pathArr], (oldSnapshot)=>{return oldSnapshot.mergeDeepWith((prev, next) => !next ? prev : next, fromJS(snapshot))})
+        : retVal.deleteIn(['snapshot', ...pathArr]);
             isMixSnapshot ? pathArr.pop() : {};
             isChild ? pathArr.pop() : {};
             pathArr.pop();
