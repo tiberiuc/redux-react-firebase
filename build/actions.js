@@ -65,6 +65,12 @@ var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
     path = path.split('#')[0];
 
     if (firebase._.watchers[id] <= 1) {
+        var aggregationId = getQueryIdFromPath(path, event) || getWatchPath('child_aggregation', path);
+
+        if (firebase._.timeouts && firebase._.timeouts[aggregationId]) {
+            clearTimeout(firebase._.timeouts[aggregationId]);
+        }
+
         delete firebase._.watchers[id];
         if (event != 'once') {
             // if (event !== 'first_child') {
