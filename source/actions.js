@@ -54,11 +54,17 @@ const getQueryIdFromPath = (path, event=undefined) => {
 }
 
 const unsetWatcher = (firebase, dispatch, event, path, queryId = undefined, isSkipClean=false) => {
-    const id = queryId || getQueryIdFromPath(path,event) || getWatchPath(event, path)
+    const id = queryId || getQueryIdFromPath(path,event) || getWatchPath(event, path);
     path = path.split('#')[0]
 
     if (firebase._.watchers[id] <= 1) {
-        delete firebase._.watchers[id]
+        var aggregationId = getQueryIdFromPath(path, event) || getWatchPath('child_aggregation', path);
+
+        if (firebase._.timeouts && firebase._.timeouts[aggregationId]) {
+            clearTimeout(firebase._.timeouts[aggregationId]);
+        }
+
+        delete firebase._.watchers[id];
         if (event!='once'){
             // if (event !== 'first_child') {
             //   firebase.database().ref().child(path).off(event)
