@@ -168,12 +168,24 @@ exports.default = function () {
                     var newPathsToListen = linkFn(nextProps, firebase);
 
                     if (!(0, _lodash.isEqual)(newPathsToListen, this._pathsToListen)) {
+                        var oldPaths = (0, _lodash.differenceBy)(this._pathsToListen, newPathsToListen, function (a) {
+                            return a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean;
+                        });
+                        var newPaths = (0, _lodash.differenceBy)(newPathsToListen, this._pathsToListen, function (a) {
+                            return a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean;
+                        });
+                        var oldFirebaseEvents = getEventsFromDefinition(oldPaths);
+                        var newFirebaseEvents = getEventsFromDefinition(newPaths);
+
+                        if (oldFirebaseEvents.length > 0) {
+                            (0, _actions.unWatchEvents)(firebase, dispatch, oldFirebaseEvents);
+                        }
+
+                        if (newFirebaseEvents.length > 0) {
+                            (0, _actions.watchEvents)(firebase, dispatch, newFirebaseEvents);
+                        }
+
                         this._pathsToListen = newPathsToListen;
-
-                        (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents);
-
-                        this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
-                        (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
                     }
                 }
             }, {

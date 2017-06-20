@@ -29,8 +29,8 @@ const setWatcher = (firebase, event, path, queryId = undefined) => {
     return firebase._.watchers[id]
 }
 
-const getWatcherCount = (firebase, event, path, queryId = undefined) => {
-    const id = queryId || getQueryIdFromPath(path,event) || getWatchPath(event, path)
+const getWatcherCount = (firebase, event, path) => {
+    const id = getQueryIdFromPath(path,event) || getWatchPath(event, path)
     return firebase._.watchers[id]
 }
 
@@ -80,6 +80,17 @@ const unsetWatcher = (firebase, dispatch, event, path, queryId = undefined, isSk
     } else if (firebase._.watchers[id]) {
         firebase._.watchers[id]--
     }
+}
+
+export const isWatchPath = (firebase, dispatch, event, path, queryId=undefined) => {
+    const id = queryId || getQueryIdFromPath(path,event) || getWatchPath(event, path);
+    let isWatch = false;
+
+    if (firebase._.watchers[id] > 0) {
+        isWatch = true;
+    }
+
+    return isWatch;
 }
 
 export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=false, isAggregation=false, setFunc=undefined) => {
@@ -501,4 +512,4 @@ export const resetPassword = (dispatch, firebase, email) => {
     })
 }
 
-export default { watchEvents, unWatchEvents, init, logout, createUser, resetPassword }
+export default { watchEvents, unWatchEvents, init, logout, createUser, resetPassword, isWatchPath }

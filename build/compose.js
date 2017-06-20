@@ -63,6 +63,9 @@ exports.default = function (config) {
             var update = function update(path, value, onComplete) {
                 return ref.child(path).update(value, onComplete);
             };
+            var isWatchPath = function isWatchPath(eventName, eventPath) {
+                return Actions.isWatchPath(firebase, dispatch, eventName, eventPath);
+            };
             var watchEvent = function watchEvent(eventName, eventPath, isListenOnlyOnDelta, isAggregation, setFunc) {
                 return Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta, isAggregation, setFunc);
             };
@@ -93,7 +96,7 @@ exports.default = function (config) {
                 createUser: createUser,
                 login: login, logout: logout,
                 resetPassword: resetPassword, changePassword: changePassword,
-                watchEvent: watchEvent, unWatchEvent: unWatchEvent
+                watchEvent: watchEvent, unWatchEvent: unWatchEvent, isWatchPath: isWatchPath
             };
 
             Actions.init(dispatch, firebase);

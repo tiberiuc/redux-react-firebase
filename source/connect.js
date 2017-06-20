@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import {watchEvents, unWatchEvents} from './actions'
-import { isEqual } from 'lodash'
+import { isEqual, differenceBy } from 'lodash'
 
 const defaultEvent = {
     path: '',
@@ -104,12 +104,20 @@ export default (dataOrFn = []) => WrappedComponent => {
             const newPathsToListen = linkFn(nextProps, firebase)
 
             if (!isEqual(newPathsToListen, this._pathsToListen)) {
+                let oldPaths = differenceBy(this._pathsToListen, newPathsToListen, (a)=>{return a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean});
+                let newPaths = differenceBy(newPathsToListen, this._pathsToListen, (a)=>{return a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean});
+                let oldFirebaseEvents = getEventsFromDefinition(oldPaths)
+                let newFirebaseEvents = getEventsFromDefinition(newPaths)
+
+                if (oldFirebaseEvents.length > 0) {
+                    unWatchEvents(firebase, dispatch, oldFirebaseEvents);
+                }
+
+                if (newFirebaseEvents.length>0) {
+                    watchEvents(firebase, dispatch, newFirebaseEvents);
+                }
+
                 this._pathsToListen = newPathsToListen;
-
-                unWatchEvents(firebase, dispatch, this._firebaseEvents);
-
-                this._firebaseEvents = getEventsFromDefinition(this._pathsToListen)
-                watchEvents(firebase, dispatch, this._firebaseEvents)
             }
         }
 

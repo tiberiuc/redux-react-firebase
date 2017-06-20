@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.resetPassword = exports.createUser = exports.logout = exports.init = exports.login = exports.unWatchEvents = exports.watchEvents = exports.unWatchEvent = exports.watchEvent = undefined;
+exports.resetPassword = exports.createUser = exports.logout = exports.init = exports.login = exports.unWatchEvents = exports.watchEvents = exports.unWatchEvent = exports.watchEvent = exports.isWatchPath = undefined;
 
 var _constants = require('./constants');
 
@@ -30,9 +30,7 @@ var setWatcher = function setWatcher(firebase, event, path) {
 };
 
 var getWatcherCount = function getWatcherCount(firebase, event, path) {
-    var queryId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : undefined;
-
-    var id = queryId || getQueryIdFromPath(path, event) || getWatchPath(event, path);
+    var id = getQueryIdFromPath(path, event) || getWatchPath(event, path);
     return firebase._.watchers[id];
 };
 
@@ -87,6 +85,19 @@ var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
     } else if (firebase._.watchers[id]) {
         firebase._.watchers[id]--;
     }
+};
+
+var isWatchPath = exports.isWatchPath = function isWatchPath(firebase, dispatch, event, path) {
+    var queryId = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : undefined;
+
+    var id = queryId || getQueryIdFromPath(path, event) || getWatchPath(event, path);
+    var isWatch = false;
+
+    if (firebase._.watchers[id] > 0) {
+        isWatch = true;
+    }
+
+    return isWatch;
 };
 
 var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, event, path) {
@@ -528,4 +539,4 @@ var resetPassword = exports.resetPassword = function resetPassword(dispatch, fir
     });
 };
 
-exports.default = { watchEvents: watchEvents, unWatchEvents: unWatchEvents, init: init, logout: logout, createUser: createUser, resetPassword: resetPassword };
+exports.default = { watchEvents: watchEvents, unWatchEvents: unWatchEvents, init: init, logout: logout, createUser: createUser, resetPassword: resetPassword, isWatchPath: isWatchPath };
