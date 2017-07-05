@@ -82,7 +82,19 @@ export default (state = initialState, action) => {
             retVal = (data !== undefined)
                 ? (!isMergeDeep || (isMergeDeep && !state.getIn(['data', ...pathArr])))
                     ? state.setIn(['data', ...pathArr], fromJS(data))
-                    : state.updateIn(['data', ...pathArr], (oldData)=>{return oldData.mergeDeepWith((prev, next) => !next ? prev : next === '_child_removed' ? undefined : next, fromJS(data))})
+                    : state.updateIn(['data', ...pathArr], (oldData)=>{
+                            let rawOldData = oldData.toJS();
+                            for (let key of Object.keys(data)) {
+                                if (data[key]) {
+                                    if (data[key] === '_child_removed') {
+                                        delete rawOldData[key];
+                                    } else {
+                                        rawOldData[key] = data[key];
+                                    }
+                                }
+                            }
+                            return fromJS(rawOldData)
+                        })
                 : state.deleteIn(['data', ...pathArr]);
             isChild ? pathArr.pop() : {};
             pathArr.pop();
