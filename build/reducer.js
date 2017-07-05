@@ -98,9 +98,39 @@ exports.default = function () {
                 pathArr.push('data');
                 isChild ? pathArr.push(key) : {};
                 retVal = data !== undefined ? !isMergeDeep || isMergeDeep && !state.getIn(['data'].concat(_toConsumableArray(pathArr))) ? state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : state.updateIn(['data'].concat(_toConsumableArray(pathArr)), function (oldData) {
-                    return oldData.mergeDeepWith(function (prev, next) {
-                        return !next ? prev : next === '_child_removed' ? undefined : next;
-                    }, (0, _immutable.fromJS)(data));
+                    var rawOldData = oldData.toJS();
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = Object.keys(data)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var _key = _step.value;
+
+                            if (data[_key]) {
+                                if (data[_key] === '_child_removed') {
+                                    rawOldData[_key] = undefined;
+                                } else {
+                                    rawOldData[_key] = data[_key];
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
+                        }
+                    }
+
+                    return (0, _immutable.fromJS)(rawOldData);
                 }) : state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
                 isChild ? pathArr.pop() : {};
                 pathArr.pop();
