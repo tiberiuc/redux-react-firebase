@@ -87,7 +87,7 @@ export default (state = initialState, action) => {
                             for (let key of Object.keys(data)) {
                                 if (data[key]) {
                                     if (data[key] === '_child_removed') {
-                                        rawOldData[key] = undefined;
+                                        delete rawOldData[key];
                                     } else {
                                         rawOldData[key] = data[key];
                                     }
