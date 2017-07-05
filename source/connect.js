@@ -118,6 +118,7 @@ export default (dataOrFn = []) => WrappedComponent => {
                 }
 
                 this._pathsToListen = newPathsToListen;
+                this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
             }
         }
 

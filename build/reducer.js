@@ -109,7 +109,7 @@ exports.default = function () {
 
                             if (data[_key]) {
                                 if (data[_key] === '_child_removed') {
-                                    rawOldData[_key] = undefined;
+                                    delete rawOldData[_key];
                                 } else {
                                     rawOldData[_key] = data[_key];
                                 }
