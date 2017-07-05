@@ -62,6 +62,7 @@ const unsetWatcher = (firebase, dispatch, event, path, queryId = undefined, isSk
 
         if (firebase._.timeouts && firebase._.timeouts[aggregationId]) {
             clearTimeout(firebase._.timeouts[aggregationId]);
+            firebase._.timeouts[aggregationId] = undefined;
         }
 
         delete firebase._.watchers[id];

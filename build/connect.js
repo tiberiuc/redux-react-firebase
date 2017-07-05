@@ -186,6 +186,7 @@ exports.default = function () {
                         }
 
                         this._pathsToListen = newPathsToListen;
+                        this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
                     }
                 }
             }, {
