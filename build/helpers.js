@@ -33,7 +33,10 @@ var pathToJS = exports.pathToJS = function pathToJS(data, path, notSetValue) {
     return data;
 };
 
-var customToJS = exports.customToJS = function customToJS(data, path, custom, notSetValue) {
+var customToJS = exports.customToJS = function customToJS(data, path, custom) {
+    var notSetValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : undefined;
+    var takeRaw = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+
     if (!(data && data.getIn)) {
         return notSetValue;
     }
@@ -46,7 +49,7 @@ var customToJS = exports.customToJS = function customToJS(data, path, custom, no
         var retVal = toJS(data.getIn(pathArr, notSetValue));
 
         if (retVal) {
-            retVal = retVal[custom];
+            retVal = takeRaw ? retVal : retVal[custom];
         }
 
         return retVal;
