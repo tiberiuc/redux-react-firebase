@@ -24,7 +24,7 @@ export const pathToJS = (data, path, notSetValue) => {
     return data
 }
 
-export const customToJS = (data, path, custom, notSetValue) => {
+export const customToJS = (data, path, custom, notSetValue=undefined, takeRaw=false) => {
     if (!(data && data.getIn)) {
         return notSetValue
     }
@@ -37,7 +37,7 @@ export const customToJS = (data, path, custom, notSetValue) => {
         let retVal = toJS(data.getIn(pathArr, notSetValue));
 
         if (retVal) {
-            retVal = retVal[custom];
+            retVal = takeRaw ? retVal : retVal[custom];
         }
 
         return retVal
