@@ -341,14 +341,14 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                 } else {
                     if (setFunc) {
                         setFunc(tempSnapshot, e, dispatch);
-                        dispatch({
-                            type: _constants.SET_REQUESTED,
-                            path: p,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting: false,
-                            requested: true
-                        });
+                        // dispatch({
+                        //     type: SET_REQUESTED,
+                        //     path: p,
+                        //     key: snapshot.key,
+                        //     timestamp: Date.now(),
+                        //     requesting: false,
+                        //     requested: true
+                        // });
                     } else {
                         dispatch({
                             type: _constants.SET,

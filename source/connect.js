@@ -22,10 +22,10 @@ const createEvents = ({type, path, isSkipClean=false, isListenOnlyOnDelta=false,
     switch (type) {
 
         case 'value':
-            return [{name: 'value', path, isSkipClean }]
+            return [{name: 'value', path, isSkipClean, setFunc }]
 
         case 'once':
-            return [{name: 'once', path, isSkipClean}]
+            return [{name: 'once', path, isSkipClean, setFunc}]
 
         case 'all':
             return [
@@ -56,10 +56,10 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
         const type = path.type || 'value'
         switch (type) {
             case 'value':
-                return createEvents(transformEvent({ path: path.path, isSkipClean:!!path.isSkipClean }))
+                return createEvents(transformEvent({ path: path.path, isSkipClean:!!path.isSkipClean, setFunc:path.setFunc }))
 
             case 'once':
-                return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean:!!path.isSkipClean }))
+                return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean:!!path.isSkipClean, setFunc:path.setFunc }))
 
             case 'array':
             case 'all':

@@ -66,10 +66,10 @@ var createEvents = function createEvents(_ref) {
     switch (type) {
 
         case 'value':
-            return [{ name: 'value', path: path, isSkipClean: isSkipClean }];
+            return [{ name: 'value', path: path, isSkipClean: isSkipClean, setFunc: setFunc }];
 
         case 'once':
-            return [{ name: 'once', path: path, isSkipClean: isSkipClean }];
+            return [{ name: 'once', path: path, isSkipClean: isSkipClean, setFunc: setFunc }];
 
         case 'all':
             return [
@@ -100,10 +100,10 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
             var type = path.type || 'value';
             switch (type) {
                 case 'value':
-                    return createEvents(transformEvent({ path: path.path, isSkipClean: !!path.isSkipClean }));
+                    return createEvents(transformEvent({ path: path.path, isSkipClean: !!path.isSkipClean, setFunc: path.setFunc }));
 
                 case 'once':
-                    return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean: !!path.isSkipClean }));
+                    return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean: !!path.isSkipClean, setFunc: path.setFunc }));
 
                 case 'array':
                 case 'all':
