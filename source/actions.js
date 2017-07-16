@@ -329,14 +329,14 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                 } else {
                     if (setFunc) {
                         setFunc(tempSnapshot, e, dispatch);
-                        dispatch({
-                            type: SET_REQUESTED,
-                            path: p,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting: false,
-                            requested: true
-                        });
+                        // dispatch({
+                        //     type: SET_REQUESTED,
+                        //     path: p,
+                        //     key: snapshot.key,
+                        //     timestamp: Date.now(),
+                        //     requesting: false,
+                        //     requested: true
+                        // });
                     } else {
                         dispatch({
                             type: SET,
