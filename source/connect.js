@@ -104,8 +104,22 @@ export default (dataOrFn = []) => WrappedComponent => {
             const newPathsToListen = linkFn(nextProps, firebase)
 
             if (!isEqual(newPathsToListen, this._pathsToListen)) {
-                let oldPaths = differenceBy(this._pathsToListen, newPathsToListen, (a)=>{return a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean});
-                let newPaths = differenceBy(newPathsToListen, this._pathsToListen, (a)=>{return a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean});
+                let oldPaths = differenceBy(this._pathsToListen, newPathsToListen, (a)=>{
+                    let ret = a;
+                    if (typeof a === 'object') {
+                        ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean
+                    }
+
+                    return ret
+                });
+                let newPaths = differenceBy(newPathsToListen, this._pathsToListen, (a)=>{
+                    let ret = a;
+                    if (typeof a === 'object') {
+                        ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean
+                    }
+
+                    return ret
+                });
                 let oldFirebaseEvents = getEventsFromDefinition(oldPaths)
                 let newFirebaseEvents = getEventsFromDefinition(newPaths)
 

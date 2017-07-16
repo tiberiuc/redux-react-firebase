@@ -169,10 +169,20 @@ exports.default = function () {
 
                     if (!(0, _lodash.isEqual)(newPathsToListen, this._pathsToListen)) {
                         var oldPaths = (0, _lodash.differenceBy)(this._pathsToListen, newPathsToListen, function (a) {
-                            return a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean;
+                            var ret = a;
+                            if ((typeof a === 'undefined' ? 'undefined' : _typeof(a)) === 'object') {
+                                ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean;
+                            }
+
+                            return ret;
                         });
                         var newPaths = (0, _lodash.differenceBy)(newPathsToListen, this._pathsToListen, function (a) {
-                            return a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean;
+                            var ret = a;
+                            if ((typeof a === 'undefined' ? 'undefined' : _typeof(a)) === 'object') {
+                                ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean;
+                            }
+
+                            return ret;
                         });
                         var oldFirebaseEvents = getEventsFromDefinition(oldPaths);
                         var newFirebaseEvents = getEventsFromDefinition(newPaths);
