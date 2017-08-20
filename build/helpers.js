@@ -20,7 +20,7 @@ var toJS = exports.toJS = function toJS(data) {
 };
 
 var pathToJS = exports.pathToJS = function pathToJS(data, path, notSetValue) {
-    if (!data) {
+    if (!data || !path) {
         return notSetValue;
     }
 
@@ -37,7 +37,7 @@ var customToJS = exports.customToJS = function customToJS(data, path, custom) {
     var notSetValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : undefined;
     var takeRaw = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
-    if (!(data && data.getIn)) {
+    if (!(data && data.getIn) || !path) {
         return notSetValue;
     }
 
@@ -59,7 +59,7 @@ var customToJS = exports.customToJS = function customToJS(data, path, custom) {
 };
 
 var dataToJS = exports.dataToJS = function dataToJS(data, path, notSetValue) {
-    if (!(data && data.getIn)) {
+    if (!(data && data.getIn) || !path) {
         return notSetValue;
     }
 
@@ -81,7 +81,7 @@ var dataToJS = exports.dataToJS = function dataToJS(data, path, notSetValue) {
 };
 
 var snapshotToJS = exports.snapshotToJS = function snapshotToJS(snapshot, path, notSetValue) {
-    if (!(snapshot && snapshot.getIn)) {
+    if (!(snapshot && snapshot.getIn) || !path) {
         return notSetValue;
     }
 

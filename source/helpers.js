@@ -11,7 +11,7 @@ export const toJS = data => {
 }
 
 export const pathToJS = (data, path, notSetValue) => {
-    if (!data) {
+    if (!data || !path) {
         return notSetValue
     }
 
@@ -25,7 +25,7 @@ export const pathToJS = (data, path, notSetValue) => {
 }
 
 export const customToJS = (data, path, custom, notSetValue=undefined, takeRaw=false) => {
-    if (!(data && data.getIn)) {
+    if (!(data && data.getIn) || !path) {
         return notSetValue
     }
 
@@ -47,7 +47,7 @@ export const customToJS = (data, path, custom, notSetValue=undefined, takeRaw=fa
 }
 
 export const dataToJS = (data, path, notSetValue) => {
-    if (!(data && data.getIn)) {
+    if (!(data && data.getIn) || !path) {
         return notSetValue
     }
 
@@ -69,7 +69,7 @@ export const dataToJS = (data, path, notSetValue) => {
 }
 
 export const snapshotToJS = (snapshot, path, notSetValue) => {
-    if (!(snapshot && snapshot.getIn)) {
+    if (!(snapshot && snapshot.getIn) || !path) {
         return notSetValue
     }
 
