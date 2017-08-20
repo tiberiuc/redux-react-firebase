@@ -115,6 +115,12 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
     }));
 };
 
+var cleanPaths = function cleanPaths(def) {
+    return def.filter(function (path) {
+        return !(path === undefined || (typeof path === 'array' || path instanceof Array) && path[0] === undefined || ((typeof path === 'undefined' ? 'undefined' : _typeof(path)) === 'object' || path instanceof Object) && path.path === undefined);
+    });
+};
+
 exports.default = function () {
     var dataOrFn = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
     return function (WrappedComponent) {
@@ -143,7 +149,7 @@ exports.default = function () {
 
 
                     var linkFn = ensureCallable(dataOrFn);
-                    this._pathsToListen = linkFn(this.props, firebase);
+                    this._pathsToListen = cleanPaths(linkFn(this.props, firebase));
 
                     var ref = firebase.ref,
                         helpers = firebase.helpers,
@@ -165,7 +171,7 @@ exports.default = function () {
 
 
                     var linkFn = ensureCallable(dataOrFn);
-                    var newPathsToListen = linkFn(nextProps, firebase);
+                    var newPathsToListen = cleanPaths(linkFn(nextProps, firebase));
 
                     if (!(0, _lodash.isEqual)(newPathsToListen, this._pathsToListen)) {
                         var oldPaths = (0, _lodash.differenceBy)(this._pathsToListen, newPathsToListen, function (a) {

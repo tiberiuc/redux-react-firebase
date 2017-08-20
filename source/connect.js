@@ -70,6 +70,15 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
     return []
 }))
 
+const cleanPaths = def => {
+    return def.filter(path => {
+        return !(path === undefined ||
+            ((typeof path === 'array' || path instanceof Array) && (path[0] === undefined)) ||
+            ((typeof path === 'object' || path instanceof Object) && (path.path === undefined))
+        )
+    })
+}
+
 export default (dataOrFn = []) => WrappedComponent => {
     class FirebaseConnect extends Component {
 
@@ -88,7 +97,7 @@ export default (dataOrFn = []) => WrappedComponent => {
             const {firebase, dispatch} = this.context.store
 
             const linkFn = ensureCallable(dataOrFn)
-            this._pathsToListen = linkFn(this.props, firebase)
+            this._pathsToListen = cleanPaths(linkFn(this.props, firebase))
 
             const {ref, helpers, storage, database, auth} = firebase
             this.firebase = {ref, storage, database, auth, ...helpers}
@@ -101,7 +110,7 @@ export default (dataOrFn = []) => WrappedComponent => {
             const {firebase, dispatch} = this.context.store
 
             const linkFn = ensureCallable(dataOrFn)
-            const newPathsToListen = linkFn(nextProps, firebase)
+            const newPathsToListen = cleanPaths(linkFn(nextProps, firebase))
 
             if (!isEqual(newPathsToListen, this._pathsToListen)) {
                 let oldPaths = differenceBy(this._pathsToListen, newPathsToListen, (a)=>{
