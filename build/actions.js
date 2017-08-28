@@ -483,6 +483,11 @@ var init = exports.init = function init(dispatch, firebase) {
         firebase._.authUid = authData.uid;
         watchUserProfile(dispatch, firebase);
 
+        if (!!firebase._.firebasePendingEvents) {
+            watchEvents(firebase, dispatch, firebase._.firebasePendingEvents);
+            firebase._.firebasePendingEvents = undefined;
+        }
+
         dispatchLogin(dispatch, authData);
     });
 
