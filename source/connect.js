@@ -103,13 +103,20 @@ export default (dataOrFn = []) => WrappedComponent => {
             this.firebase = {ref, storage, database, auth, ...helpers}
 
             this._firebaseEvents = getEventsFromDefinition(this._pathsToListen)
-            watchEvents(firebase, dispatch, this._firebaseEvents)
+
+            if (this._firebaseEvents.length > 0) {
+                if (!!firebase.auth().currentUser) {
+                    watchEvents(firebase, dispatch, this._firebaseEvents)
+                } else {
+                    firebase._.firebasePendingEvents = this._firebaseEvents;
+                }
+            }
         }
 
         componentWillReceiveProps(nextProps) {
             const {firebase, dispatch} = this.context.store
 
-            const linkFn = ensureCallable(dataOrFn)
+                const linkFn = ensureCallable(dataOrFn)
             const newPathsToListen = cleanPaths(linkFn(nextProps, firebase))
 
             if (!isEqual(newPathsToListen, this._pathsToListen)) {
@@ -132,32 +139,41 @@ export default (dataOrFn = []) => WrappedComponent => {
                 let oldFirebaseEvents = getEventsFromDefinition(oldPaths)
                 let newFirebaseEvents = getEventsFromDefinition(newPaths)
 
-                if (oldFirebaseEvents.length > 0) {
-                    unWatchEvents(firebase, dispatch, oldFirebaseEvents);
-                }
+                const events = getEventsFromDefinition(newPathsToListen);
 
-                if (newFirebaseEvents.length>0) {
-                    watchEvents(firebase, dispatch, newFirebaseEvents);
+                if (!!firebase.auth().currentUser) {
+                    if (oldFirebaseEvents.length > 0) {
+                        unWatchEvents(firebase, dispatch, oldFirebaseEvents);
+                    }
+
+                    if (newFirebaseEvents.length>0) {
+                        watchEvents(firebase, dispatch, newFirebaseEvents);
+                    }
+                } else if (events.length > 0){
+                    firebase._.firebasePendingEvents = events;
                 }
 
                 this._pathsToListen = newPathsToListen;
-                this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
+                this._firebaseEvents = events;
             }
         }
 
         componentWillUnmount () {
             const {firebase, dispatch} = this.context.store
+
+            //if (!!firebase.auth().currentUser) {
             unWatchEvents(firebase, dispatch, this._firebaseEvents, true)
+            //}
         }
 
         render () {
             return (
                 <WrappedComponent
-            {...this.props}
-            {...this.state}
-            firebase={this.firebase}
-        />
-        )
+                    {...this.props}
+                    {...this.state}
+                    firebase={this.firebase}
+                />
+            )
         }
     }
     return FirebaseConnect

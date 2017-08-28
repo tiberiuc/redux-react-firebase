@@ -160,7 +160,14 @@ exports.default = function () {
                     this.firebase = _extends({ ref: ref, storage: storage, database: database, auth: auth }, helpers);
 
                     this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
-                    (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
+
+                    if (this._firebaseEvents.length > 0) {
+                        if (!!firebase.auth().currentUser) {
+                            (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
+                        } else {
+                            firebase._.firebasePendingEvents = this._firebaseEvents;
+                        }
+                    }
                 }
             }, {
                 key: 'componentWillReceiveProps',
@@ -193,16 +200,22 @@ exports.default = function () {
                         var oldFirebaseEvents = getEventsFromDefinition(oldPaths);
                         var newFirebaseEvents = getEventsFromDefinition(newPaths);
 
-                        if (oldFirebaseEvents.length > 0) {
-                            (0, _actions.unWatchEvents)(firebase, dispatch, oldFirebaseEvents);
-                        }
+                        var events = getEventsFromDefinition(newPathsToListen);
 
-                        if (newFirebaseEvents.length > 0) {
-                            (0, _actions.watchEvents)(firebase, dispatch, newFirebaseEvents);
+                        if (!!firebase.auth().currentUser) {
+                            if (oldFirebaseEvents.length > 0) {
+                                (0, _actions.unWatchEvents)(firebase, dispatch, oldFirebaseEvents);
+                            }
+
+                            if (newFirebaseEvents.length > 0) {
+                                (0, _actions.watchEvents)(firebase, dispatch, newFirebaseEvents);
+                            }
+                        } else if (events.length > 0) {
+                            firebase._.firebasePendingEvents = events;
                         }
 
                         this._pathsToListen = newPathsToListen;
-                        this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
+                        this._firebaseEvents = events;
                     }
                 }
             }, {
@@ -212,7 +225,10 @@ exports.default = function () {
                         firebase = _context$store3.firebase,
                         dispatch = _context$store3.dispatch;
 
+                    //if (!!firebase.auth().currentUser) {
+
                     (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, true);
+                    //}
                 }
             }, {
                 key: 'render',
