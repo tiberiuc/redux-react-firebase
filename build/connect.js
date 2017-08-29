@@ -121,6 +121,13 @@ var cleanPaths = function cleanPaths(def) {
     });
 };
 
+var __guid = function __guid() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+    return s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+};
+
 exports.default = function () {
     var dataOrFn = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
     return function (WrappedComponent) {
@@ -136,6 +143,7 @@ exports.default = function () {
 
                 _this._firebaseEvents = [];
                 _this._pathsToListen = undefined;
+                _this._id = __guid();
                 _this.firebase = null;
                 return _this;
             }
@@ -165,7 +173,11 @@ exports.default = function () {
                         if (!!firebase.auth().currentUser) {
                             (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
                         } else {
-                            firebase._.firebasePendingEvents = this._firebaseEvents;
+                            if (!firebase._.firebasePendingEvents) {
+                                firebase._.firebasePendingEvents = {};
+                            }
+
+                            firebase._.firebasePendingEvents[this._id] = this._firebaseEvents;
                         }
                     }
                 }
@@ -211,7 +223,11 @@ exports.default = function () {
                                 (0, _actions.watchEvents)(firebase, dispatch, newFirebaseEvents);
                             }
                         } else if (events.length > 0) {
-                            firebase._.firebasePendingEvents = events;
+                            if (!firebase._.firebasePendingEvents) {
+                                firebase._.firebasePendingEvents = {};
+                            }
+
+                            firebase._.firebasePendingEvents[this._id] = events;
                         }
 
                         this._pathsToListen = newPathsToListen;
