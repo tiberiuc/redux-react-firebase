@@ -79,6 +79,16 @@ const cleanPaths = def => {
     })
 }
 
+const __guid = () => {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+};
+
 export default (dataOrFn = []) => WrappedComponent => {
     class FirebaseConnect extends Component {
 
@@ -86,6 +96,7 @@ export default (dataOrFn = []) => WrappedComponent => {
             super(props, context)
             this._firebaseEvents = []
             this._pathsToListen = undefined;
+            this._id = __guid();
             this.firebase = null
         }
 
@@ -108,7 +119,11 @@ export default (dataOrFn = []) => WrappedComponent => {
                 if (!!firebase.auth().currentUser) {
                     watchEvents(firebase, dispatch, this._firebaseEvents)
                 } else {
-                    firebase._.firebasePendingEvents = this._firebaseEvents;
+                    if (!firebase._.firebasePendingEvents) {
+                        firebase._.firebasePendingEvents = {}
+                    }
+
+                    firebase._.firebasePendingEvents[this._id] = this._firebaseEvents;
                 }
             }
         }
@@ -116,7 +131,7 @@ export default (dataOrFn = []) => WrappedComponent => {
         componentWillReceiveProps(nextProps) {
             const {firebase, dispatch} = this.context.store
 
-                const linkFn = ensureCallable(dataOrFn)
+            const linkFn = ensureCallable(dataOrFn)
             const newPathsToListen = cleanPaths(linkFn(nextProps, firebase))
 
             if (!isEqual(newPathsToListen, this._pathsToListen)) {
@@ -150,7 +165,11 @@ export default (dataOrFn = []) => WrappedComponent => {
                         watchEvents(firebase, dispatch, newFirebaseEvents);
                     }
                 } else if (events.length > 0){
-                    firebase._.firebasePendingEvents = events;
+                    if (!firebase._.firebasePendingEvents) {
+                        firebase._.firebasePendingEvents = {}
+                    }
+
+                    firebase._.firebasePendingEvents[this._id] = events;
                 }
 
                 this._pathsToListen = newPathsToListen;

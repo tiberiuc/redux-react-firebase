@@ -461,7 +461,10 @@ export const init = (dispatch, firebase) => {
         watchUserProfile(dispatch, firebase)
 
         if (!!firebase._.firebasePendingEvents) {
-            watchEvents(firebase, dispatch, firebase._.firebasePendingEvents);
+            for (let key of Object.keys(firebase._.firebasePendingEvents)) {
+                watchEvents(firebase, dispatch, firebase._.firebasePendingEvents[key]);
+            }
+
             firebase._.firebasePendingEvents = undefined
         }
 
