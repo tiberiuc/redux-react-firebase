@@ -124,6 +124,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         if (queryId) {
             unsetWatcher(firebase, dispatch, event, path, queryId, false);
         } else {
+            setWatcher(firebase, event, watchPath, queryId);
             return;
         }
     }

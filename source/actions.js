@@ -113,6 +113,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
         if (queryId) {
             unsetWatcher(firebase, dispatch, event, path, queryId, false)
         } else {
+            setWatcher(firebase, event, watchPath, queryId)
             return
         }
     }
