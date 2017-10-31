@@ -14,6 +14,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _actions = require('./actions');
 
 var _lodash = require('lodash');
@@ -257,7 +261,7 @@ exports.default = function () {
 
             return FirebaseConnect;
         }(_react.Component), _class.contextTypes = {
-            store: _react.PropTypes.object.isRequired
+            store: _propTypes2.default.object.isRequired
         }, _temp);
 
         return FirebaseConnect;
