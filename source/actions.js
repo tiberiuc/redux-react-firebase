@@ -165,21 +165,21 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                     query = query.limitToLast(parseInt(param[1]))
                     break
                 case 'equalTo':
-                    let equalToParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1]
+                    let equalToParam = !doNotParse ? parseFloat(param[1]) || param[1] : param[1]
                     equalToParam = equalToParam === 'null' ? null : equalToParam
                     query = param.length === 3
                         ? query.equalTo(equalToParam, param[2])
                         : query.equalTo(equalToParam)
                     break
                 case 'startAt':
-                    let startAtParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1]
+                    let startAtParam = !doNotParse ? parseFloat(param[1]) || param[1] : param[1]
                     startAtParam = startAtParam === 'null' ? null : startAtParam
                     query = param.length === 3
                         ? query.startAt(startAtParam, param[2])
                         : query.startAt(startAtParam)
                     break
                 case 'endAt':
-                    let endAtParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1]
+                    let endAtParam = !doNotParse ? parseFloat(param[1]) || param[1] : param[1]
                     endAtParam = endAtParam === 'null' ? null : endAtParam
                     query = param.length === 3
                         ? query.endAt(endAtParam, param[2])
