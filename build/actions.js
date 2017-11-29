@@ -177,17 +177,17 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                         query = query.limitToLast(parseInt(param[1]));
                         break;
                     case 'equalTo':
-                        var equalToParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1];
+                        var equalToParam = !doNotParse ? parseFloat(param[1]) || param[1] : param[1];
                         equalToParam = equalToParam === 'null' ? null : equalToParam;
                         query = param.length === 3 ? query.equalTo(equalToParam, param[2]) : query.equalTo(equalToParam);
                         break;
                     case 'startAt':
-                        var startAtParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1];
+                        var startAtParam = !doNotParse ? parseFloat(param[1]) || param[1] : param[1];
                         startAtParam = startAtParam === 'null' ? null : startAtParam;
                         query = param.length === 3 ? query.startAt(startAtParam, param[2]) : query.startAt(startAtParam);
                         break;
                     case 'endAt':
-                        var endAtParam = !doNotParse ? parseInt(param[1]) || param[1] : param[1];
+                        var endAtParam = !doNotParse ? parseFloat(param[1]) || param[1] : param[1];
                         endAtParam = endAtParam === 'null' ? null : endAtParam;
                         query = param.length === 3 ? query.endAt(endAtParam, param[2]) : query.endAt(endAtParam);
                         break;
