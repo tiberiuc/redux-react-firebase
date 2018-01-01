@@ -5,6 +5,7 @@ import {
     LOGIN,
     LOGOUT,
     LOGIN_ERROR,
+    PERMISSION_DENIED_ERROR,
 //  NO_VALUE,
     START,
     INIT_BY_PATH,
@@ -214,6 +215,10 @@ export default (state = initialState, action) => {
                 .setIn(['authError'], action.authError)
                 .setIn(['auth'], null)
                 .setIn(['profile'], null)
+
+        case PERMISSION_DENIED_ERROR:
+            return state
+                .setIn(['listenError'], fromJS({error:action.permError, ts:Date.now()}))
 
         default:
             return state
