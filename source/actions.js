@@ -6,6 +6,7 @@ import {
     LOGIN,
     LOGOUT,
     LOGIN_ERROR,
+    PERMISSION_DENIED_ERROR,
     START,
     INIT_BY_PATH
 //    NO_VALUE
@@ -231,7 +232,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                             })
                         }
                     }
-                })
+                }, dispatchPermissionDeniedError)
         } else if (e === 'child_added' && isListenOnlyOnDelta) {
             let newItems = false;
 
@@ -274,7 +275,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                         })
                     }
                 }
-            })
+            }, dispatchPermissionDeniedError)
 
             q.once('value')
                 .then(snapshot => {
@@ -306,7 +307,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                             })
                         }
                     }
-                })
+                }, dispatchPermissionDeniedError)
         } else {
             q.on(e, snapshot => {
                 let data = (e === 'child_removed') ? '_child_removed' : snapshot.val();
@@ -354,7 +355,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                         })
                     }
                 }
-            })
+            }, dispatchPermissionDeniedError)
         }
     }
 
@@ -388,6 +389,17 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
         firebase._.timeouts[aggregationId] = undefined
     }
 
+    const dispatchPermissionDeniedError = (permError) => {
+        if (permError && permError.code === 'PERMISSION_DENIED' &&
+            permError.message && !permError.message.includes('undefined')) {
+
+            dispatch({
+                type: PERMISSION_DENIED_ERROR,
+                permError
+            })
+        }
+    }
+
     runQuery(query, event, path)
 }
 
@@ -407,6 +419,8 @@ const dispatchLoginError = (dispatch, authError) =>
         type: LOGIN_ERROR,
         authError
     })
+
+
 
 const dispatchLogin = (dispatch, auth) =>
     dispatch({
