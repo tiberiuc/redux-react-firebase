@@ -246,6 +246,11 @@ exports.default = function () {
                     v: state.setIn(['authError'], action.authError).setIn(['auth'], null).setIn(['profile'], null)
                 };
 
+            case _constants.PERMISSION_DENIED_ERROR:
+                return {
+                    v: state.setIn(['listenError'], (0, _immutable.fromJS)({ error: action.permError, ts: Date.now() }))
+                };
+
             default:
                 return {
                     v: state
