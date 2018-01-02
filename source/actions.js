@@ -398,6 +398,8 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
                 permError
             })
         }
+
+        throw permError
     }
 
     runQuery(query, event, path)

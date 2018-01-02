@@ -408,6 +408,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                 permError: permError
             });
         }
+
+        throw permError;
     };
 
     runQuery(query, event, path);
