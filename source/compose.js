@@ -23,6 +23,7 @@ export default (config) => {
         const firebase = Object.defineProperty(Firebase, '_', {
             value: {
                 watchers: {},
+                shouldClearAfterOnce: {},
                 timeouts: {},
                 aggregatedData: {},
                 aggregatedSnapshot: {},

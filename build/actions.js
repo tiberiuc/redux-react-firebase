@@ -25,13 +25,46 @@ var setWatcher = function setWatcher(firebase, event, path) {
     return firebase._.watchers[id];
 };
 
-var cleanWatcher = function cleanWatcher(firebase, event, path) {
+var cleanWatcher = function cleanWatcher(firebase, dispatch, event, path) {
     var id = getWatchPath(event, path);
 
     if (firebase._.watchers[id] <= 1) {
         delete firebase._.watchers[id];
     } else if (firebase._.watchers[id]) {
         firebase._.watchers[id]--;
+    }
+
+    if (firebase._.shouldClearAfterOnce[id]) {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = firebase._.shouldClearAfterOnce[id][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var clean = _step.value;
+
+                firebase.database().ref().child(clean.path).off(clean.event);
+                if (!clean.isSkipClean) {
+                    dispatch({
+                        type: _constants.INIT_BY_PATH,
+                        path: clean.path
+                    });
+                }
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
     }
 
     return firebase._.watchers[id];
@@ -72,6 +105,9 @@ var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
                     path: path
                 });
             }
+        } else {
+            firebase._.shouldClearAfterOnce[onceEvent] = firebase._.shouldClearAfterOnce[onceEvent] || [];
+            firebase._.shouldClearAfterOnce[onceEvent].push({ path: path, event: event, isSkipClean: isSkipClean });
         }
     } else if (firebase._.watchers[id]) {
         firebase._.watchers[id]--;
@@ -185,7 +221,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 
         if (e === 'once') {
             q.once('value').then(function (snapshot) {
-                cleanWatcher(firebase, event, watchPath);
+                cleanWatcher(firebase, dispatch, event, watchPath);
                 if (snapshot.val() !== null) {
                     if (setFunc) {
                         setFunc(snapshot, 'value', dispatch);
@@ -457,27 +493,27 @@ var init = exports.init = function init(dispatch, firebase) {
         watchUserProfile(dispatch, firebase);
 
         if (!!firebase._.firebasePendingEvents) {
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
 
             try {
-                for (var _iterator = Object.keys(firebase._.firebasePendingEvents)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var key = _step.value;
+                for (var _iterator2 = Object.keys(firebase._.firebasePendingEvents)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var key = _step2.value;
 
                     watchEvents(firebase, dispatch, firebase._.firebasePendingEvents[key]);
                 }
             } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
                     }
                 } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
                     }
                 }
             }

@@ -40,6 +40,7 @@ exports.default = function (config) {
             var firebase = Object.defineProperty(_firebase2.default, '_', {
                 value: {
                     watchers: {},
+                    shouldClearAfterOnce: {},
                     timeouts: {},
                     aggregatedData: {},
                     aggregatedSnapshot: {},
