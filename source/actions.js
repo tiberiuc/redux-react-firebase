@@ -76,17 +76,19 @@ const unsetWatcher = (firebase, dispatch, event, path, isSkipClean=false, isQuer
         }
 
         delete firebase._.watchers[id];
-        if (event!='once' && !firebase._.watchers[onceEvent]){
-            firebase.database().ref().child(path).off(event)
-            if(!isSkipClean){
-                dispatch({
-                    type: INIT_BY_PATH,
-                    path
-                })
+        if (event!='once'){
+            if (!firebase._.watchers[onceEvent]) {
+                firebase.database().ref().child(path).off(event)
+                if(!isSkipClean){
+                    dispatch({
+                        type: INIT_BY_PATH,
+                        path
+                    })
+                }
+            } else {
+                firebase._.shouldClearAfterOnce[onceEvent] = firebase._.shouldClearAfterOnce[onceEvent] || [];
+                firebase._.shouldClearAfterOnce[onceEvent].push({path, event, isSkipClean});
             }
-        } else {
-            firebase._.shouldClearAfterOnce[onceEvent] = firebase._.shouldClearAfterOnce[onceEvent] || [];
-            firebase._.shouldClearAfterOnce[onceEvent].push({path, event, isSkipClean});
         }
     } else if (firebase._.watchers[id]) {
         firebase._.watchers[id]--

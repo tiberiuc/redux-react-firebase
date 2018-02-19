@@ -97,17 +97,19 @@ var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
         }
 
         delete firebase._.watchers[id];
-        if (event != 'once' && !firebase._.watchers[onceEvent]) {
-            firebase.database().ref().child(path).off(event);
-            if (!isSkipClean) {
-                dispatch({
-                    type: _constants.INIT_BY_PATH,
-                    path: path
-                });
+        if (event != 'once') {
+            if (!firebase._.watchers[onceEvent]) {
+                firebase.database().ref().child(path).off(event);
+                if (!isSkipClean) {
+                    dispatch({
+                        type: _constants.INIT_BY_PATH,
+                        path: path
+                    });
+                }
+            } else {
+                firebase._.shouldClearAfterOnce[onceEvent] = firebase._.shouldClearAfterOnce[onceEvent] || [];
+                firebase._.shouldClearAfterOnce[onceEvent].push({ path: path, event: event, isSkipClean: isSkipClean });
             }
-        } else {
-            firebase._.shouldClearAfterOnce[onceEvent] = firebase._.shouldClearAfterOnce[onceEvent] || [];
-            firebase._.shouldClearAfterOnce[onceEvent].push({ path: path, event: event, isSkipClean: isSkipClean });
         }
     } else if (firebase._.watchers[id]) {
         firebase._.watchers[id]--;
