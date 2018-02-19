@@ -28,13 +28,25 @@ const setWatcher = (firebase, event, path) => {
     return firebase._.watchers[id]
 }
 
-const cleanWatcher = (firebase, event, path) => {
+const cleanWatcher = (firebase, dispatch, event, path) => {
     const id = getWatchPath(event, path);
 
     if (firebase._.watchers[id] <= 1) {
         delete firebase._.watchers[id];
     } else if (firebase._.watchers[id]) {
         firebase._.watchers[id]--
+    }
+
+    if(firebase._.shouldClearAfterOnce[id]) {
+        for (let clean of firebase._.shouldClearAfterOnce[id]) {
+            firebase.database().ref().child(clean.path).off(clean.event);
+            if(!clean.isSkipClean){
+                dispatch({
+                    type: INIT_BY_PATH,
+                    path: clean.path
+                })
+            }
+        }
     }
 
     return firebase._.watchers[id]
@@ -72,6 +84,9 @@ const unsetWatcher = (firebase, dispatch, event, path, isSkipClean=false, isQuer
                     path
                 })
             }
+        } else {
+            firebase._.shouldClearAfterOnce[onceEvent] = firebase._.shouldClearAfterOnce[onceEvent] || [];
+            firebase._.shouldClearAfterOnce[onceEvent].push({path, event, isSkipClean});
         }
     } else if (firebase._.watchers[id]) {
         firebase._.watchers[id]--
@@ -185,7 +200,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
         if (e === 'once') {
             q.once('value')
                 .then(snapshot => {
-                    cleanWatcher(firebase, event, watchPath)
+                    cleanWatcher(firebase, dispatch, event, watchPath)
                     if (snapshot.val() !== null) {
                         if (setFunc) {
                             setFunc(snapshot, 'value', dispatch);
