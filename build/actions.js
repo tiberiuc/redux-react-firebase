@@ -49,12 +49,13 @@ var getCleanPath = function getCleanPath(path) {
 
 var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
     var isSkipClean = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+    var isQuery = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
 
     var id = getWatchPath(event, path);
     var onceEvent = getWatchPath('once', path);
     path = path.split('#')[0];
 
-    if (firebase._.watchers[id] <= 1) {
+    if (firebase._.watchers[id] <= 1 || isQuery) {
         var aggregationId = getWatchPath('child_aggregation', path);
 
         if (firebase._.timeouts && firebase._.timeouts[aggregationId]) {
@@ -107,7 +108,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 
     if (counter > 0) {
         if (isQuery) {
-            unsetWatcher(firebase, dispatch, event, path, false);
+            unsetWatcher(firebase, dispatch, event, path, false, isQuery);
         } else {
             setWatcher(firebase, event, watchPath);
             return;

@@ -50,12 +50,12 @@ const getCleanPath = (path) => {
     return pathSplitted[0];
 }
 
-const unsetWatcher = (firebase, dispatch, event, path, isSkipClean=false) => {
+const unsetWatcher = (firebase, dispatch, event, path, isSkipClean=false, isQuery=false) => {
     const id = getWatchPath(event, path);
     const onceEvent = getWatchPath('once', path);
     path = path.split('#')[0]
 
-    if (firebase._.watchers[id] <= 1) {
+    if (firebase._.watchers[id] <= 1 || isQuery) {
         var aggregationId = getWatchPath('child_aggregation', path);
 
         if (firebase._.timeouts && firebase._.timeouts[aggregationId]) {
@@ -104,7 +104,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
 
     if (counter > 0) {
         if (isQuery) {
-            unsetWatcher(firebase, dispatch, event, path, false)
+            unsetWatcher(firebase, dispatch, event, path, false, isQuery)
         } else {
             setWatcher(firebase, event, watchPath)
             return
