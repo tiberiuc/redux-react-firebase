@@ -75,6 +75,8 @@ var cleanOnceWatcher = function cleanOnceWatcher(firebase, dispatch, event, path
                 }
             }
         }
+
+        delete firebase._.shouldClearAfterOnce[id];
     }
 
     return firebase._.watchers[id];
