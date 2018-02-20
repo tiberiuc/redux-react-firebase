@@ -122,6 +122,10 @@ export const isWatchPath = (firebase, dispatch, event, path) => {
     return isWatch;
 }
 
+function isNumeric(n) {
+    return !isNaN(n - parseFloat(n));
+}
+
 export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', isListenOnlyOnDelta=false, isAggregation=false, setFunc=undefined) => {
     const isNewQuery = path.includes('#');
     let queryParams = []
@@ -179,21 +183,21 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                     query = query.limitToLast(parseInt(param[1]))
                     break
                 case 'equalTo':
-                    let equalToParam = !doNotParse ? parseFloat(param[1]) || param[1] : param[1]
+                    let equalToParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
                     equalToParam = equalToParam === 'null' ? null : equalToParam
                     query = param.length === 3
                         ? query.equalTo(equalToParam, param[2])
                         : query.equalTo(equalToParam)
                     break
                 case 'startAt':
-                    let startAtParam = !doNotParse ? parseFloat(param[1]) || param[1] : param[1]
+                    let startAtParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
                     startAtParam = startAtParam === 'null' ? null : startAtParam
                     query = param.length === 3
                         ? query.startAt(startAtParam, param[2])
                         : query.startAt(startAtParam)
                     break
                 case 'endAt':
-                    let endAtParam = !doNotParse ? parseFloat(param[1]) || param[1] : param[1]
+                    let endAtParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
                     endAtParam = endAtParam === 'null' ? null : endAtParam
                     query = param.length === 3
                         ? query.endAt(endAtParam, param[2])
