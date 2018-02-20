@@ -16,25 +16,33 @@ import { Promise } from 'es6-promise'
 
 const getWatchPath = (event, path) => event + ':' + ((getCleanPath(path).substring(0, 1) === '/') ? '' : '/') + getCleanPath(path)
 
-const setWatcher = (firebase, event, path) => {
+const setWatcher = (firebase, event, path, ConnectId='Manual') => {
     const id = getWatchPath(event, path);
 
-    if (firebase._.watchers[id]) {
-        firebase._.watchers[id]++
+    firebase._.watchers[id] = firebase._.watchers[id] || {};
+
+    if (Object.keys(firebase._.watchers[id]).includes(ConnectId)) {
+        firebase._.watchers[id][ConnectId]++
     } else {
-        firebase._.watchers[id] = 1
+        firebase._.watchers[id][ConnectId] = 1
     }
 
     return firebase._.watchers[id]
 }
 
-const cleanWatcher = (firebase, dispatch, event, path) => {
+const cleanOnceWatcher = (firebase, dispatch, event, path, ConnectId) => {
     const id = getWatchPath(event, path);
 
-    if (firebase._.watchers[id] <= 1) {
-        delete firebase._.watchers[id];
-    } else if (firebase._.watchers[id]) {
-        firebase._.watchers[id]--
+    if (firebase._.watchers[id]) {
+        if (firebase._.watchers[id][ConnectId] <= 1) {
+            delete firebase._.watchers[id][ConnectId];
+
+            if (Object.keys(firebase._.watchers[id]).length === 0) {
+                delete firebase._.watchers[id];
+            }
+        } else if (ffirebase._.watchers[id][ConnectId]) {
+            firebase._.watchers[id][ConnectId]--
+        }
     }
 
     if(firebase._.shouldClearAfterOnce[id]) {
@@ -49,6 +57,7 @@ const cleanWatcher = (firebase, dispatch, event, path) => {
         }
     }
 
+
     return firebase._.watchers[id]
 }
 
@@ -62,12 +71,12 @@ const getCleanPath = (path) => {
     return pathSplitted[0];
 }
 
-const unsetWatcher = (firebase, dispatch, event, path, isSkipClean=false, isQuery=false) => {
+const unsetWatcher = (firebase, dispatch, event, path, ConnectId='Manual', isSkipClean=false, isNewQuery=false) => {
     const id = getWatchPath(event, path);
     const onceEvent = getWatchPath('once', path);
     path = path.split('#')[0]
 
-    if (firebase._.watchers[id] <= 1 || isQuery) {
+    if ((firebase._.watchers[id] && firebase._.watchers[id][ConnectId] <= 1) || isNewQuery) {
         var aggregationId = getWatchPath('child_aggregation', path);
 
         if (firebase._.timeouts && firebase._.timeouts[aggregationId]) {
@@ -75,23 +84,30 @@ const unsetWatcher = (firebase, dispatch, event, path, isSkipClean=false, isQuer
             firebase._.timeouts[aggregationId] = undefined;
         }
 
-        delete firebase._.watchers[id];
-        if (event!='once'){
-            if (!firebase._.watchers[onceEvent]) {
-                firebase.database().ref().child(path).off(event)
-                if(!isSkipClean){
-                    dispatch({
-                        type: INIT_BY_PATH,
-                        path
-                    })
+        delete firebase._.watchers[id][ConnectId];
+
+        const countWatchers = Object.keys(firebase._.watchers[id]).length;
+
+        if (countWatchers === 0 || isNewQuery) {
+            countWatchers === 0 && delete firebase._.watchers[id];
+
+            if (event!='once'){
+                if (!firebase._.watchers[onceEvent]) {
+                    firebase.database().ref().child(path).off(event);
+                    if(!isSkipClean){
+                        dispatch({
+                            type: INIT_BY_PATH,
+                            path
+                        })
+                    }
+                } else {
+                    firebase._.shouldClearAfterOnce[onceEvent] = firebase._.shouldClearAfterOnce[onceEvent] || [];
+                    firebase._.shouldClearAfterOnce[onceEvent].push({path, event, isSkipClean});
                 }
-            } else {
-                firebase._.shouldClearAfterOnce[onceEvent] = firebase._.shouldClearAfterOnce[onceEvent] || [];
-                firebase._.shouldClearAfterOnce[onceEvent].push({path, event, isSkipClean});
             }
         }
-    } else if (firebase._.watchers[id]) {
-        firebase._.watchers[id]--
+    } else if (firebase._.watchers[id] && firebase._.watchers[id][ConnectId]) {
+        firebase._.watchers[id][ConnectId]--
     }
 }
 
@@ -106,11 +122,11 @@ export const isWatchPath = (firebase, dispatch, event, path) => {
     return isWatch;
 }
 
-export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=false, isAggregation=false, setFunc=undefined) => {
-    const isQuery = path.includes('#');
+export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', isListenOnlyOnDelta=false, isAggregation=false, setFunc=undefined) => {
+    const isNewQuery = path.includes('#');
     let queryParams = []
 
-    if (isQuery) {
+    if (isNewQuery) {
         let pathSplitted = path.split('#')
         path = pathSplitted[0]
         queryParams = pathSplitted[1].split('&')
@@ -120,19 +136,19 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
     const counter = getWatcherCount(firebase, event, watchPath)
 
     if (counter > 0) {
-        if (isQuery) {
-            unsetWatcher(firebase, dispatch, event, path, false, isQuery)
+        if (isNewQuery) {
+            unsetWatcher(firebase, dispatch, event, path, ConnectId, false, isNewQuery)
         } else {
-            setWatcher(firebase, event, watchPath)
+            setWatcher(firebase, event, watchPath, ConnectId)
             return
         }
     }
 
-    setWatcher(firebase, event, watchPath)
+    setWatcher(firebase, event, watchPath, ConnectId)
 
     let query = firebase.database().ref().child(path)
 
-    if (isQuery) {
+    if (isNewQuery) {
         let doNotParse = false
 
         queryParams.forEach((param) => {
@@ -202,7 +218,7 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
         if (e === 'once') {
             q.once('value')
                 .then(snapshot => {
-                    cleanWatcher(firebase, dispatch, event, watchPath)
+                    cleanOnceWatcher(firebase, dispatch, event, watchPath, ConnectId)
                     if (snapshot.val() !== null) {
                         if (setFunc) {
                             setFunc(snapshot, 'value', dispatch);
@@ -390,15 +406,15 @@ export const watchEvent = (firebase, dispatch, event, path, isListenOnlyOnDelta=
     runQuery(query, event, path)
 }
 
-export const unWatchEvent = (firebase, dispatch, event, path, isSkipClean=false) => {
-    unsetWatcher(firebase, dispatch, event, path, isSkipClean)
+export const unWatchEvent = (firebase, dispatch, event, path, ConnectId, isSkipClean=false) => {
+    unsetWatcher(firebase, dispatch, event, path, ConnectId, isSkipClean)
 }
 
-export const watchEvents = (firebase, dispatch, events) =>
-    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, event.isListenOnlyOnDelta, event.isAggregation, event.setFunc))
+export const watchEvents = (firebase, dispatch, events, ConnectId='Manual') =>
+    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, ConnectId, event.isListenOnlyOnDelta, event.isAggregation, event.setFunc))
 
-export const unWatchEvents = (firebase, dispatch, events, isUnmount=false) =>
-    events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, isUnmount ? false : event.isSkipClean))
+export const unWatchEvents = (firebase, dispatch, events, ConnectId='Manual', isUnmount=false) =>
+    events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, ConnectId, isUnmount ? false : event.isSkipClean))
 
 const dispatchLoginError = (dispatch, authError) =>
     dispatch({
@@ -463,16 +479,14 @@ export const init = (dispatch, firebase) => {
 
         if (!!firebase._.firebasePendingEvents) {
             for (let key of Object.keys(firebase._.firebasePendingEvents)) {
-                watchEvents(firebase, dispatch, firebase._.firebasePendingEvents[key]);
+                watchEvents(firebase, dispatch, firebase._.firebasePendingEvents[key], key);
             }
 
             firebase._.firebasePendingEvents = undefined
         }
 
         dispatchLogin(dispatch, authData)
-    })
-
-    firebase.auth().currentUser
+    });
 
     // Run onAuthStateChanged if it exists in config
     if (firebase._.config.onAuthStateChanged) {
