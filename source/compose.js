@@ -2,11 +2,11 @@ import Firebase from 'firebase'
 import * as Actions from './actions'
 
 export default (config) => {
-    return next => (reducer, initialState) => {
+    return next => (reducer, initialState, middleware) => {
         const defaultConfig = {
             userProfile: null
         }
-        const store = next(reducer, initialState)
+        const store = next(reducer, initialState, middleware)
 
         const {dispatch} = store
 
