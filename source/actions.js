@@ -57,6 +57,7 @@ const cleanOnceWatcher = (firebase, dispatch, event, path, ConnectId) => {
         }
     }
 
+    delete firebase._.shouldClearAfterOnce[id];
 
     return firebase._.watchers[id]
 }
