@@ -118,7 +118,7 @@ export default (dataOrFn = []) => WrappedComponent => {
 
             if (this._firebaseEvents.length > 0) {
                 if (!!firebase.auth().currentUser) {
-                    watchEvents(firebase, dispatch, this._firebaseEvents)
+                    watchEvents(firebase, dispatch, this._firebaseEvents, this._id)
                 } else {
                     if (!firebase._.firebasePendingEvents) {
                         firebase._.firebasePendingEvents = {}
@@ -152,18 +152,21 @@ export default (dataOrFn = []) => WrappedComponent => {
 
                     return ret
                 });
+
                 let oldFirebaseEvents = getEventsFromDefinition(oldPaths)
                 let newFirebaseEvents = getEventsFromDefinition(newPaths)
 
                 const events = getEventsFromDefinition(newPathsToListen);
 
                 if (!!firebase.auth().currentUser) {
+                    const isUnmount = oldFirebaseEvents.length > 0 && newFirebaseEvents.length===0;
+
                     if (oldFirebaseEvents.length > 0) {
-                        unWatchEvents(firebase, dispatch, oldFirebaseEvents);
+                        unWatchEvents(firebase, dispatch, oldFirebaseEvents, this._id, isUnmount);
                     }
 
                     if (newFirebaseEvents.length>0) {
-                        watchEvents(firebase, dispatch, newFirebaseEvents);
+                        watchEvents(firebase, dispatch, newFirebaseEvents, this._id);
                     }
                 } else if (events.length > 0){
                     if (!firebase._.firebasePendingEvents) {
@@ -179,11 +182,9 @@ export default (dataOrFn = []) => WrappedComponent => {
         }
 
         componentWillUnmount () {
-            const {firebase, dispatch} = this.context.store
+            const {firebase, dispatch} = this.context.store;
 
-            //if (!!firebase.auth().currentUser) {
-            unWatchEvents(firebase, dispatch, this._firebaseEvents, true)
-            //}
+            unWatchEvents(firebase, dispatch, this._firebaseEvents, this._id, true)
         }
 
         render () {

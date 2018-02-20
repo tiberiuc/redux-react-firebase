@@ -68,11 +68,11 @@ exports.default = function (config) {
                 return Actions.isWatchPath(firebase, dispatch, eventName, eventPath);
             };
             var watchEvent = function watchEvent(eventName, eventPath, isListenOnlyOnDelta, isAggregation, setFunc) {
-                return Actions.watchEvent(firebase, dispatch, eventName, eventPath, isListenOnlyOnDelta, isAggregation, setFunc);
+                return Actions.watchEvent(firebase, dispatch, eventName, eventPath, 'Manual', isListenOnlyOnDelta, isAggregation, setFunc);
             };
             var unWatchEvent = function unWatchEvent(eventName, eventPath) {
                 var isSkipClean = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-                return Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, isSkipClean);
+                return Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, 'Manual', isSkipClean);
             };
             var login = function login(credentials) {
                 return Actions.login(dispatch, firebase, credentials);

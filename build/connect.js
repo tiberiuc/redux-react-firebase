@@ -175,7 +175,7 @@ exports.default = function () {
 
                     if (this._firebaseEvents.length > 0) {
                         if (!!firebase.auth().currentUser) {
-                            (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
+                            (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents, this._id);
                         } else {
                             if (!firebase._.firebasePendingEvents) {
                                 firebase._.firebasePendingEvents = {};
@@ -213,18 +213,21 @@ exports.default = function () {
 
                             return ret;
                         });
+
                         var oldFirebaseEvents = getEventsFromDefinition(oldPaths);
                         var newFirebaseEvents = getEventsFromDefinition(newPaths);
 
                         var events = getEventsFromDefinition(newPathsToListen);
 
                         if (!!firebase.auth().currentUser) {
+                            var isUnmount = oldFirebaseEvents.length > 0 && newFirebaseEvents.length === 0;
+
                             if (oldFirebaseEvents.length > 0) {
-                                (0, _actions.unWatchEvents)(firebase, dispatch, oldFirebaseEvents);
+                                (0, _actions.unWatchEvents)(firebase, dispatch, oldFirebaseEvents, this._id, isUnmount);
                             }
 
                             if (newFirebaseEvents.length > 0) {
-                                (0, _actions.watchEvents)(firebase, dispatch, newFirebaseEvents);
+                                (0, _actions.watchEvents)(firebase, dispatch, newFirebaseEvents, this._id);
                             }
                         } else if (events.length > 0) {
                             if (!firebase._.firebasePendingEvents) {
@@ -245,10 +248,8 @@ exports.default = function () {
                         firebase = _context$store3.firebase,
                         dispatch = _context$store3.dispatch;
 
-                    //if (!!firebase.auth().currentUser) {
 
-                    (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, true);
-                    //}
+                    (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents, this._id, true);
                 }
             }, {
                 key: 'render',
