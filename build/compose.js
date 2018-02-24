@@ -67,8 +67,8 @@ exports.default = function (config) {
             var isWatchPath = function isWatchPath(eventName, eventPath) {
                 return Actions.isWatchPath(firebase, dispatch, eventName, eventPath);
             };
-            var watchEvent = function watchEvent(eventName, eventPath, isListenOnlyOnDelta, isAggregation, setFunc) {
-                return Actions.watchEvent(firebase, dispatch, eventName, eventPath, 'Manual', isListenOnlyOnDelta, isAggregation, setFunc);
+            var watchEvent = function watchEvent(eventName, eventPath, isListenOnlyOnDelta, isAggregation, setFunc, setOptions) {
+                return Actions.watchEvent(firebase, dispatch, eventName, eventPath, 'Manual', isListenOnlyOnDelta, isAggregation, setFunc, setOptions);
             };
             var unWatchEvent = function unWatchEvent(eventName, eventPath) {
                 var isSkipClean = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;

@@ -35,6 +35,7 @@ var defaultEvent = {
     type: 'value',
     isListenOnlyOnDelta: false,
     setFunc: undefined,
+    setOptions: undefined,
     isAggregation: false,
     isSkipClean: false
 };
@@ -65,20 +66,22 @@ var createEvents = function createEvents(_ref) {
         _ref$isAggregation = _ref.isAggregation,
         isAggregation = _ref$isAggregation === undefined ? false : _ref$isAggregation,
         _ref$setFunc = _ref.setFunc,
-        setFunc = _ref$setFunc === undefined ? undefined : _ref$setFunc;
+        setFunc = _ref$setFunc === undefined ? undefined : _ref$setFunc,
+        _ref$setOptions = _ref.setOptions,
+        setOptions = _ref$setOptions === undefined ? undefined : _ref$setOptions;
 
     switch (type) {
 
         case 'value':
-            return [{ name: 'value', path: path, isSkipClean: isSkipClean, setFunc: setFunc }];
+            return [{ name: 'value', path: path, isSkipClean: isSkipClean, setFunc: setFunc, setOptions: setOptions }];
 
         case 'once':
-            return [{ name: 'once', path: path, isSkipClean: isSkipClean, setFunc: setFunc }];
+            return [{ name: 'once', path: path, isSkipClean: isSkipClean, setFunc: setFunc, setOptions: setOptions }];
 
         case 'all':
             return [
             //{name: 'first_child', path},
-            { name: 'child_added', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc }, { name: 'child_removed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc }, { name: 'child_moved', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc }, { name: 'child_changed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc }];
+            { name: 'child_added', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }, { name: 'child_removed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }, { name: 'child_moved', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }, { name: 'child_changed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }];
 
         default:
             return [];
@@ -104,14 +107,16 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
             var type = path.type || 'value';
             switch (type) {
                 case 'value':
-                    return createEvents(transformEvent({ path: path.path, isSkipClean: !!path.isSkipClean, setFunc: path.setFunc }));
+                    return createEvents(transformEvent({ path: path.path, isSkipClean: !!path.isSkipClean, setFunc: path.setFunc, setOptions: path.setOptions }));
 
                 case 'once':
-                    return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean: !!path.isSkipClean, setFunc: path.setFunc }));
+                    return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean: !!path.isSkipClean, setFunc: path.setFunc, setOptions: path.setOptions }));
 
                 case 'array':
                 case 'all':
-                    return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean: !!path.isSkipClean, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta, isAggregation: !!path.isAggregation, setFunc: path.setFunc }));
+                    return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean: !!path.isSkipClean,
+                        isListenOnlyOnDelta: !!path.isListenOnlyOnDelta, isAggregation: !!path.isAggregation,
+                        setFunc: path.setFunc, setOptions: path.setOptions }));
             }
         }
 

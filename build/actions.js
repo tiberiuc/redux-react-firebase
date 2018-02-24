@@ -156,6 +156,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
     var isListenOnlyOnDelta = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
     var isAggregation = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : false;
     var setFunc = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : undefined;
+    var setOptions = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : undefined;
 
     var isNewQuery = path.includes('#');
     var queryParams = [];
@@ -251,7 +252,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                 cleanOnceWatcher(firebase, dispatch, event, watchPath, ConnectId);
                 if (snapshot.val() !== null) {
                     if (setFunc) {
-                        setFunc(snapshot, 'value', dispatch);
+                        setFunc(snapshot, 'value', dispatch, setOptions);
                         dispatch({
                             type: _constants.SET_REQUESTED,
                             path: p,
@@ -297,7 +298,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                         firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = snapshot;
                     } else {
                         if (setFunc) {
-                            setFunc(snapshot, 'child_added', dispatch);
+                            setFunc(snapshot, 'child_added', dispatch, setOptions);
                             dispatch({
                                 type: _constants.SET_REQUESTED,
                                 path: p,
@@ -328,7 +329,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                     newItems = true;
                     if (snapshot.val() !== null) {
                         if (setFunc) {
-                            setFunc(snapshot, 'value', dispatch);
+                            setFunc(snapshot, 'value', dispatch, setOptions);
                             dispatch({
                                 type: _constants.SET_REQUESTED,
                                 path: p,
@@ -373,7 +374,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                     firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
                 } else {
                     if (setFunc) {
-                        setFunc(tempSnapshot, e, dispatch);
+                        setFunc(tempSnapshot, e, dispatch, setOptions);
                     } else {
                         dispatch({
                             type: _constants.SET,
@@ -396,7 +397,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 
     var dispatchBulk = function dispatchBulk(p, aggregationId) {
         if (setFunc) {
-            setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch);
+            setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch, setOptions);
             dispatch({
                 type: _constants.SET_REQUESTED,
                 path: p,
@@ -448,7 +449,7 @@ var unWatchEvent = exports.unWatchEvent = function unWatchEvent(firebase, dispat
 var watchEvents = exports.watchEvents = function watchEvents(firebase, dispatch, events) {
     var ConnectId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'Manual';
     return events.forEach(function (event) {
-        return watchEvent(firebase, dispatch, event.name, event.path, ConnectId, event.isListenOnlyOnDelta, event.isAggregation, event.setFunc);
+        return watchEvent(firebase, dispatch, event.name, event.path, ConnectId, event.isListenOnlyOnDelta, event.isAggregation, event.setFunc, event.setOptions);
     });
 };
 
