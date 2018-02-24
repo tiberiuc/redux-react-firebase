@@ -127,7 +127,8 @@ function isNumeric(n) {
     return !isNaN(n - parseFloat(n));
 }
 
-export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', isListenOnlyOnDelta=false, isAggregation=false, setFunc=undefined) => {
+export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', isListenOnlyOnDelta=false,
+                           isAggregation=false, setFunc=undefined, setOptions=undefined) => {
     const isNewQuery = path.includes('#');
     let queryParams = []
 
@@ -226,7 +227,7 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                     cleanOnceWatcher(firebase, dispatch, event, watchPath, ConnectId)
                     if (snapshot.val() !== null) {
                         if (setFunc) {
-                            setFunc(snapshot, 'value', dispatch);
+                            setFunc(snapshot, 'value', dispatch, setOptions);
                             dispatch({
                                 type: SET_REQUESTED,
                                 path: p,
@@ -269,7 +270,7 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                     firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = snapshot
                 } else {
                     if (setFunc) {
-                        setFunc(snapshot, 'child_added', dispatch);
+                        setFunc(snapshot, 'child_added', dispatch, setOptions);
                         dispatch({
                             type: SET_REQUESTED,
                             path: p,
@@ -301,7 +302,7 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                     newItems = true;
                     if (snapshot.val() !== null) {
                         if (setFunc) {
-                            setFunc(snapshot, 'value', dispatch);
+                            setFunc(snapshot, 'value', dispatch, setOptions);
                             dispatch({
                                 type: SET_REQUESTED,
                                 path: p,
@@ -343,7 +344,7 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                     firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot
                 } else {
                     if (setFunc) {
-                        setFunc(tempSnapshot, e, dispatch);
+                        setFunc(tempSnapshot, e, dispatch, setOptions);
 
                     } else {
                         dispatch({
@@ -367,7 +368,7 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
 
     const dispatchBulk = (p, aggregationId) => {
         if (setFunc) {
-            setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch);
+            setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch, setOptions);
             dispatch({
                 type: SET_REQUESTED,
                 path: p,
@@ -416,7 +417,7 @@ export const unWatchEvent = (firebase, dispatch, event, path, ConnectId, isSkipC
 }
 
 export const watchEvents = (firebase, dispatch, events, ConnectId='Manual') =>
-    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, ConnectId, event.isListenOnlyOnDelta, event.isAggregation, event.setFunc))
+    events.forEach(event => watchEvent(firebase, dispatch, event.name, event.path, ConnectId, event.isListenOnlyOnDelta, event.isAggregation, event.setFunc, event.setOptions))
 
 export const unWatchEvents = (firebase, dispatch, events, ConnectId='Manual', isUnmount=false) =>
     events.forEach(event => unWatchEvent(firebase, dispatch, event.name, event.path, ConnectId, isUnmount ? false : event.isSkipClean))

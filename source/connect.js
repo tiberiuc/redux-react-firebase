@@ -8,6 +8,7 @@ const defaultEvent = {
     type: 'value',
     isListenOnlyOnDelta: false,
     setFunc: undefined,
+    setOptions: undefined,
     isAggregation: false,
     isSkipClean: false
 }
@@ -19,22 +20,23 @@ const ensureCallable = maybeFn =>
 
 const flatMap = arr => (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
 
-const createEvents = ({type, path, isSkipClean=false, isListenOnlyOnDelta=false, isAggregation=false, setFunc=undefined}) => {
+const createEvents = ({type, path, isSkipClean=false, isListenOnlyOnDelta=false,
+    isAggregation=false, setFunc=undefined, setOptions=undefined}) => {
     switch (type) {
 
         case 'value':
-            return [{name: 'value', path, isSkipClean, setFunc }]
+            return [{name: 'value', path, isSkipClean, setFunc, setOptions}]
 
         case 'once':
-            return [{name: 'once', path, isSkipClean, setFunc}]
+            return [{name: 'once', path, isSkipClean, setFunc, setOptions}]
 
         case 'all':
             return [
                 //{name: 'first_child', path},
-                {name: 'child_added', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc},
-                {name: 'child_removed', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc},
-                {name: 'child_moved', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc},
-                {name: 'child_changed', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc}
+                {name: 'child_added', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc, setOptions},
+                {name: 'child_removed', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc, setOptions},
+                {name: 'child_moved', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc, setOptions},
+                {name: 'child_changed', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc, setOptions}
             ]
 
         default:
@@ -57,14 +59,16 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
         const type = path.type || 'value'
         switch (type) {
             case 'value':
-                return createEvents(transformEvent({ path: path.path, isSkipClean:!!path.isSkipClean, setFunc:path.setFunc }))
+                return createEvents(transformEvent({ path: path.path, isSkipClean:!!path.isSkipClean, setFunc:path.setFunc, setOptions:path.setOptions}))
 
             case 'once':
-                return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean:!!path.isSkipClean, setFunc:path.setFunc }))
+                return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean:!!path.isSkipClean, setFunc:path.setFunc, setOptions:path.setOptions }))
 
             case 'array':
             case 'all':
-                return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean:!!path.isSkipClean, isListenOnlyOnDelta:!!path.isListenOnlyOnDelta, isAggregation:!!path.isAggregation, setFunc:path.setFunc }))
+                return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean:!!path.isSkipClean,
+                    isListenOnlyOnDelta:!!path.isListenOnlyOnDelta, isAggregation:!!path.isAggregation,
+                    setFunc:path.setFunc, setOptions:path.setOptions }))
         }
     }
 
