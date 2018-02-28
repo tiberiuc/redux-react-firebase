@@ -5,9 +5,11 @@ import {
     LOGIN,
     LOGOUT,
     LOGIN_ERROR,
+    PERMISSION_DENIED_ERROR,
 //  NO_VALUE,
     START,
-    INIT_BY_PATH
+    INIT_BY_PATH,
+    SET_REQUESTED,
 } from './constants'
 
 const initialState = fromJS({
@@ -76,14 +78,24 @@ export default (state = initialState, action) => {
             const { data, snapshot, isChild, isMixSnapshot, key, isMergeDeep } = action
             pathArr = pathToArr(path)
 
-
-
             pathArr.push('data');
             isChild ? pathArr.push(key) : {};
             retVal = (data !== undefined)
                 ? (!isMergeDeep || (isMergeDeep && !state.getIn(['data', ...pathArr])))
                     ? state.setIn(['data', ...pathArr], fromJS(data))
-                    : state.updateIn(['data', ...pathArr], (oldData)=>{return oldData.mergeDeepWith((prev, next) => !next ? prev : next === '_child_removed' ? undefined : next, fromJS(data))})
+                    : state.updateIn(['data', ...pathArr], (oldData)=>{
+                            let rawOldData = oldData.toJS();
+                            for (let key of Object.keys(data)) {
+                                if (data[key]) {
+                                    if (data[key] === '_child_removed') {
+                                        delete rawOldData[key];
+                                    } else {
+                                        rawOldData[key] = data[key];
+                                    }
+                                }
+                            }
+                            return fromJS(rawOldData)
+                        })
                 : state.deleteIn(['data', ...pathArr]);
             isChild ? pathArr.pop() : {};
             pathArr.pop();
@@ -94,8 +106,10 @@ export default (state = initialState, action) => {
             retVal = (snapshot !== undefined)
                 ? (!isMergeDeep || (isMergeDeep && !retVal.getIn(['snapshot', ...pathArr])))
                     ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
-                    : retVal.updateIn(['snapshot', ...pathArr], (oldSnapshot)=>{return oldSnapshot.mergeDeepWith((prev, next) => !next ? prev : next, fromJS(snapshot))})
-                : retVal.deleteIn(['snapshot', ...pathArr]);
+                    : isMixSnapshot
+                        ? retVal.deleteIn(['snapshot', ...pathArr]) && retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
+                        : retVal.updateIn(['snapshot', ...pathArr], (oldSnapshot)=>{return oldSnapshot.mergeDeepWith((prev, next) => !next ? prev : next, fromJS(snapshot))})
+        : retVal.deleteIn(['snapshot', ...pathArr]);
             isMixSnapshot ? pathArr.pop() : {};
             isChild ? pathArr.pop() : {};
             pathArr.pop();
@@ -104,6 +118,30 @@ export default (state = initialState, action) => {
             retVal = (timestamp !== undefined)
                 ? retVal.setIn(['timestamp', ...pathArr], fromJS(timestamp))
                 : retVal.deleteIn(['timestamp', ...pathArr])
+            pathArr.pop()
+
+            pathArr.push('requesting')
+            retVal = (requesting !== undefined)
+                ? retVal.setIn(['requesting', ...pathArr], fromJS(requesting))
+                : retVal.deleteIn(['requesting', ...pathArr])
+            pathArr.pop()
+
+            pathArr.push('requested')
+            retVal = (requested !== undefined)
+                ? retVal.setIn(['requested', ...pathArr], fromJS(requested))
+                : retVal.deleteIn(['requested', ...pathArr])
+            pathArr.pop()
+
+            return retVal
+
+        case SET_REQUESTED:
+
+            pathArr = pathToArr(path)
+
+            pathArr.push('timestamp')
+            retVal = (timestamp !== undefined)
+                ? state.setIn(['timestamp', ...pathArr], fromJS(timestamp))
+                : state.deleteIn(['timestamp', ...pathArr])
             pathArr.pop()
 
             pathArr.push('requesting')
@@ -177,6 +215,10 @@ export default (state = initialState, action) => {
                 .setIn(['authError'], action.authError)
                 .setIn(['auth'], null)
                 .setIn(['profile'], null)
+
+        case PERMISSION_DENIED_ERROR:
+            return state
+                .setIn(['listenError'], fromJS({error:action.permError, ts:Date.now()}))
 
         default:
             return state
