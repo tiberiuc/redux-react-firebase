@@ -64,7 +64,9 @@ const cleanOnceWatcher = (firebase, dispatch, event, path, ConnectId) => {
 
 const getWatcherCount = (firebase, event, path) => {
     const id = getWatchPath(event, path);
-    return firebase._.watchers[id]
+    const watchers = firebase._.watchers[id];
+
+    return watchers && Object.keys(watchers).length
 }
 
 const getCleanPath = (path) => {
