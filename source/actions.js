@@ -40,7 +40,7 @@ const cleanOnceWatcher = (firebase, dispatch, event, path, ConnectId) => {
             if (Object.keys(firebase._.watchers[id]).length === 0) {
                 delete firebase._.watchers[id];
             }
-        } else if (ffirebase._.watchers[id][ConnectId]) {
+        } else if (firebase._.watchers[id][ConnectId]) {
             firebase._.watchers[id][ConnectId]--
         }
     }
@@ -64,7 +64,9 @@ const cleanOnceWatcher = (firebase, dispatch, event, path, ConnectId) => {
 
 const getWatcherCount = (firebase, event, path) => {
     const id = getWatchPath(event, path);
-    return firebase._.watchers[id]
+    const watchers = firebase._.watchers[id];
+
+    return watchers && Object.keys(watchers).length
 }
 
 const getCleanPath = (path) => {
