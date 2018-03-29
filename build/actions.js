@@ -161,6 +161,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
     var setOptions = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : undefined;
 
     var isNewQuery = path.includes('#');
+    var isNewSet = setOptions !== undefined;
     var queryParams = [];
 
     if (isNewQuery) {
@@ -173,8 +174,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
     var counter = getWatcherCount(firebase, event, watchPath);
 
     if (counter > 0) {
-        if (isNewQuery) {
-            unsetWatcher(firebase, dispatch, event, path, ConnectId, false, isNewQuery);
+        if (isNewQuery || isNewSet) {
+            unsetWatcher(firebase, dispatch, event, path, ConnectId, false, isNewQuery || isNewSet);
         } else {
             setWatcher(firebase, event, watchPath, ConnectId);
             return;

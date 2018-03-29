@@ -131,7 +131,8 @@ function isNumeric(n) {
 
 export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', isListenOnlyOnDelta=false,
                            isAggregation=false, setFunc=undefined, setOptions=undefined) => {
-    const isNewQuery = path.includes('#');
+    const isNewQuery = path.includes('#')
+    const isNewSet = setOptions !== undefined
     let queryParams = []
 
     if (isNewQuery) {
@@ -144,8 +145,8 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
     const counter = getWatcherCount(firebase, event, watchPath)
 
     if (counter > 0) {
-        if (isNewQuery) {
-            unsetWatcher(firebase, dispatch, event, path, ConnectId, false, isNewQuery)
+        if (isNewQuery || isNewSet) {
+            unsetWatcher(firebase, dispatch, event, path, ConnectId, false, isNewQuery || isNewSet)
         } else {
             setWatcher(firebase, event, watchPath, ConnectId)
             return
