@@ -56,12 +56,8 @@ const cleanOnceWatcher = (firebase, dispatch, event, path, ConnectId) => {
             }
         }
 
-<<<<<<< HEAD
-    delete firebase._.shouldClearAfterOnce[id];
-=======
         delete firebase._.shouldClearAfterOnce[id];
     }
->>>>>>> 693c5554defb915f17d901beaf8900ab4c9a09bf
 
     return firebase._.watchers[id]
 }
@@ -133,15 +129,10 @@ function isNumeric(n) {
     return !isNaN(n - parseFloat(n));
 }
 
-<<<<<<< HEAD
-export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', isListenOnlyOnDelta=false, isAggregation=false, setFunc=undefined) => {
-    const isNewQuery = path.includes('#');
-=======
 export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', isListenOnlyOnDelta=false,
                            isAggregation=false, setFunc=undefined, setOptions=undefined) => {
     const isNewQuery = path.includes('#')
     const isNewSet = setOptions !== undefined
->>>>>>> 693c5554defb915f17d901beaf8900ab4c9a09bf
     let queryParams = []
 
     if (isNewQuery) {
@@ -198,10 +189,6 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                     break
                 case 'equalTo':
                     let equalToParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
-<<<<<<< HEAD
-
-=======
->>>>>>> 693c5554defb915f17d901beaf8900ab4c9a09bf
                     equalToParam = equalToParam === 'null' ? null : equalToParam
                     query = param.length === 3
                         ? query.equalTo(equalToParam, param[2])
@@ -209,10 +196,6 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                     break
                 case 'startAt':
                     let startAtParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
-<<<<<<< HEAD
-
-=======
->>>>>>> 693c5554defb915f17d901beaf8900ab4c9a09bf
                     startAtParam = startAtParam === 'null' ? null : startAtParam
                     query = param.length === 3
                         ? query.startAt(startAtParam, param[2])
@@ -220,10 +203,6 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                     break
                 case 'endAt':
                     let endAtParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
-<<<<<<< HEAD
-
-=======
->>>>>>> 693c5554defb915f17d901beaf8900ab4c9a09bf
                     endAtParam = endAtParam === 'null' ? null : endAtParam
                     query = param.length === 3
                         ? query.endAt(endAtParam, param[2])
