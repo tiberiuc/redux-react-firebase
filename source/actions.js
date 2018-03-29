@@ -13,6 +13,7 @@ import {
 } from './constants'
 
 import { Promise } from 'es6-promise'
+import _ from 'lodash'
 
 const getWatchPath = (event, path) => event + ':' + ((getCleanPath(path).substring(0, 1) === '/') ? '' : '/') + getCleanPath(path)
 
@@ -463,12 +464,22 @@ const watchUserProfile = (dispatch, firebase) => {
     }
 }
 
+const createLoginPromise = (firebase, credentials) => {
+    const auth = firebase.auth()
+    if (_.isString(credentials)) {
+        return auth.signInWithCustomToken(credentials)
+    } else if (_.has(credentials, "email") && _.has(credentials, "password")) {
+        return auth.signInWithEmailAndPassword(email, password)
+    } else {
+        return Promise.reject(new Error(`Malformed credentials or unsupported way of logging in: ${credentials}`))
+    }
+}
+
 export const login = (dispatch, firebase, credentials) => {
     return new Promise((resolve, reject) => {
         dispatchLoginError(dispatch, null)
 
-        const {email, password} = credentials
-        firebase.auth().signInWithEmailAndPassword(email, password)
+        createLoginPromise(firebase, credentials)
             .then(resolve)
             .catch(err => {
                 dispatchLoginError(dispatch, err)
