@@ -247,8 +247,32 @@ exports.default = function () {
                 };
 
             case _constants.PERMISSION_DENIED_ERROR:
+                pathArr = pathToArr(path);
+
+                pathArr.push('data');
+                retVal = state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(action.data));
+                pathArr.pop();
+
+                pathArr.push('snapshot');
+                retVal = retVal.setIn(['snapshot'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(action.snapshot));
+                pathArr.pop();
+
+                pathArr.push('timestamp');
+                retVal = retVal.setIn(['timestamp'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(timestamp));
+                pathArr.pop();
+
+                pathArr.push('requesting');
+                retVal = retVal.setIn(['requesting'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(requesting));
+                pathArr.pop();
+
+                pathArr.push('requested');
+                retVal = retVal.setIn(['requested'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(requested));
+                pathArr.pop();
+
+                retVal = retVal.setIn(['listenError'], (0, _immutable.fromJS)({ error: action.permError, ts: timestamp }));
+
                 return {
-                    v: state.setIn(['listenError'], (0, _immutable.fromJS)({ error: action.permError, ts: Date.now() }))
+                    v: retVal
                 };
 
             default:

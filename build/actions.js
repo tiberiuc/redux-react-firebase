@@ -394,7 +394,9 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                         });
                     }
                 }
-            }, dispatchPermissionDeniedError);
+            }, function (permError) {
+                return dispatchPermissionDeniedError(permError, p);
+            });
         }
     };
 
@@ -428,11 +430,19 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         firebase._.timeouts[aggregationId] = undefined;
     };
 
-    var dispatchPermissionDeniedError = function dispatchPermissionDeniedError(permError) {
+    var dispatchPermissionDeniedError = function dispatchPermissionDeniedError(permError, p) {
         if (permError && permError.code === 'PERMISSION_DENIED' && permError.message && !permError.message.includes('undefined')) {
 
             dispatch({
                 type: _constants.PERMISSION_DENIED_ERROR,
+                data: undefined,
+                snapshot: { val: function val() {
+                        return undefined;
+                    } },
+                path: p,
+                timestamp: Date.now(),
+                requesting: false,
+                requested: true,
                 permError: permError
             });
         }
