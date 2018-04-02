@@ -217,29 +217,34 @@ export default (state = initialState, action) => {
                 .setIn(['profile'], null)
 
         case PERMISSION_DENIED_ERROR:
-            pathArr = pathToArr(path);
+            if (path !== undefined) {
+                pathArr = pathToArr(path);
 
-            pathArr.push('data');
-            retVal = state.setIn(['data', ...pathArr], fromJS(action.data)) ;
-            pathArr.pop();
+                pathArr.push('data');
+                retVal = state.setIn(['data', ...pathArr], fromJS(action.data)) ;
+                pathArr.pop();
 
-            pathArr.push('snapshot');
-            retVal = retVal.setIn(['snapshot', ...pathArr], fromJS(action.snapshot));
-            pathArr.pop();
+                pathArr.push('snapshot');
+                retVal = retVal.setIn(['snapshot', ...pathArr], fromJS(action.snapshot));
+                pathArr.pop();
 
-            pathArr.push('timestamp');
-            retVal = retVal.setIn(['timestamp', ...pathArr], fromJS(timestamp));
-            pathArr.pop();
+                pathArr.push('timestamp');
+                retVal = retVal.setIn(['timestamp', ...pathArr], fromJS(timestamp));
+                pathArr.pop();
 
-            pathArr.push('requesting');
-            retVal = retVal.setIn(['requesting', ...pathArr], fromJS(requesting));
-            pathArr.pop();
+                pathArr.push('requesting');
+                retVal = retVal.setIn(['requesting', ...pathArr], fromJS(requesting));
+                pathArr.pop();
 
-            pathArr.push('requested');
-            retVal = retVal.setIn(['requested', ...pathArr], fromJS(requested));
-            pathArr.pop();
+                pathArr.push('requested');
+                retVal = retVal.setIn(['requested', ...pathArr], fromJS(requested));
+                pathArr.pop();
 
-            retVal = retVal.setIn(['listenError'], fromJS({error:action.permError, ts:timestamp}));
+            }
+
+            retVal = path !== undefined
+                ? retVal.setIn(['listenError'], fromJS({error:action.permError, ts:timestamp}))
+                : state.setIn(['listenError'], fromJS({error:action.permError, ts:timestamp}))
 
             return retVal;
 
