@@ -84,18 +84,18 @@ export default (state = initialState, action) => {
                 ? (!isMergeDeep || (isMergeDeep && !state.getIn(['data', ...pathArr])))
                     ? state.setIn(['data', ...pathArr], fromJS(data))
                     : state.updateIn(['data', ...pathArr], (oldData)=>{
-                            let rawOldData = oldData.toJS();
-                            for (let key of Object.keys(data)) {
-                                if (data[key]) {
-                                    if (data[key] === '_child_removed') {
-                                        delete rawOldData[key];
-                                    } else {
-                                        rawOldData[key] = data[key];
-                                    }
+                        let rawOldData = oldData.toJS();
+                        for (let key of Object.keys(data)) {
+                            if (data[key]) {
+                                if (data[key] === '_child_removed') {
+                                    delete rawOldData[key];
+                                } else {
+                                    rawOldData[key] = data[key];
                                 }
                             }
-                            return fromJS(rawOldData)
-                        })
+                        }
+                        return fromJS(rawOldData)
+                    })
                 : state.deleteIn(['data', ...pathArr]);
             isChild ? pathArr.pop() : {};
             pathArr.pop();
@@ -109,7 +109,7 @@ export default (state = initialState, action) => {
                     : isMixSnapshot
                         ? retVal.deleteIn(['snapshot', ...pathArr]) && retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
                         : retVal.updateIn(['snapshot', ...pathArr], (oldSnapshot)=>{return oldSnapshot.mergeDeepWith((prev, next) => !next ? prev : next, fromJS(snapshot))})
-        : retVal.deleteIn(['snapshot', ...pathArr]);
+                : retVal.deleteIn(['snapshot', ...pathArr]);
             isMixSnapshot ? pathArr.pop() : {};
             isChild ? pathArr.pop() : {};
             pathArr.pop();
@@ -217,8 +217,31 @@ export default (state = initialState, action) => {
                 .setIn(['profile'], null)
 
         case PERMISSION_DENIED_ERROR:
-            return state
-                .setIn(['listenError'], fromJS({error:action.permError, ts:Date.now()}))
+            pathArr = pathToArr(path);
+
+            pathArr.push('data');
+            retVal = state.setIn(['data', ...pathArr], fromJS(action.data)) ;
+            pathArr.pop();
+
+            pathArr.push('snapshot');
+            retVal = retVal.setIn(['snapshot', ...pathArr], fromJS(action.snapshot));
+            pathArr.pop();
+
+            pathArr.push('timestamp');
+            retVal = retVal.setIn(['timestamp', ...pathArr], fromJS(timestamp));
+            pathArr.pop();
+
+            pathArr.push('requesting');
+            retVal = retVal.setIn(['requesting', ...pathArr], fromJS(requesting));
+            pathArr.pop();
+
+            pathArr.push('requested');
+            retVal = retVal.setIn(['requested', ...pathArr], fromJS(requested));
+            pathArr.pop();
+
+            retVal = retVal.setIn(['listenError'], fromJS({error:action.permError, ts:timestamp}));
+
+            return retVal;
 
         default:
             return state

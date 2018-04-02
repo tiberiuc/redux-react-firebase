@@ -366,7 +366,7 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                         })
                     }
                 }
-            }, dispatchPermissionDeniedError)
+            }, (permError) => dispatchPermissionDeniedError(permError, p))
         }
     }
 
@@ -400,12 +400,18 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
         firebase._.timeouts[aggregationId] = undefined
     }
 
-    const dispatchPermissionDeniedError = (permError) => {
+    const dispatchPermissionDeniedError = (permError, p) => {
         if (permError && permError.code === 'PERMISSION_DENIED' &&
             permError.message && !permError.message.includes('undefined')) {
 
             dispatch({
                 type: PERMISSION_DENIED_ERROR,
+                data: undefined,
+                snapshot: {val:()=> undefined},
+                path: p,
+                timestamp: Date.now(),
+                requesting : false,
+                requested : true,
                 permError
             })
         }
