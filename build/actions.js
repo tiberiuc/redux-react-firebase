@@ -470,7 +470,7 @@ var unWatchEvents = exports.unWatchEvents = function unWatchEvents(firebase, dis
     var ConnectId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'Manual';
     var isUnmount = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     return events.forEach(function (event) {
-        return unWatchEvent(firebase, dispatch, event.name, event.path, ConnectId, isUnmount ? false : event.isSkipClean);
+        return unWatchEvent(firebase, dispatch, event.name, event.path, ConnectId, isUnmount ? !!event.isSkipCleanOnUnmount : event.isSkipClean);
     });
 };
 

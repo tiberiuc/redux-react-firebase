@@ -37,7 +37,8 @@ var defaultEvent = {
     setFunc: undefined,
     setOptions: undefined,
     isAggregation: false,
-    isSkipClean: false
+    isSkipClean: false,
+    isSkipCleanOnUnmount: false
 };
 
 var fixPath = function fixPath(path) {
@@ -61,6 +62,8 @@ var createEvents = function createEvents(_ref) {
         path = _ref.path,
         _ref$isSkipClean = _ref.isSkipClean,
         isSkipClean = _ref$isSkipClean === undefined ? false : _ref$isSkipClean,
+        _ref$isSkipCleanOnUnm = _ref.isSkipCleanOnUnmount,
+        isSkipCleanOnUnmount = _ref$isSkipCleanOnUnm === undefined ? false : _ref$isSkipCleanOnUnm,
         _ref$isListenOnlyOnDe = _ref.isListenOnlyOnDelta,
         isListenOnlyOnDelta = _ref$isListenOnlyOnDe === undefined ? false : _ref$isListenOnlyOnDe,
         _ref$isAggregation = _ref.isAggregation,
@@ -73,15 +76,15 @@ var createEvents = function createEvents(_ref) {
     switch (type) {
 
         case 'value':
-            return [{ name: 'value', path: path, isSkipClean: isSkipClean, setFunc: setFunc, setOptions: setOptions }];
+            return [{ name: 'value', path: path, isSkipClean: isSkipClean, isSkipCleanOnUnmount: isSkipCleanOnUnmount, setFunc: setFunc, setOptions: setOptions }];
 
         case 'once':
-            return [{ name: 'once', path: path, isSkipClean: isSkipClean, setFunc: setFunc, setOptions: setOptions }];
+            return [{ name: 'once', path: path, isSkipClean: isSkipClean, isSkipCleanOnUnmount: isSkipCleanOnUnmount, setFunc: setFunc, setOptions: setOptions }];
 
         case 'all':
             return [
             //{name: 'first_child', path},
-            { name: 'child_added', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }, { name: 'child_removed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }, { name: 'child_moved', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }, { name: 'child_changed', path: path, isSkipClean: isSkipClean, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }];
+            { name: 'child_added', path: path, isSkipClean: isSkipClean, isSkipCleanOnUnmount: isSkipCleanOnUnmount, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }, { name: 'child_removed', path: path, isSkipClean: isSkipClean, isSkipCleanOnUnmount: isSkipCleanOnUnmount, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }, { name: 'child_moved', path: path, isSkipClean: isSkipClean, isSkipCleanOnUnmount: isSkipCleanOnUnmount, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }, { name: 'child_changed', path: path, isSkipClean: isSkipClean, isSkipCleanOnUnmount: isSkipCleanOnUnmount, isListenOnlyOnDelta: isListenOnlyOnDelta, isAggregation: isAggregation, setFunc: setFunc, setOptions: setOptions }];
 
         default:
             return [];
@@ -107,16 +110,16 @@ var getEventsFromDefinition = function getEventsFromDefinition(def) {
             var type = path.type || 'value';
             switch (type) {
                 case 'value':
-                    return createEvents(transformEvent({ path: path.path, isSkipClean: !!path.isSkipClean, setFunc: path.setFunc, setOptions: path.setOptions }));
+                    return createEvents(transformEvent({ path: path.path, isSkipClean: !!path.isSkipClean, isSkipCleanOnUnmount: !!path.isSkipCleanOnUnmount, setFunc: path.setFunc, setOptions: path.setOptions }));
 
                 case 'once':
-                    return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean: !!path.isSkipClean, setFunc: path.setFunc, setOptions: path.setOptions }));
+                    return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean: !!path.isSkipClean, isSkipCleanOnUnmount: !!path.isSkipCleanOnUnmount, setFunc: path.setFunc, setOptions: path.setOptions }));
 
                 case 'array':
                 case 'all':
                     return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean: !!path.isSkipClean,
-                        isListenOnlyOnDelta: !!path.isListenOnlyOnDelta, isAggregation: !!path.isAggregation,
-                        setFunc: path.setFunc, setOptions: path.setOptions }));
+                        isSkipCleanOnUnmount: !!path.isSkipCleanOnUnmount, isListenOnlyOnDelta: !!path.isListenOnlyOnDelta,
+                        isAggregation: !!path.isAggregation, setFunc: path.setFunc, setOptions: path.setOptions }));
             }
         }
 
@@ -205,7 +208,7 @@ exports.default = function () {
                         var oldPaths = (0, _lodash.differenceBy)(this._pathsToListen, newPathsToListen, function (a) {
                             var ret = a;
                             if ((typeof a === 'undefined' ? 'undefined' : _typeof(a)) === 'object') {
-                                ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean;
+                                ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean + a.isSkipCleanOnUnmount;
                             }
 
                             return ret;
@@ -213,7 +216,7 @@ exports.default = function () {
                         var newPaths = (0, _lodash.differenceBy)(newPathsToListen, this._pathsToListen, function (a) {
                             var ret = a;
                             if ((typeof a === 'undefined' ? 'undefined' : _typeof(a)) === 'object') {
-                                ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean;
+                                ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean + a.isSkipCleanOnUnmount;
                             }
 
                             return ret;
