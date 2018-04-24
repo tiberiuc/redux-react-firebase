@@ -80,7 +80,7 @@ const unsetWatcher = (firebase, dispatch, event, path, ConnectId='Manual', isSki
     const onceEvent = getWatchPath('once', path);
     path = path.split('#')[0]
 
-    if ((firebase._.watchers[id] && firebase._.watchers[id][ConnectId] <= 1) || isNewQuery) {
+    if ((firebase._.watchers[id] && firebase._.watchers[id][ConnectId] <= 1) || isNewQuery || ConnectId === 'CleanAll') {
         var aggregationId = getWatchPath('child_aggregation', path);
 
         if (firebase._.timeouts && firebase._.timeouts[aggregationId]) {
@@ -88,16 +88,16 @@ const unsetWatcher = (firebase, dispatch, event, path, ConnectId='Manual', isSki
             firebase._.timeouts[aggregationId] = undefined;
         }
 
-        delete firebase._.watchers[id][ConnectId];
+        ConnectId !== 'CleanAll' && delete firebase._.watchers[id][ConnectId];
 
-        const countWatchers = Object.keys(firebase._.watchers[id]).length;
+        const countWatchers = ConnectId !== 'CleanAll' ? Object.keys(firebase._.watchers[id]).length : 0;
 
         if (countWatchers === 0 || isNewQuery) {
             countWatchers === 0 && delete firebase._.watchers[id];
 
             if (event!='once'){
                 if (!firebase._.watchers[onceEvent]) {
-                    firebase.database().ref().child(path).off(event);
+                    event !== 'all' && firebase.database().ref().child(path).off(event);
                     if(!isSkipClean){
                         dispatch({
                             type: INIT_BY_PATH,
