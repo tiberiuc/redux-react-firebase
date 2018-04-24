@@ -2,11 +2,11 @@ import Firebase from 'firebase'
 import * as Actions from './actions'
 
 export default (config) => {
-    return next => (reducer, initialState) => {
+    return next => (reducer, initialState, middleware) => {
         const defaultConfig = {
             userProfile: null
         }
-        const store = next(reducer, initialState)
+        const store = next(reducer, initialState, middleware)
 
         const {dispatch} = store
 
@@ -41,7 +41,7 @@ export default (config) => {
         const update = (path, value, onComplete) => ref.child(path).update(value, onComplete)
         const isWatchPath =  (eventName, eventPath) => Actions.isWatchPath(firebase, dispatch, eventName, eventPath)
         const watchEvent = (eventName, eventPath, isListenOnlyOnDelta, isAggregation, setFunc, setOptions) => Actions.watchEvent(firebase, dispatch, eventName, eventPath, 'Manual', isListenOnlyOnDelta, isAggregation, setFunc, setOptions)
-        const unWatchEvent = (eventName, eventPath, isSkipClean=false) => Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, 'Manual', isSkipClean)
+        const unWatchEvent = (eventName, eventPath, isSkipClean=false, connectID='Manual') => Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, connectID, isSkipClean)
         const login = credentials => Actions.login(dispatch, firebase, credentials)
         const logout = (preserve = [], remove = []) => Actions.logout(dispatch, firebase, preserve, remove)
         const createUser = (credentials, profile) => Actions.createUser(dispatch, firebase, credentials, profile)
