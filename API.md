@@ -165,28 +165,16 @@ Always authenticate the new user in case of success
 ### `login(credentials)`
 
 #### Arguments
-- `credentials` (*String or Object*) If String then `ref.authWithCustomToken(credentials)` is used . If object then following cases:
-- with provider `ref.authWithOAuthPopup(provider)` or `ref.authWithOAuthRedirect(provider)`
-```
-{
-  provider: "facebook | google | twitter",
-  type: "popup | redirect", // redirect is default
-}
-```
-- with provider and token `ref.authWithOAuthToken(provider, token)`
-```
-{
-  provider: "facebook | google | twitter",
-  token : String
-}
-```
-- with email and password `ref.authWithPassword(credentials)`
-```
-{
-  email: String
-  password: String
-}
-```
+- `credentials` (*String or Object*)
+  - If String then `firebase.auth().signInWithCustomToken` is used.
+  - If object then:
+    - `firebase.auth().signInWithEmailAndPassword` if object has the following shape:
+      ```
+      {
+        email: String
+        password: String
+      }
+      ```
 #### Return
 Return a promise with authData in case of success or the error otherwise.
 

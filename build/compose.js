@@ -18,11 +18,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 exports.default = function (config) {
     return function (next) {
-        return function (reducer, initialState) {
+        return function (reducer, initialState, middleware) {
             var defaultConfig = {
                 userProfile: null
             };
-            var store = next(reducer, initialState);
+            var store = next(reducer, initialState, middleware);
 
             var dispatch = store.dispatch;
 
@@ -72,7 +72,8 @@ exports.default = function (config) {
             };
             var unWatchEvent = function unWatchEvent(eventName, eventPath) {
                 var isSkipClean = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-                return Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, 'Manual', isSkipClean);
+                var connectID = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'Manual';
+                return Actions.unWatchEvent(firebase, dispatch, eventName, eventPath, connectID, isSkipClean);
             };
             var login = function login(credentials) {
                 return Actions.login(dispatch, firebase, credentials);

@@ -4,6 +4,14 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _differenceBy2 = require('lodash/differenceBy');
+
+var _differenceBy3 = _interopRequireDefault(_differenceBy2);
+
+var _isEqual2 = require('lodash/isEqual');
+
+var _isEqual3 = _interopRequireDefault(_isEqual2);
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -19,8 +27,6 @@ var _propTypes = require('prop-types');
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _actions = require('./actions');
-
-var _lodash = require('lodash');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -204,8 +210,8 @@ exports.default = function () {
                     var linkFn = ensureCallable(dataOrFn);
                     var newPathsToListen = cleanPaths(linkFn(nextProps, firebase));
 
-                    if (!(0, _lodash.isEqual)(newPathsToListen, this._pathsToListen)) {
-                        var oldPaths = (0, _lodash.differenceBy)(this._pathsToListen, newPathsToListen, function (a) {
+                    if (!(0, _isEqual3.default)(newPathsToListen, this._pathsToListen)) {
+                        var oldPaths = (0, _differenceBy3.default)(this._pathsToListen, newPathsToListen, function (a) {
                             var ret = a;
                             if ((typeof a === 'undefined' ? 'undefined' : _typeof(a)) === 'object') {
                                 ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean + a.isSkipCleanOnUnmount;
@@ -213,7 +219,7 @@ exports.default = function () {
 
                             return ret;
                         });
-                        var newPaths = (0, _lodash.differenceBy)(newPathsToListen, this._pathsToListen, function (a) {
+                        var newPaths = (0, _differenceBy3.default)(newPathsToListen, this._pathsToListen, function (a) {
                             var ret = a;
                             if ((typeof a === 'undefined' ? 'undefined' : _typeof(a)) === 'object') {
                                 ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean + a.isSkipCleanOnUnmount;

@@ -1,11 +1,11 @@
 {
   "name": "redux-react-firebase",
-  "version": "2.10.4",
+  "version": "2.10.5",
   "description": "Use Firebase with React and Redux in ES6 ",
   "main": "build/index.js",
   "scripts": {
-    "build": "babel source --out-dir build",
-    "build-dev": "babel source --out-dir build --watch --source-maps inline",
+    "build": "babel --plugins transform-decorators-legacy,lodash --presets es2015,stage-1,react source --out-dir build",
+    "build-dev": "babel --plugins transform-decorators-legacy,lodash --presets es2015,stage-1,react source --out-dir build --watch --source-maps inline",
     "watch": "npm run build -- --watch",
     "clean": "rimraf build",
     "prepublish": "npm run clean && npm run build",

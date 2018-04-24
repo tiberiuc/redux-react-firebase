@@ -5,7 +5,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.isEmpty = exports.isLoaded = exports.snapshotToJS = exports.dataToJS = exports.customToJS = exports.pathToJS = exports.toJS = undefined;
 
-var _lodash = require('lodash');
+var _map2 = require('lodash/map');
+
+var _map3 = _interopRequireDefault(_map2);
+
+var _size2 = require('lodash/size');
+
+var _size3 = _interopRequireDefault(_size2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var fixPath = function fixPath(path) {
     return (path.substring(0, 1) === '/' ? '' : '/') + path;
@@ -107,7 +115,7 @@ var isLoaded = exports.isLoaded = function isLoaded() {
         return true;
     }
 
-    return (0, _lodash.map)(arguments, function (a) {
+    return (0, _map3.default)(arguments, function (a) {
         return a !== undefined;
     }).reduce(function (a, b) {
         return a && b;
@@ -115,7 +123,7 @@ var isLoaded = exports.isLoaded = function isLoaded() {
 };
 
 var isEmpty = exports.isEmpty = function isEmpty(data) {
-    return !(data && (0, _lodash.size)(data));
+    return !(data && (0, _size3.default)(data));
 };
 
 exports.default = { pathToJS: pathToJS, dataToJS: dataToJS, snapshotToJS: snapshotToJS, isLoaded: isLoaded, isEmpty: isEmpty, customToJS: customToJS };

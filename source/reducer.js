@@ -84,18 +84,18 @@ export default (state = initialState, action) => {
                 ? (!isMergeDeep || (isMergeDeep && !state.getIn(['data', ...pathArr])))
                     ? state.setIn(['data', ...pathArr], fromJS(data))
                     : state.updateIn(['data', ...pathArr], (oldData)=>{
-                            let rawOldData = oldData.toJS();
-                            for (let key of Object.keys(data)) {
-                                if (data[key]) {
-                                    if (data[key] === '_child_removed') {
-                                        delete rawOldData[key];
-                                    } else {
-                                        rawOldData[key] = data[key];
-                                    }
+                        let rawOldData = oldData.toJS();
+                        for (let key of Object.keys(data)) {
+                            if (data[key]) {
+                                if (data[key] === '_child_removed') {
+                                    delete rawOldData[key];
+                                } else {
+                                    rawOldData[key] = data[key];
                                 }
                             }
-                            return fromJS(rawOldData)
-                        })
+                        }
+                        return fromJS(rawOldData)
+                    })
                 : state.deleteIn(['data', ...pathArr]);
             isChild ? pathArr.pop() : {};
             pathArr.pop();
@@ -109,7 +109,7 @@ export default (state = initialState, action) => {
                     : isMixSnapshot
                         ? retVal.deleteIn(['snapshot', ...pathArr]) && retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
                         : retVal.updateIn(['snapshot', ...pathArr], (oldSnapshot)=>{return oldSnapshot.mergeDeepWith((prev, next) => !next ? prev : next, fromJS(snapshot))})
-        : retVal.deleteIn(['snapshot', ...pathArr]);
+                : retVal.deleteIn(['snapshot', ...pathArr]);
             isMixSnapshot ? pathArr.pop() : {};
             isChild ? pathArr.pop() : {};
             pathArr.pop();

@@ -5,9 +5,19 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.resetPassword = exports.createUser = exports.logout = exports.init = exports.login = exports.unWatchEvents = exports.watchEvents = exports.unWatchEvent = exports.watchEvent = exports.isWatchPath = undefined;
 
+var _has2 = require('lodash/has');
+
+var _has3 = _interopRequireDefault(_has2);
+
+var _isString2 = require('lodash/isString');
+
+var _isString3 = _interopRequireDefault(_isString2);
+
 var _constants = require('./constants');
 
 var _es6Promise = require('es6-promise');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var getWatchPath = function getWatchPath(event, path) {
     return event + ':' + (getCleanPath(path).substring(0, 1) === '/' ? '' : '/') + getCleanPath(path);
@@ -103,7 +113,7 @@ var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
     var onceEvent = getWatchPath('once', path);
     path = path.split('#')[0];
 
-    if (firebase._.watchers[id] && firebase._.watchers[id][ConnectId] <= 1 || isNewQuery) {
+    if (firebase._.watchers[id] && firebase._.watchers[id][ConnectId] <= 1 || isNewQuery || ConnectId === 'CleanAll') {
         var aggregationId = getWatchPath('child_aggregation', path);
 
         if (firebase._.timeouts && firebase._.timeouts[aggregationId]) {
@@ -111,16 +121,16 @@ var unsetWatcher = function unsetWatcher(firebase, dispatch, event, path) {
             firebase._.timeouts[aggregationId] = undefined;
         }
 
-        delete firebase._.watchers[id][ConnectId];
+        ConnectId !== 'CleanAll' && delete firebase._.watchers[id][ConnectId];
 
-        var countWatchers = Object.keys(firebase._.watchers[id]).length;
+        var countWatchers = ConnectId !== 'CleanAll' ? Object.keys(firebase._.watchers[id]).length : 0;
 
         if (countWatchers === 0 || isNewQuery) {
             countWatchers === 0 && delete firebase._.watchers[id];
 
             if (event != 'once') {
                 if (!firebase._.watchers[onceEvent]) {
-                    firebase.database().ref().child(path).off(event);
+                    event !== 'all' && firebase.database().ref().child(path).off(event);
                     if (!isSkipClean) {
                         dispatch({
                             type: _constants.INIT_BY_PATH,
@@ -512,14 +522,22 @@ var watchUserProfile = function watchUserProfile(dispatch, firebase) {
     }
 };
 
+var createLoginPromise = function createLoginPromise(firebase, credentials) {
+    var auth = firebase.auth();
+    if ((0, _isString3.default)(credentials)) {
+        return auth.signInWithCustomToken(credentials);
+    } else if ((0, _has3.default)(credentials, "email") && (0, _has3.default)(credentials, "password")) {
+        return auth.signInWithEmailAndPassword(email, password);
+    } else {
+        return _es6Promise.Promise.reject(new Error('Malformed credentials or unsupported way of logging in: ' + credentials));
+    }
+};
+
 var login = exports.login = function login(dispatch, firebase, credentials) {
     return new _es6Promise.Promise(function (resolve, reject) {
         dispatchLoginError(dispatch, null);
 
-        var email = credentials.email,
-            password = credentials.password;
-
-        firebase.auth().signInWithEmailAndPassword(email, password).then(resolve).catch(function (err) {
+        createLoginPromise(firebase, credentials).then(resolve).catch(function (err) {
             dispatchLoginError(dispatch, err);
             reject(err);
         });
