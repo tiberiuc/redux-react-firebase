@@ -279,7 +279,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                             type: _constants.SET,
                             path: p,
                             data: snapshot.val(),
-                            snapshot: snapshot,
+                            snapshot: Object.assign(snapshot, { _event: 'value' }),
                             key: snapshot.key,
                             timestamp: Date.now(),
                             requesting: false,
@@ -298,6 +298,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                 q.on(e, function (snapshot) {
                     if (!newItems) return;
 
+                    var tempSnapshot = Object.assign(snapshot, { _event: e });
+
                     if (isAggregation) {
                         if (!firebase._.timeouts[aggregationId]) {
                             firebase._.aggregatedData[aggregationId] = {};
@@ -308,7 +310,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                         }
 
                         firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val();
-                        firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = snapshot;
+                        firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
                     } else {
                         if (setFunc) {
                             setFunc(snapshot, 'child_added', dispatch, setOptions);
@@ -325,7 +327,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                                 type: _constants.SET,
                                 path: p,
                                 data: snapshot.val(),
-                                snapshot: snapshot,
+                                snapshot: tempSnapshot,
                                 key: snapshot.key,
                                 timestamp: Date.now(),
                                 requesting: false,
@@ -356,7 +358,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
                                 type: _constants.SET,
                                 path: p,
                                 data: snapshot.val(),
-                                snapshot: snapshot,
+                                snapshot: Object.assign(snapshot, { _event: 'value' }),
                                 key: snapshot.key,
                                 timestamp: Date.now(),
                                 requesting: false,
@@ -372,7 +374,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         } else {
             q.on(e, function (snapshot) {
                 var data = e === 'child_removed' ? '_child_removed' : snapshot.val();
-                var tempSnapshot = Object.assign(snapshot, { event: e });
+                var tempSnapshot = Object.assign(snapshot, { _event: e });
 
                 if (e !== 'value' && isAggregation) {
                     if (!firebase._.timeouts[aggregationId]) {
