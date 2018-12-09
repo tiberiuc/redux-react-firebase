@@ -103,7 +103,7 @@ export default (state = initialState, action) => {
             pathArr.push('snapshot');
             isMixSnapshot ? (isChild || isMergeDeep) ? pathArr.push('snapshot_deltas') : pathArr.push('snapshot_initial') : {};
             isChild ? pathArr.push(key) : {};
-            retVal = (snapshot !== undefined && snapshot._event !== 'child_removed')
+            retVal = (snapshot !== undefined)
                 ? (!isMergeDeep || (isMergeDeep && !retVal.getIn(['snapshot', ...pathArr])))
                     ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
                     : isMixSnapshot
