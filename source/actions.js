@@ -335,7 +335,7 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
         } else {
             q.on(e, snapshot => {
                 let data = (e === 'child_removed') ? '_child_removed' : snapshot.val();
-                let tempSnapshot = (e === 'child_removed') ? '_child_removed' : snapshot;
+                let tempSnapshot = Object.assign(snapshot, {event:e});
 
                 if (e !== 'value' && isAggregation) {
                     if (!firebase._.timeouts[aggregationId]) {
