@@ -132,183 +132,158 @@ function isNumeric(n) {
 
 export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', isListenOnlyOnDelta=false,
                            isAggregation=false, setFunc=undefined, setOptions=undefined) => {
-    const isNewQuery = path.includes('#')
-    const isNewSet = setOptions !== undefined
-    let queryParams = []
 
-    if (isNewQuery) {
-        let pathSplitted = path.split('#')
-        path = pathSplitted[0]
-        queryParams = pathSplitted[1].split('&')
-    }
+    if (path) {
 
-    const watchPath = path
-    const counter = getWatcherCount(firebase, event, watchPath)
 
-    if (counter > 0) {
-        if (isNewQuery || isNewSet) {
-            unsetWatcher(firebase, dispatch, event, path, ConnectId, false, isNewQuery || isNewSet)
-        } else {
-            setWatcher(firebase, event, watchPath, ConnectId)
-            return
+        const isNewQuery = path.includes('#')
+        const isNewSet = setOptions !== undefined
+        let queryParams = []
+
+        if (isNewQuery) {
+            let pathSplitted = path.split('#')
+            path = pathSplitted[0]
+            queryParams = pathSplitted[1].split('&')
         }
-    }
 
-    setWatcher(firebase, event, watchPath, ConnectId)
+        const watchPath = path
+        const counter = getWatcherCount(firebase, event, watchPath)
 
-    let query = firebase.database().ref().child(path)
+        if (counter > 0) {
+            if (isNewQuery || isNewSet) {
+                unsetWatcher(firebase, dispatch, event, path, ConnectId, false, isNewQuery || isNewSet)
+            } else {
+                setWatcher(firebase, event, watchPath, ConnectId)
+                return
+            }
+        }
 
-    if (isNewQuery) {
-        let doNotParse = false
+        setWatcher(firebase, event, watchPath, ConnectId)
 
-        queryParams.forEach((param) => {
-            param = param.split('=')
-            switch (param[0]) {
-                case 'doNotParse':
-                    doNotParse = true
-                    break
-                case 'orderByValue':
-                    query = query.orderByValue()
-                    doNotParse = true
-                    break
-                case 'orderByPriority':
-                    query = query.orderByPriority()
-                    doNotParse = true
-                    break
-                case 'orderByKey':
-                    query = query.orderByKey()
-                    doNotParse = true
-                    break
-                case 'orderByChild':
-                    query = query.orderByChild(param[1])
-                    break
-                case 'limitToFirst':
-                    query = query.limitToFirst(parseInt(param[1]))
-                    break
-                case 'limitToLast':
-                    query = query.limitToLast(parseInt(param[1]))
-                    break
-                case 'equalTo':
-                    let equalToParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
-                    equalToParam = equalToParam === 'null' ? null : equalToParam
-                    query = param.length === 3
-                        ? query.equalTo(equalToParam, param[2])
-                        : query.equalTo(equalToParam)
-                    break
-                case 'startAt':
-                    let startAtParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
-                    startAtParam = startAtParam === 'null' ? null : startAtParam
-                    query = param.length === 3
-                        ? query.startAt(startAtParam, param[2])
-                        : query.startAt(startAtParam)
-                    break
-                case 'endAt':
-                    let endAtParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
-                    endAtParam = endAtParam === 'null' ? null : endAtParam
-                    query = param.length === 3
-                        ? query.endAt(endAtParam, param[2])
-                        : query.endAt(endAtParam)
-                    break
-                default:
-                    break
-            } })
-    }
+        let query = firebase.database().ref().child(path)
 
-    const runQuery = (q, e, p) => {
-        dispatch({
-            type: START,
-            timestamp: Date.now(),
-            requesting : true,
-            requested : false,
-            path
-        })
+        if (isNewQuery) {
+            let doNotParse = false
 
-        let aggregationId = getWatchPath('child_aggregation', path);
-
-        if (e === 'once') {
-            q.once('value')
-                .then(snapshot => {
-                    cleanOnceWatcher(firebase, dispatch, event, watchPath, ConnectId)
-                    if (snapshot.val() !== null) {
-                        if (setFunc) {
-                            setFunc(snapshot, 'value', dispatch, setOptions);
-                            dispatch({
-                                type: SET_REQUESTED,
-                                path: p,
-                                key: snapshot.key,
-                                timestamp: Date.now(),
-                                requesting: false,
-                                requested: true
-                            });
-                        } else {
-                            dispatch({
-                                type: SET,
-                                path: p,
-                                data: snapshot.val(),
-                                snapshot:Object.assign(snapshot, {_event:'value'}),
-                                key: snapshot.key,
-                                timestamp: Date.now(),
-                                requesting : false,
-                                requested : true,
-                                isChild: false,
-                                isMixSnapshot: false,
-                                isMergeDeep: false
-                            })
-                        }
-                    }
-                }, dispatchPermissionDeniedError)
-        } else if (e === 'child_added' && isListenOnlyOnDelta) {
-            let newItems = false;
-
-            q.on(e, snapshot => {
-                if (!newItems) return;
-
-                let tempSnapshot = Object.assign(snapshot, {_event:e});
-
-                if (isAggregation) {
-                    if (!firebase._.timeouts[aggregationId]) {
-                        firebase._.aggregatedData[aggregationId] = {}
-                        firebase._.aggregatedSnapshot[aggregationId] = {}
-                        firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
-                    }
-
-                    firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val()
-                    firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
-                } else {
-                    if (setFunc) {
-                        setFunc(snapshot, 'child_added', dispatch, setOptions);
-                        dispatch({
-                            type: SET_REQUESTED,
-                            path: p,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting: false,
-                            requested: true
-                        });
-                    } else {
-                        dispatch({
-                            type: SET,
-                            path: p,
-                            data: snapshot.val(),
-                            snapshot:tempSnapshot,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting : false,
-                            requested : true,
-                            isChild: true,
-                            isMixSnapshot: true,
-                            isMergeDeep: false
-                        })
-                    }
+            queryParams.forEach((param) => {
+                param = param.split('=')
+                switch (param[0]) {
+                    case 'doNotParse':
+                        doNotParse = true
+                        break
+                    case 'orderByValue':
+                        query = query.orderByValue()
+                        doNotParse = true
+                        break
+                    case 'orderByPriority':
+                        query = query.orderByPriority()
+                        doNotParse = true
+                        break
+                    case 'orderByKey':
+                        query = query.orderByKey()
+                        doNotParse = true
+                        break
+                    case 'orderByChild':
+                        query = query.orderByChild(param[1])
+                        break
+                    case 'limitToFirst':
+                        query = query.limitToFirst(parseInt(param[1]))
+                        break
+                    case 'limitToLast':
+                        query = query.limitToLast(parseInt(param[1]))
+                        break
+                    case 'equalTo':
+                        let equalToParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
+                        equalToParam = equalToParam === 'null' ? null : equalToParam
+                        query = param.length === 3
+                            ? query.equalTo(equalToParam, param[2])
+                            : query.equalTo(equalToParam)
+                        break
+                    case 'startAt':
+                        let startAtParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
+                        startAtParam = startAtParam === 'null' ? null : startAtParam
+                        query = param.length === 3
+                            ? query.startAt(startAtParam, param[2])
+                            : query.startAt(startAtParam)
+                        break
+                    case 'endAt':
+                        let endAtParam = (!doNotParse && isNumeric(param[1])) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1]
+                        endAtParam = endAtParam === 'null' ? null : endAtParam
+                        query = param.length === 3
+                            ? query.endAt(endAtParam, param[2])
+                            : query.endAt(endAtParam)
+                        break
+                    default:
+                        break
                 }
-            }, dispatchPermissionDeniedError)
+            })
+        }
 
-            q.once('value')
-                .then(snapshot => {
-                    newItems = true;
-                    if (snapshot.val() !== null) {
+        const runQuery = (q, e, p) => {
+            dispatch({
+                type: START,
+                timestamp: Date.now(),
+                requesting: true,
+                requested: false,
+                path
+            })
+
+            let aggregationId = getWatchPath('child_aggregation', path);
+
+            if (e === 'once') {
+                q.once('value')
+                    .then(snapshot => {
+                        cleanOnceWatcher(firebase, dispatch, event, watchPath, ConnectId)
+                        if (snapshot.val() !== null) {
+                            if (setFunc) {
+                                setFunc(snapshot, 'value', dispatch, setOptions);
+                                dispatch({
+                                    type: SET_REQUESTED,
+                                    path: p,
+                                    key: snapshot.key,
+                                    timestamp: Date.now(),
+                                    requesting: false,
+                                    requested: true
+                                });
+                            } else {
+                                dispatch({
+                                    type: SET,
+                                    path: p,
+                                    data: snapshot.val(),
+                                    snapshot: Object.assign(snapshot, {_event: 'value'}),
+                                    key: snapshot.key,
+                                    timestamp: Date.now(),
+                                    requesting: false,
+                                    requested: true,
+                                    isChild: false,
+                                    isMixSnapshot: false,
+                                    isMergeDeep: false
+                                })
+                            }
+                        }
+                    }, dispatchPermissionDeniedError)
+            } else if (e === 'child_added' && isListenOnlyOnDelta) {
+                let newItems = false;
+
+                q.on(e, snapshot => {
+                    if (!newItems) return;
+
+                    let tempSnapshot = Object.assign(snapshot, {_event: e});
+
+                    if (isAggregation) {
+                        if (!firebase._.timeouts[aggregationId]) {
+                            firebase._.aggregatedData[aggregationId] = {}
+                            firebase._.aggregatedSnapshot[aggregationId] = {}
+                            firebase._.timeouts[aggregationId] = setTimeout(() => {
+                                dispatchBulk(p, aggregationId)
+                            }, 1000);
+                        }
+
+                        firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val()
+                        firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
+                    } else {
                         if (setFunc) {
-                            setFunc(snapshot, 'value', dispatch, setOptions);
+                            setFunc(snapshot, 'child_added', dispatch, setOptions);
                             dispatch({
                                 type: SET_REQUESTED,
                                 path: p,
@@ -322,106 +297,141 @@ export const watchEvent = (firebase, dispatch, event, path, ConnectId='Manual', 
                                 type: SET,
                                 path: p,
                                 data: snapshot.val(),
-                                snapshot:Object.assign(snapshot, {_event:'value'}),
+                                snapshot: tempSnapshot,
                                 key: snapshot.key,
                                 timestamp: Date.now(),
-                                requesting : false,
-                                requested : true,
-                                isChild: false,
+                                requesting: false,
+                                requested: true,
+                                isChild: true,
                                 isMixSnapshot: true,
                                 isMergeDeep: false
                             })
                         }
                     }
                 }, dispatchPermissionDeniedError)
-        } else {
-            q.on(e, snapshot => {
-                let data = (e === 'child_removed') ? '_child_removed' : snapshot.val();
-                let tempSnapshot = Object.assign(snapshot, {_event:e});
 
-                if (e !== 'value' && isAggregation) {
-                    if (!firebase._.timeouts[aggregationId]) {
-                        firebase._.aggregatedData[aggregationId] = {}
-                        firebase._.aggregatedSnapshot[aggregationId] = {}
-                        firebase._.timeouts[aggregationId] = setTimeout(() => { dispatchBulk(p,aggregationId) }, 1000);
-                    }
+                q.once('value')
+                    .then(snapshot => {
+                        newItems = true;
+                        if (snapshot.val() !== null) {
+                            if (setFunc) {
+                                setFunc(snapshot, 'value', dispatch, setOptions);
+                                dispatch({
+                                    type: SET_REQUESTED,
+                                    path: p,
+                                    key: snapshot.key,
+                                    timestamp: Date.now(),
+                                    requesting: false,
+                                    requested: true
+                                });
+                            } else {
+                                dispatch({
+                                    type: SET,
+                                    path: p,
+                                    data: snapshot.val(),
+                                    snapshot: Object.assign(snapshot, {_event: 'value'}),
+                                    key: snapshot.key,
+                                    timestamp: Date.now(),
+                                    requesting: false,
+                                    requested: true,
+                                    isChild: false,
+                                    isMixSnapshot: true,
+                                    isMergeDeep: false
+                                })
+                            }
+                        }
+                    }, dispatchPermissionDeniedError)
+            } else {
+                q.on(e, snapshot => {
+                    let data = (e === 'child_removed') ? '_child_removed' : snapshot.val();
+                    let tempSnapshot = Object.assign(snapshot, {_event: e});
 
-                    firebase._.aggregatedData[aggregationId][snapshot.key] = data
-                    firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot
-                } else {
-                    if (setFunc) {
-                        setFunc(tempSnapshot, e, dispatch, setOptions);
+                    if (e !== 'value' && isAggregation) {
+                        if (!firebase._.timeouts[aggregationId]) {
+                            firebase._.aggregatedData[aggregationId] = {}
+                            firebase._.aggregatedSnapshot[aggregationId] = {}
+                            firebase._.timeouts[aggregationId] = setTimeout(() => {
+                                dispatchBulk(p, aggregationId)
+                            }, 1000);
+                        }
 
+                        firebase._.aggregatedData[aggregationId][snapshot.key] = data
+                        firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot
                     } else {
-                        dispatch({
-                            type: SET,
-                            path: p,
-                            data,
-                            snapshot: tempSnapshot,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting : false,
-                            requested : true,
-                            isChild: e !== 'value',
-                            isMixSnapshot: isListenOnlyOnDelta,
-                            isMergeDeep: false
-                        })
+                        if (setFunc) {
+                            setFunc(tempSnapshot, e, dispatch, setOptions);
+
+                        } else {
+                            dispatch({
+                                type: SET,
+                                path: p,
+                                data,
+                                snapshot: tempSnapshot,
+                                key: snapshot.key,
+                                timestamp: Date.now(),
+                                requesting: false,
+                                requested: true,
+                                isChild: e !== 'value',
+                                isMixSnapshot: isListenOnlyOnDelta,
+                                isMergeDeep: false
+                            })
+                        }
                     }
-                }
-            }, (permError) => dispatchPermissionDeniedError(permError, p))
-        }
-    }
-
-    const dispatchBulk = (p, aggregationId) => {
-        if (setFunc) {
-            setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch, setOptions);
-            dispatch({
-                type: SET_REQUESTED,
-                path: p,
-                key: '_NONE',
-                timestamp: Date.now(),
-                requesting: false,
-                requested: true
-            });
-        } else {
-            dispatch({
-                type: SET,
-                path: p,
-                data: firebase._.aggregatedData[aggregationId],
-                snapshot: firebase._.aggregatedSnapshot[aggregationId],
-                key: '_NONE',
-                timestamp: Date.now(),
-                requesting : false,
-                requested : true,
-                isChild: false,
-                isMixSnapshot: true,
-                isMergeDeep: true
-            })
+                }, (permError) => dispatchPermissionDeniedError(permError, p))
+            }
         }
 
-        firebase._.timeouts[aggregationId] = undefined
-    }
+        const dispatchBulk = (p, aggregationId) => {
+            if (setFunc) {
+                setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch, setOptions);
+                dispatch({
+                    type: SET_REQUESTED,
+                    path: p,
+                    key: '_NONE',
+                    timestamp: Date.now(),
+                    requesting: false,
+                    requested: true
+                });
+            } else {
+                dispatch({
+                    type: SET,
+                    path: p,
+                    data: firebase._.aggregatedData[aggregationId],
+                    snapshot: firebase._.aggregatedSnapshot[aggregationId],
+                    key: '_NONE',
+                    timestamp: Date.now(),
+                    requesting: false,
+                    requested: true,
+                    isChild: false,
+                    isMixSnapshot: true,
+                    isMergeDeep: true
+                })
+            }
 
-    const dispatchPermissionDeniedError = (permError, p) => {
-        if (permError && permError.code === 'PERMISSION_DENIED' &&
-            permError.message && !permError.message.includes('undefined')) {
-
-            dispatch({
-                type: PERMISSION_DENIED_ERROR,
-                data: undefined,
-                snapshot: {val:()=> undefined},
-                path: p,
-                timestamp: Date.now(),
-                requesting : false,
-                requested : true,
-                permError
-            })
+            firebase._.timeouts[aggregationId] = undefined
         }
 
-        throw permError
-    }
+        const dispatchPermissionDeniedError = (permError, p) => {
+            if (permError && permError.code === 'PERMISSION_DENIED' &&
+                permError.message && !permError.message.includes('undefined')) {
 
-    runQuery(query, event, path)
+                dispatch({
+                    type: PERMISSION_DENIED_ERROR,
+                    data: undefined,
+                    snapshot: {val: () => undefined},
+                    path: p,
+                    timestamp: Date.now(),
+                    requesting: false,
+                    requested: true,
+                    permError
+                })
+            }
+
+            throw permError
+        }
+
+        runQuery(query, event, path)
+    }
 }
 
 export const unWatchEvent = (firebase, dispatch, event, path, ConnectId, isSkipClean=false) => {
