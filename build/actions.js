@@ -13,6 +13,8 @@ var _isString2 = require('lodash/isString');
 
 var _isString3 = _interopRequireDefault(_isString2);
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _constants = require('./constants');
 
 var _es6Promise = require('es6-promise');
@@ -170,299 +172,309 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
     var setFunc = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : undefined;
     var setOptions = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : undefined;
 
-    var isNewQuery = path.includes('#');
-    var isNewSet = setOptions !== undefined;
-    var queryParams = [];
 
-    if (isNewQuery) {
-        var pathSplitted = path.split('#');
-        path = pathSplitted[0];
-        queryParams = pathSplitted[1].split('&');
-    }
+    if (path) {
+        var _ret = function () {
 
-    var watchPath = path;
-    var counter = getWatcherCount(firebase, event, watchPath);
+            var isNewQuery = path.includes('#');
+            var isNewSet = setOptions !== undefined;
+            var queryParams = [];
 
-    if (counter > 0) {
-        if (isNewQuery || isNewSet) {
-            unsetWatcher(firebase, dispatch, event, path, ConnectId, false, isNewQuery || isNewSet);
-        } else {
-            setWatcher(firebase, event, watchPath, ConnectId);
-            return;
-        }
-    }
+            if (isNewQuery) {
+                var pathSplitted = path.split('#');
+                path = pathSplitted[0];
+                queryParams = pathSplitted[1].split('&');
+            }
 
-    setWatcher(firebase, event, watchPath, ConnectId);
+            var watchPath = path;
+            var counter = getWatcherCount(firebase, event, watchPath);
 
-    var query = firebase.database().ref().child(path);
-
-    if (isNewQuery) {
-        (function () {
-            var doNotParse = false;
-
-            queryParams.forEach(function (param) {
-                param = param.split('=');
-                switch (param[0]) {
-                    case 'doNotParse':
-                        doNotParse = true;
-                        break;
-                    case 'orderByValue':
-                        query = query.orderByValue();
-                        doNotParse = true;
-                        break;
-                    case 'orderByPriority':
-                        query = query.orderByPriority();
-                        doNotParse = true;
-                        break;
-                    case 'orderByKey':
-                        query = query.orderByKey();
-                        doNotParse = true;
-                        break;
-                    case 'orderByChild':
-                        query = query.orderByChild(param[1]);
-                        break;
-                    case 'limitToFirst':
-                        query = query.limitToFirst(parseInt(param[1]));
-                        break;
-                    case 'limitToLast':
-                        query = query.limitToLast(parseInt(param[1]));
-                        break;
-                    case 'equalTo':
-                        var equalToParam = !doNotParse && isNumeric(param[1]) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1];
-                        equalToParam = equalToParam === 'null' ? null : equalToParam;
-                        query = param.length === 3 ? query.equalTo(equalToParam, param[2]) : query.equalTo(equalToParam);
-                        break;
-                    case 'startAt':
-                        var startAtParam = !doNotParse && isNumeric(param[1]) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1];
-                        startAtParam = startAtParam === 'null' ? null : startAtParam;
-                        query = param.length === 3 ? query.startAt(startAtParam, param[2]) : query.startAt(startAtParam);
-                        break;
-                    case 'endAt':
-                        var endAtParam = !doNotParse && isNumeric(param[1]) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1];
-                        endAtParam = endAtParam === 'null' ? null : endAtParam;
-                        query = param.length === 3 ? query.endAt(endAtParam, param[2]) : query.endAt(endAtParam);
-                        break;
-                    default:
-                        break;
-                }
-            });
-        })();
-    }
-
-    var runQuery = function runQuery(q, e, p) {
-        dispatch({
-            type: _constants.START,
-            timestamp: Date.now(),
-            requesting: true,
-            requested: false,
-            path: path
-        });
-
-        var aggregationId = getWatchPath('child_aggregation', path);
-
-        if (e === 'once') {
-            q.once('value').then(function (snapshot) {
-                cleanOnceWatcher(firebase, dispatch, event, watchPath, ConnectId);
-                if (snapshot.val() !== null) {
-                    if (setFunc) {
-                        setFunc(snapshot, 'value', dispatch, setOptions);
-                        dispatch({
-                            type: _constants.SET_REQUESTED,
-                            path: p,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting: false,
-                            requested: true
-                        });
-                    } else {
-                        dispatch({
-                            type: _constants.SET,
-                            path: p,
-                            data: snapshot.val(),
-                            snapshot: Object.assign(snapshot, { _event: 'value' }),
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting: false,
-                            requested: true,
-                            isChild: false,
-                            isMixSnapshot: false,
-                            isMergeDeep: false
-                        });
-                    }
-                }
-            }, dispatchPermissionDeniedError);
-        } else if (e === 'child_added' && isListenOnlyOnDelta) {
-            (function () {
-                var newItems = false;
-
-                q.on(e, function (snapshot) {
-                    if (!newItems) return;
-
-                    var tempSnapshot = Object.assign(snapshot, { _event: e });
-
-                    if (isAggregation) {
-                        if (!firebase._.timeouts[aggregationId]) {
-                            firebase._.aggregatedData[aggregationId] = {};
-                            firebase._.aggregatedSnapshot[aggregationId] = {};
-                            firebase._.timeouts[aggregationId] = setTimeout(function () {
-                                dispatchBulk(p, aggregationId);
-                            }, 1000);
-                        }
-
-                        firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val();
-                        firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
-                    } else {
-                        if (setFunc) {
-                            setFunc(snapshot, 'child_added', dispatch, setOptions);
-                            dispatch({
-                                type: _constants.SET_REQUESTED,
-                                path: p,
-                                key: snapshot.key,
-                                timestamp: Date.now(),
-                                requesting: false,
-                                requested: true
-                            });
-                        } else {
-                            dispatch({
-                                type: _constants.SET,
-                                path: p,
-                                data: snapshot.val(),
-                                snapshot: tempSnapshot,
-                                key: snapshot.key,
-                                timestamp: Date.now(),
-                                requesting: false,
-                                requested: true,
-                                isChild: true,
-                                isMixSnapshot: true,
-                                isMergeDeep: false
-                            });
-                        }
-                    }
-                }, dispatchPermissionDeniedError);
-
-                q.once('value').then(function (snapshot) {
-                    newItems = true;
-                    if (snapshot.val() !== null) {
-                        if (setFunc) {
-                            setFunc(snapshot, 'value', dispatch, setOptions);
-                            dispatch({
-                                type: _constants.SET_REQUESTED,
-                                path: p,
-                                key: snapshot.key,
-                                timestamp: Date.now(),
-                                requesting: false,
-                                requested: true
-                            });
-                        } else {
-                            dispatch({
-                                type: _constants.SET,
-                                path: p,
-                                data: snapshot.val(),
-                                snapshot: Object.assign(snapshot, { _event: 'value' }),
-                                key: snapshot.key,
-                                timestamp: Date.now(),
-                                requesting: false,
-                                requested: true,
-                                isChild: false,
-                                isMixSnapshot: true,
-                                isMergeDeep: false
-                            });
-                        }
-                    }
-                }, dispatchPermissionDeniedError);
-            })();
-        } else {
-            q.on(e, function (snapshot) {
-                var data = e === 'child_removed' ? '_child_removed' : snapshot.val();
-                var tempSnapshot = Object.assign(snapshot, { _event: e });
-
-                if (e !== 'value' && isAggregation) {
-                    if (!firebase._.timeouts[aggregationId]) {
-                        firebase._.aggregatedData[aggregationId] = {};
-                        firebase._.aggregatedSnapshot[aggregationId] = {};
-                        firebase._.timeouts[aggregationId] = setTimeout(function () {
-                            dispatchBulk(p, aggregationId);
-                        }, 1000);
-                    }
-
-                    firebase._.aggregatedData[aggregationId][snapshot.key] = data;
-                    firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
+            if (counter > 0) {
+                if (isNewQuery || isNewSet) {
+                    unsetWatcher(firebase, dispatch, event, path, ConnectId, false, isNewQuery || isNewSet);
                 } else {
-                    if (setFunc) {
-                        setFunc(tempSnapshot, e, dispatch, setOptions);
-                    } else {
-                        dispatch({
-                            type: _constants.SET,
-                            path: p,
-                            data: data,
-                            snapshot: tempSnapshot,
-                            key: snapshot.key,
-                            timestamp: Date.now(),
-                            requesting: false,
-                            requested: true,
-                            isChild: e !== 'value',
-                            isMixSnapshot: isListenOnlyOnDelta,
-                            isMergeDeep: false
-                        });
-                    }
+                    setWatcher(firebase, event, watchPath, ConnectId);
+                    return {
+                        v: void 0
+                    };
                 }
-            }, function (permError) {
-                return dispatchPermissionDeniedError(permError, p);
-            });
-        }
-    };
+            }
 
-    var dispatchBulk = function dispatchBulk(p, aggregationId) {
-        if (setFunc) {
-            setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch, setOptions);
-            dispatch({
-                type: _constants.SET_REQUESTED,
-                path: p,
-                key: '_NONE',
-                timestamp: Date.now(),
-                requesting: false,
-                requested: true
-            });
-        } else {
-            dispatch({
-                type: _constants.SET,
-                path: p,
-                data: firebase._.aggregatedData[aggregationId],
-                snapshot: firebase._.aggregatedSnapshot[aggregationId],
-                key: '_NONE',
-                timestamp: Date.now(),
-                requesting: false,
-                requested: true,
-                isChild: false,
-                isMixSnapshot: true,
-                isMergeDeep: true
-            });
-        }
+            setWatcher(firebase, event, watchPath, ConnectId);
 
-        firebase._.timeouts[aggregationId] = undefined;
-    };
+            var query = firebase.database().ref().child(path);
 
-    var dispatchPermissionDeniedError = function dispatchPermissionDeniedError(permError, p) {
-        if (permError && permError.code === 'PERMISSION_DENIED' && permError.message && !permError.message.includes('undefined')) {
+            if (isNewQuery) {
+                (function () {
+                    var doNotParse = false;
 
-            dispatch({
-                type: _constants.PERMISSION_DENIED_ERROR,
-                data: undefined,
-                snapshot: { val: function val() {
-                        return undefined;
-                    } },
-                path: p,
-                timestamp: Date.now(),
-                requesting: false,
-                requested: true,
-                permError: permError
-            });
-        }
+                    queryParams.forEach(function (param) {
+                        param = param.split('=');
+                        switch (param[0]) {
+                            case 'doNotParse':
+                                doNotParse = true;
+                                break;
+                            case 'orderByValue':
+                                query = query.orderByValue();
+                                doNotParse = true;
+                                break;
+                            case 'orderByPriority':
+                                query = query.orderByPriority();
+                                doNotParse = true;
+                                break;
+                            case 'orderByKey':
+                                query = query.orderByKey();
+                                doNotParse = true;
+                                break;
+                            case 'orderByChild':
+                                query = query.orderByChild(param[1]);
+                                break;
+                            case 'limitToFirst':
+                                query = query.limitToFirst(parseInt(param[1]));
+                                break;
+                            case 'limitToLast':
+                                query = query.limitToLast(parseInt(param[1]));
+                                break;
+                            case 'equalTo':
+                                var equalToParam = !doNotParse && isNumeric(param[1]) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1];
+                                equalToParam = equalToParam === 'null' ? null : equalToParam;
+                                query = param.length === 3 ? query.equalTo(equalToParam, param[2]) : query.equalTo(equalToParam);
+                                break;
+                            case 'startAt':
+                                var startAtParam = !doNotParse && isNumeric(param[1]) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1];
+                                startAtParam = startAtParam === 'null' ? null : startAtParam;
+                                query = param.length === 3 ? query.startAt(startAtParam, param[2]) : query.startAt(startAtParam);
+                                break;
+                            case 'endAt':
+                                var endAtParam = !doNotParse && isNumeric(param[1]) ? parseFloat(param[1]) || (param[1] === '0' ? 0 : param[1]) : param[1];
+                                endAtParam = endAtParam === 'null' ? null : endAtParam;
+                                query = param.length === 3 ? query.endAt(endAtParam, param[2]) : query.endAt(endAtParam);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                })();
+            }
 
-        throw permError;
-    };
+            var runQuery = function runQuery(q, e, p) {
+                dispatch({
+                    type: _constants.START,
+                    timestamp: Date.now(),
+                    requesting: true,
+                    requested: false,
+                    path: path
+                });
 
-    runQuery(query, event, path);
+                var aggregationId = getWatchPath('child_aggregation', path);
+
+                if (e === 'once') {
+                    q.once('value').then(function (snapshot) {
+                        cleanOnceWatcher(firebase, dispatch, event, watchPath, ConnectId);
+                        if (snapshot.val() !== null) {
+                            if (setFunc) {
+                                setFunc(snapshot, 'value', dispatch, setOptions);
+                                dispatch({
+                                    type: _constants.SET_REQUESTED,
+                                    path: p,
+                                    key: snapshot.key,
+                                    timestamp: Date.now(),
+                                    requesting: false,
+                                    requested: true
+                                });
+                            } else {
+                                dispatch({
+                                    type: _constants.SET,
+                                    path: p,
+                                    data: snapshot.val(),
+                                    snapshot: Object.assign(snapshot, { _event: 'value' }),
+                                    key: snapshot.key,
+                                    timestamp: Date.now(),
+                                    requesting: false,
+                                    requested: true,
+                                    isChild: false,
+                                    isMixSnapshot: false,
+                                    isMergeDeep: false
+                                });
+                            }
+                        }
+                    }, dispatchPermissionDeniedError);
+                } else if (e === 'child_added' && isListenOnlyOnDelta) {
+                    (function () {
+                        var newItems = false;
+
+                        q.on(e, function (snapshot) {
+                            if (!newItems) return;
+
+                            var tempSnapshot = Object.assign(snapshot, { _event: e });
+
+                            if (isAggregation) {
+                                if (!firebase._.timeouts[aggregationId]) {
+                                    firebase._.aggregatedData[aggregationId] = {};
+                                    firebase._.aggregatedSnapshot[aggregationId] = {};
+                                    firebase._.timeouts[aggregationId] = setTimeout(function () {
+                                        dispatchBulk(p, aggregationId);
+                                    }, 1000);
+                                }
+
+                                firebase._.aggregatedData[aggregationId][snapshot.key] = snapshot.val();
+                                firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
+                            } else {
+                                if (setFunc) {
+                                    setFunc(snapshot, 'child_added', dispatch, setOptions);
+                                    dispatch({
+                                        type: _constants.SET_REQUESTED,
+                                        path: p,
+                                        key: snapshot.key,
+                                        timestamp: Date.now(),
+                                        requesting: false,
+                                        requested: true
+                                    });
+                                } else {
+                                    dispatch({
+                                        type: _constants.SET,
+                                        path: p,
+                                        data: snapshot.val(),
+                                        snapshot: tempSnapshot,
+                                        key: snapshot.key,
+                                        timestamp: Date.now(),
+                                        requesting: false,
+                                        requested: true,
+                                        isChild: true,
+                                        isMixSnapshot: true,
+                                        isMergeDeep: false
+                                    });
+                                }
+                            }
+                        }, dispatchPermissionDeniedError);
+
+                        q.once('value').then(function (snapshot) {
+                            newItems = true;
+                            if (snapshot.val() !== null) {
+                                if (setFunc) {
+                                    setFunc(snapshot, 'value', dispatch, setOptions);
+                                    dispatch({
+                                        type: _constants.SET_REQUESTED,
+                                        path: p,
+                                        key: snapshot.key,
+                                        timestamp: Date.now(),
+                                        requesting: false,
+                                        requested: true
+                                    });
+                                } else {
+                                    dispatch({
+                                        type: _constants.SET,
+                                        path: p,
+                                        data: snapshot.val(),
+                                        snapshot: Object.assign(snapshot, { _event: 'value' }),
+                                        key: snapshot.key,
+                                        timestamp: Date.now(),
+                                        requesting: false,
+                                        requested: true,
+                                        isChild: false,
+                                        isMixSnapshot: true,
+                                        isMergeDeep: false
+                                    });
+                                }
+                            }
+                        }, dispatchPermissionDeniedError);
+                    })();
+                } else {
+                    q.on(e, function (snapshot) {
+                        var data = e === 'child_removed' ? '_child_removed' : snapshot.val();
+                        var tempSnapshot = Object.assign(snapshot, { _event: e });
+
+                        if (e !== 'value' && isAggregation) {
+                            if (!firebase._.timeouts[aggregationId]) {
+                                firebase._.aggregatedData[aggregationId] = {};
+                                firebase._.aggregatedSnapshot[aggregationId] = {};
+                                firebase._.timeouts[aggregationId] = setTimeout(function () {
+                                    dispatchBulk(p, aggregationId);
+                                }, 1000);
+                            }
+
+                            firebase._.aggregatedData[aggregationId][snapshot.key] = data;
+                            firebase._.aggregatedSnapshot[aggregationId][snapshot.key] = tempSnapshot;
+                        } else {
+                            if (setFunc) {
+                                setFunc(tempSnapshot, e, dispatch, setOptions);
+                            } else {
+                                dispatch({
+                                    type: _constants.SET,
+                                    path: p,
+                                    data: data,
+                                    snapshot: tempSnapshot,
+                                    key: snapshot.key,
+                                    timestamp: Date.now(),
+                                    requesting: false,
+                                    requested: true,
+                                    isChild: e !== 'value',
+                                    isMixSnapshot: isListenOnlyOnDelta,
+                                    isMergeDeep: false
+                                });
+                            }
+                        }
+                    }, function (permError) {
+                        return dispatchPermissionDeniedError(permError, p);
+                    });
+                }
+            };
+
+            var dispatchBulk = function dispatchBulk(p, aggregationId) {
+                if (setFunc) {
+                    setFunc(firebase._.aggregatedSnapshot[aggregationId], 'aggregated', dispatch, setOptions);
+                    dispatch({
+                        type: _constants.SET_REQUESTED,
+                        path: p,
+                        key: '_NONE',
+                        timestamp: Date.now(),
+                        requesting: false,
+                        requested: true
+                    });
+                } else {
+                    dispatch({
+                        type: _constants.SET,
+                        path: p,
+                        data: firebase._.aggregatedData[aggregationId],
+                        snapshot: firebase._.aggregatedSnapshot[aggregationId],
+                        key: '_NONE',
+                        timestamp: Date.now(),
+                        requesting: false,
+                        requested: true,
+                        isChild: false,
+                        isMixSnapshot: true,
+                        isMergeDeep: true
+                    });
+                }
+
+                firebase._.timeouts[aggregationId] = undefined;
+            };
+
+            var dispatchPermissionDeniedError = function dispatchPermissionDeniedError(permError, p) {
+                if (permError && permError.code === 'PERMISSION_DENIED' && permError.message && !permError.message.includes('undefined')) {
+
+                    dispatch({
+                        type: _constants.PERMISSION_DENIED_ERROR,
+                        data: undefined,
+                        snapshot: { val: function val() {
+                                return undefined;
+                            } },
+                        path: p,
+                        timestamp: Date.now(),
+                        requesting: false,
+                        requested: true,
+                        permError: permError
+                    });
+                }
+
+                throw permError;
+            };
+
+            runQuery(query, event, path);
+        }();
+
+        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+    }
 };
 
 var unWatchEvent = exports.unWatchEvent = function unWatchEvent(firebase, dispatch, event, path, ConnectId) {
