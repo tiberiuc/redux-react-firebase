@@ -1,4 +1,8 @@
-import Firebase from 'firebase'
+import * as Firebase from 'firebase/app';
+
+import 'firebase/auth';
+import 'firebase/database';
+
 import * as Actions from './actions'
 
 export default (config) => {
