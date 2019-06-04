@@ -10,7 +10,8 @@ const defaultEvent = {
     setFunc: undefined,
     setOptions: undefined,
     isAggregation: false,
-    isSkipClean: false
+    isSkipClean: false,
+    isSkipCleanOnUnmount: false,
 }
 
 const fixPath = (path) =>  ((path.substring(0,1) == '/') ? '': '/') + path
@@ -20,23 +21,23 @@ const ensureCallable = maybeFn =>
 
 const flatMap = arr => (arr && arr.length) ? arr.reduce((a, b) => a.concat(b)) : []
 
-const createEvents = ({type, path, isSkipClean=false, isListenOnlyOnDelta=false,
-    isAggregation=false, setFunc=undefined, setOptions=undefined}) => {
+const createEvents = ({type, path, isSkipClean=false, isSkipCleanOnUnmount=false,
+    isListenOnlyOnDelta=false, isAggregation=false, setFunc=undefined, setOptions=undefined}) => {
     switch (type) {
 
         case 'value':
-            return [{name: 'value', path, isSkipClean, setFunc, setOptions}]
+            return [{name: 'value', path, isSkipClean, isSkipCleanOnUnmount, setFunc, setOptions}]
 
         case 'once':
-            return [{name: 'once', path, isSkipClean, setFunc, setOptions}]
+            return [{name: 'once', path, isSkipClean, isSkipCleanOnUnmount, setFunc, setOptions}]
 
         case 'all':
             return [
                 //{name: 'first_child', path},
-                {name: 'child_added', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc, setOptions},
-                {name: 'child_removed', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc, setOptions},
-                {name: 'child_moved', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc, setOptions},
-                {name: 'child_changed', path, isSkipClean, isListenOnlyOnDelta, isAggregation, setFunc, setOptions}
+                {name: 'child_added', path, isSkipClean, isSkipCleanOnUnmount, isListenOnlyOnDelta, isAggregation, setFunc, setOptions},
+                {name: 'child_removed', path, isSkipClean, isSkipCleanOnUnmount, isListenOnlyOnDelta, isAggregation, setFunc, setOptions},
+                {name: 'child_moved', path, isSkipClean, isSkipCleanOnUnmount, isListenOnlyOnDelta, isAggregation, setFunc, setOptions},
+                {name: 'child_changed', path, isSkipClean, isSkipCleanOnUnmount, isListenOnlyOnDelta, isAggregation, setFunc, setOptions}
             ]
 
         default:
@@ -59,16 +60,16 @@ const getEventsFromDefinition = def => flatMap(def.map(path => {
         const type = path.type || 'value'
         switch (type) {
             case 'value':
-                return createEvents(transformEvent({ path: path.path, isSkipClean:!!path.isSkipClean, setFunc:path.setFunc, setOptions:path.setOptions}))
+                return createEvents(transformEvent({ path: path.path, isSkipClean:!!path.isSkipClean, isSkipCleanOnUnmount:!!path.isSkipCleanOnUnmount, setFunc:path.setFunc, setOptions:path.setOptions}))
 
             case 'once':
-                return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean:!!path.isSkipClean, setFunc:path.setFunc, setOptions:path.setOptions }))
+                return createEvents(transformEvent({ type: 'once', path: path.path, isSkipClean:!!path.isSkipClean, isSkipCleanOnUnmount:!!path.isSkipCleanOnUnmount, setFunc:path.setFunc, setOptions:path.setOptions }))
 
             case 'array':
             case 'all':
                 return createEvents(transformEvent({ type: 'all', path: path.path, isSkipClean:!!path.isSkipClean,
-                    isListenOnlyOnDelta:!!path.isListenOnlyOnDelta, isAggregation:!!path.isAggregation,
-                    setFunc:path.setFunc, setOptions:path.setOptions }))
+                    isSkipCleanOnUnmount:!!path.isSkipCleanOnUnmount, isListenOnlyOnDelta:!!path.isListenOnlyOnDelta,
+                    isAggregation:!!path.isAggregation, setFunc:path.setFunc, setOptions:path.setOptions }))
         }
     }
 
@@ -143,7 +144,7 @@ export default (dataOrFn = []) => WrappedComponent => {
                 let oldPaths = differenceBy(this._pathsToListen, newPathsToListen, (a)=>{
                     let ret = a;
                     if (typeof a === 'object') {
-                        ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean
+                        ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean + a.isSkipCleanOnUnmount
                     }
 
                     return ret
@@ -151,7 +152,7 @@ export default (dataOrFn = []) => WrappedComponent => {
                 let newPaths = differenceBy(newPathsToListen, this._pathsToListen, (a)=>{
                     let ret = a;
                     if (typeof a === 'object') {
-                        ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean
+                        ret = a.path + a.type + a.isListenOnlyOnDelta + a.isAggregation + a.isSkipClean + a.isSkipCleanOnUnmount
                     }
 
                     return ret
