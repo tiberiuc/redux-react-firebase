@@ -4,17 +4,19 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _firebase = require('firebase');
+var _app = require('firebase/app');
 
-var _firebase2 = _interopRequireDefault(_firebase);
+var Firebase = _interopRequireWildcard(_app);
+
+require('firebase/auth');
+
+require('firebase/database');
 
 var _actions = require('./actions');
 
 var Actions = _interopRequireWildcard(_actions);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function (config) {
     return function (next) {
@@ -28,16 +30,16 @@ exports.default = function (config) {
 
 
             try {
-                _firebase2.default.initializeApp(config);
+                Firebase.initializeApp(config);
             } catch (err) {
                 console.warn('Firebase error:', err);
             }
 
-            var ref = _firebase2.default.database().ref();
+            var ref = Firebase.database().ref();
 
             var configs = Object.assign({}, defaultConfig, config);
 
-            var firebase = Object.defineProperty(_firebase2.default, '_', {
+            var firebase = Object.defineProperty(Firebase, '_', {
                 value: {
                     watchers: {},
                     shouldClearAfterOnce: {},
