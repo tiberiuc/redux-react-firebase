@@ -33,7 +33,7 @@
     "lodash": "^4.17.2"
   },
   "peerDependencies": {
-    "firebase": "^3.1.0",
+    "firebase": "^4.6.0",
     "immutable": "^3.7.6",
     "lodash": "^4.13.1",
     "react": "^0.14.6 || ^15.0.0 || ^16.0.0",
