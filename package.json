@@ -1,6 +1,6 @@
 {
   "name": "redux-react-firebase",
-  "version": "2.11.0",
+  "version": "2.11.1",
   "description": "Use Firebase with React and Redux in ES6 ",
   "main": "build/index.js",
   "scripts": {
