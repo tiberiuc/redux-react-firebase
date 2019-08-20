@@ -275,7 +275,7 @@ exports.default = function () {
             }]);
 
             return FirebaseConnect;
-        }(_react.Component), _class.contextTypes = {
+        }(_react.Component), _class.WrappedComponent = WrappedComponent, _class.contextTypes = {
             store: _propTypes2.default.object.isRequired
         }, _temp);
 
