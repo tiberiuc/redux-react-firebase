@@ -98,6 +98,8 @@ const __guid = () => {
 export default (dataOrFn = []) => WrappedComponent => {
     class FirebaseConnect extends Component {
 
+        static WrappedComponent = WrappedComponent;
+
         constructor (props, context) {
             super(props, context)
             this._firebaseEvents = []
